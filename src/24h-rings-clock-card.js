@@ -1,0 +1,482 @@
+class Clock24HourCard extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.clockInterval = null;
+        this.updateClock = this.updateClock.bind(this);
+        this.updateSunMarkers = this.updateSunMarkers.bind(this);
+    }
+
+    setConfig(config) {
+        this.config = config;
+        this.ranges = config.ranges || [];
+        this.sunEntity = config.sun_entity || 'sun.sun';
+        this.render();
+    }
+
+    set hass(hass) {
+        this._hass = hass;
+        this.updateClock();
+        this.updateSunMarkers();
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            <style>
+                :host {
+                    display: block;
+                    background: var(--card-background-color, #fff);
+                    border-radius: var(--ha-card-border-radius, 12px);
+                    box-shadow: var(--ha-card-box-shadow, 0 2px 8px rgba(0,0,0,0.1));
+                    padding: 20px;
+                    font-family: var(--paper-font-body1_-_font-family);
+                    color: var(--primary-text-color);
+                }
+
+                .card-header {
+                    font-size: 1.2em;
+                    font-weight: 500;
+                    margin-bottom: 16px;
+                    text-align: center;
+                    color: inherit;
+                }
+
+                .clock-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    width: 100%;
+                }
+
+                .clock {
+                    width: 400px;
+                    height: 400px;
+                    border-radius: 50%;
+                    background: var(--card-background-color, #fff);
+                    border: 2px solid var(--divider-color, #e0e0e0);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    position: relative;
+                    margin: 0 auto;
+                    flex-shrink: 0;
+                }
+
+                .clock-face {
+                    width: 380px;
+                    height: 380px;
+                    border-radius: 50%;
+                    position: relative;
+                    background: var(--card-background-color, #fff);
+                }
+
+                .hour-marker {
+                    position: absolute;
+                    width: 2px;
+                    height: 10px;
+                    background: var(--secondary-text-color, #666);
+                    left: 50%;
+                    top: 5px;
+                    transform-origin: 50% 185px;
+                    transform: translateX(-50%);
+                }
+
+                .hour-marker.major {
+                    width: 3px;
+                    height: 20px;
+                    background: var(--primary-text-color, #333);
+                    top: 5px;
+                }
+
+                .hour-number {
+                    position: absolute;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: var(--primary-text-color, #333);
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    left: 50%;
+                    top: 30px;
+                    transform-origin: 50% 160px;
+                    transform: translateX(-50%);
+                    user-select: none;
+                }
+
+                .hour-number span {
+                    display: block;
+                    width: 100%;
+                    text-align: center;
+                }
+
+                .circle1, .circle2, .circle3, .circle4 {
+                    position: absolute;
+                    border-radius: 50%;
+                    border: 1px dashed var(--divider-color, #e0e0e0);
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                }
+
+                .circle1 { width: 250px; height: 250px; }
+                .circle2 { width: 230px; height: 230px; }
+                .circle3 { width: 210px; height: 210px; }
+                .circle4 { width: 190px; height: 190px; }
+
+                .arc {
+                    position: absolute;
+                    border-radius: 50%;
+                    border: 5px solid transparent;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
+                    -webkit-mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
+                }
+
+                .arc.circle1 { width: 345px; height: 345px; }
+                .arc.circle2 { width: 320px; height: 320px; }
+                .arc.circle3 { width: 290px; height: 290px; }
+                .arc.circle4 { width: 260px; height: 260px; }
+
+                .hour-hand {
+                    position: absolute;
+                    width: 6px;
+                    height: 100px;
+                    background: var(--accent-color, #03a9f4);
+                    left: 50%;
+                    top: 50%;
+                    transform-origin: 50% 100%;
+                    transform: translateX(-50%) translateY(-100%);
+                    border-radius: 3px;
+                    transition: transform 0.1s linear;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                }
+
+                .center-dot {
+                    position: absolute;
+                    width: 12px;
+                    height: 12px;
+                    background: var(--accent-color, #03a9f4);
+                    border-radius: 50%;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+                }
+
+                .sun-marker {
+                    position: absolute;
+                    font-size: 16px;
+                    color: var(--accent-color, #FFA500);
+                    left: 50%;
+                    top: 5px;
+                    transform-origin: 50% 185px;
+                    transform: translateX(-50%);
+                    font-weight: bold;
+                    pointer-events: none;
+                    background: var(--card-background-color, #fff);
+                    border-radius: 50%;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+                }
+
+                .sun-marker span {
+                    display: block;
+                    transform: translateY(1px);
+                }
+
+                @media (max-width: 480px) {
+                    .clock {
+                        width: 300px;
+                        height: 300px;
+                    }
+                    
+                    .clock-face {
+                        width: 280px;
+                        height: 280px;
+                    }
+                    
+                    .hour-number {
+                        font-size: 11px;
+                        transform-origin: 50% 115px;
+                        top: 25px;
+                    }
+                    
+                    .hour-hand {
+                        height: 70px;
+                    }
+
+                    .hour-marker {
+                        transform-origin: 50% 135px;
+                        height: 8px;
+                    }
+
+                    .hour-marker.major {
+                        transform-origin: 50% 135px;
+                        height: 15px;
+                    }
+
+                    .circle1, .arc.circle1 { width: 200px; height: 200px; }
+                    .circle2, .arc.circle2 { width: 180px; height: 180px; }
+                    .circle3, .arc.circle3 { width: 160px; height: 160px; }
+                    .circle4, .arc.circle4 { width: 140px; height: 140px; }
+
+                    .sun-marker {
+                        transform-origin: 50% 135px;
+                        font-size: 14px;
+                        width: 18px;
+                        height: 18px;
+                    }
+                }
+            </style>
+            
+            ${this.config.title ? `<div class="card-header">${this.config.title}</div>` : ''}
+            <div class="clock-container">
+                <div class="clock">
+                    <div class="clock-face" id="clockFace">
+                        <div class="circle1"></div>
+                        <div class="circle2"></div>
+                        <div class="circle3"></div>
+                        <div class="circle4"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        this.clockFace = this.shadowRoot.getElementById('clockFace');
+
+        this.createHourMarkers();
+        this.createArcs();
+        this.createSunMarkers();
+        this.createHourHandAndCenterDot();
+    }
+
+    createHourMarkers() {
+        const fragment = document.createDocumentFragment();
+        for (let hour = 0; hour < 24; hour++) {
+            const marker = document.createElement('div');
+            marker.className = hour % 6 === 0 ? 'hour-marker major' : 'hour-marker';
+            marker.style.transform = `translateX(-50%) rotate(${hour * 15}deg)`;
+            fragment.appendChild(marker);
+
+            const hourNumber = document.createElement('div');
+            hourNumber.className = 'hour-number';
+            hourNumber.style.transform = `translateX(-50%) rotate(${hour * 15}deg)`;
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = hour.toString().padStart(2, '0');
+            textSpan.style.transform = `rotate(${-hour * 15}deg)`;
+
+            hourNumber.appendChild(textSpan);
+            fragment.appendChild(hourNumber);
+        }
+        this.clockFace.appendChild(fragment);
+    }
+
+    createArcs() {
+        this.arcElements = [];
+        const fragment = document.createDocumentFragment();
+
+        this.ranges.forEach((range, index) => {
+            const arc = document.createElement('div');
+            arc.className = `arc ${range.circle || 'circle1'}`;
+            arc.id = `arc-${index}`;
+            fragment.appendChild(arc);
+            this.arcElements.push({ element: arc, range: range });
+            this.updateArc(arc, range);
+        });
+        this.clockFace.appendChild(fragment);
+    }
+
+    createSunMarkers() {
+        this.sunriseMarker = document.createElement('div');
+        this.sunriseMarker.className = 'sun-marker';
+        this.sunriseMarker.id = 'sunrise-marker';
+        this.sunriseMarker.innerHTML = '<span>↑</span>';
+        this.clockFace.appendChild(this.sunriseMarker);
+
+        this.sunsetMarker = document.createElement('div');
+        this.sunsetMarker.className = 'sun-marker';
+        this.sunsetMarker.id = 'sunset-marker';
+        this.sunsetMarker.innerHTML = '<span>↓</span>';
+        this.clockFace.appendChild(this.sunsetMarker);
+    }
+
+    createHourHandAndCenterDot() {
+        this.hourHand = document.createElement('div');
+        this.hourHand.className = 'hour-hand';
+        this.hourHand.id = 'hourHand';
+        this.clockFace.appendChild(this.hourHand);
+
+        this.centerDot = document.createElement('div');
+        this.centerDot.className = 'center-dot';
+        this.centerDot.id = 'centerDot';
+        this.clockFace.appendChild(this.centerDot);
+    }
+
+    updateArc(arcElement, range) {
+        const startTime = this.parseTime(range.start_time);
+        const endTime = this.parseTime(range.end_time);
+
+        if (!startTime || !endTime) {
+            arcElement.style.background = 'transparent';
+            return;
+        }
+
+        const startAngle = this.timeToAngle(startTime);
+        let endAngle = this.timeToAngle(endTime);
+
+        if (endAngle < startAngle) {
+            endAngle += 360;
+        }
+
+        const arcLength = endAngle - startAngle;
+
+        const color = range.color || 'var(--accent-color, #03a9f4)';
+
+        arcElement.style.background = `conic-gradient(from ${startAngle}deg, transparent 0deg, ${color} 0deg, ${color} ${arcLength}deg, transparent ${arcLength}deg)`;
+    }
+
+    parseTime(timeInput) {
+        if (!timeInput) return null;
+
+        let timeStr = timeInput;
+
+        if (typeof timeInput === 'string' && timeInput.includes('.')) {
+            const entityState = this._hass?.states[timeInput];
+            if (entityState && entityState.state !== 'unavailable' && entityState.state !== 'unknown') {
+                timeStr = entityState.state;
+            } else {
+                return null;
+            }
+        }
+
+        const parts = timeStr.split(':').map(Number);
+        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            return { hours: parts[0], minutes: parts[1] };
+        }
+
+        return null;
+    }
+
+    timeToAngle(time) {
+        return (time.hours * 15) + (time.minutes * 0.25);
+    }
+
+    updateClock() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        const totalMinutes = hours * 60 + minutes + seconds / 60;
+        const hourAngle = (totalMinutes / (24 * 60)) * 360;
+
+        if (this.hourHand) {
+            this.hourHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${hourAngle}deg)`;
+        }
+
+        if (this._hass) {
+            this.arcElements.forEach(({ element, range }) => {
+                this.updateArc(element, range);
+            });
+        }
+    }
+
+    updateSunMarkers() {
+        if (!this._hass || !this.sunEntity || !this._hass.states[this.sunEntity]) {
+            if (this.sunriseMarker) this.sunriseMarker.style.display = 'none';
+            if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
+            return;
+        }
+
+        const sunState = this._hass.states[this.sunEntity];
+        const attributes = sunState.attributes;
+
+        if (attributes.next_rising && attributes.next_setting) {
+            const sunrise = new Date(attributes.next_rising);
+            const sunset = new Date(attributes.next_setting);
+
+            if (isNaN(sunrise.getTime()) || isNaN(sunset.getTime())) {
+                if (this.sunriseMarker) this.sunriseMarker.style.display = 'none';
+                if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
+                return;
+            }
+
+            if (this.sunriseMarker) this.sunriseMarker.style.display = '';
+            if (this.sunsetMarker) this.sunsetMarker.style.display = '';
+
+            const sunriseAngle = this.dateToAngle(sunrise);
+            const sunsetAngle = this.dateToAngle(sunset);
+
+            if (this.sunriseMarker) {
+                this.sunriseMarker.style.transform = `translateX(-50%) rotate(${sunriseAngle}deg)`;
+                this.sunriseMarker.querySelector('span').style.transform = `rotate(${-sunriseAngle}deg)`;
+            }
+
+            if (this.sunsetMarker) {
+                this.sunsetMarker.style.transform = `translateX(-50%) rotate(${sunsetAngle}deg)`;
+                this.sunsetMarker.querySelector('span').style.transform = `rotate(${-sunsetAngle}deg)`;
+            }
+        } else {
+            if (this.sunriseMarker) this.sunriseMarker.style.display = 'none';
+            if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
+        }
+    }
+
+    dateToAngle(date) {
+        return this.timeToAngle({ hours: date.getHours(), minutes: date.getMinutes() });
+    }
+
+
+
+    disconnectedCallback() {
+        if (this.clockInterval) {
+            clearInterval(this.clockInterval);
+            this.clockInterval = null;
+        }
+    }
+
+    static getStubConfig() {
+        return {
+            title: '24-Hour Clock',
+            sun_entity: 'sun.sun',
+            ranges: [
+                {
+                    start_time: 'input_datetime.start_time',
+                    end_time: 'input_datetime.end_time',
+                    circle: 'circle1',
+                    color: '#03a9f4'
+                },
+                {
+                    start_time: '06:00',
+                    end_time: '18:00',
+                    circle: 'circle2',
+                    color: '#FFD700'
+                }
+            ]
+        };
+    }
+}
+
+customElements.define('clock-24hour-card', Clock24HourCard);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: 'clock-24hour-card',
+    name: '24-Hour Clock Card',
+    description: 'Enhanced 24-hour analog clock with time ranges and more options'
+});
+
+console.info(
+    '%c24-HOUR-CLOCK-CARD %c0.0.0',
+    'color: orange; font-weight: bold; background: black',
+    'color: white; font-weight: bold; background: dimgray',
+);
