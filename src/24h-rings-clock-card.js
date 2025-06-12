@@ -18,7 +18,7 @@ class RingsClockCard extends HTMLElement {
     setConfig(config) {
         this._config = config;
         this.ranges = config.ranges || [];
-        this.sunEntity = config.sun_entity || 'sun.sun';
+        this.sunConfig = config.sun || {};
         this.doRender();
     }
 
@@ -197,6 +197,16 @@ class RingsClockCard extends HTMLElement {
                     display: block;
                     transform: translateY(1px);
                 }
+                
+                .sun-marker ha-icon {
+                    --mdc-icon-size: 18px;
+                    color: inherit; 
+                }
+                
+                .sun-marker span {
+                    display: block;
+                    transform: translateY(1px); 
+                }
 
                 @media (max-width: 480px) {
                     .clock {
@@ -319,19 +329,6 @@ class RingsClockCard extends HTMLElement {
         this._elements.clockFace.appendChild(fragment);
     }
 
-    createSunMarkers() {
-        this.sunriseMarker = document.createElement('div');
-        this.sunriseMarker.className = 'sun-marker';
-        this.sunriseMarker.id = 'sunrise-marker';
-        this.sunriseMarker.innerHTML = '<span>↑</span>';
-        this._elements.clockFace.appendChild(this.sunriseMarker);
-
-        this.sunsetMarker = document.createElement('div');
-        this.sunsetMarker.className = 'sun-marker';
-        this.sunsetMarker.id = 'sunset-marker';
-        this.sunsetMarker.innerHTML = '<span>↓</span>';
-        this._elements.clockFace.appendChild(this.sunsetMarker);
-    }
 
     createHourHandAndCenterDot() {
         this.hourHand = document.createElement('div');
@@ -414,14 +411,48 @@ class RingsClockCard extends HTMLElement {
         }
     }
 
+    createSunMarkers() {
+        const showSunMarkers = this.sunConfig.show !== false;
+
+        if (showSunMarkers) {
+            this.sunriseMarker = document.createElement('div');
+            this.sunriseMarker.className = 'sun-marker';
+            this.sunriseMarker.id = 'sunrise-marker';
+            // Check if sunrise_icon starts with 'mdi:' to use ha-icon, otherwise use span for text/other icons
+            if (this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) {
+                this.sunriseMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunrise_icon}"></ha-icon>`;
+            } else {
+                this.sunriseMarker.innerHTML = `<span>${this.sunConfig.sunrise_icon || '↑'}</span>`;
+            }
+            this._elements.clockFace.appendChild(this.sunriseMarker);
+
+            this.sunsetMarker = document.createElement('div');
+            this.sunsetMarker.className = 'sun-marker';
+            this.sunsetMarker.id = 'sunset-marker';
+            // Check if sunset_icon starts with 'mdi:' to use ha-icon, otherwise use span for text/other icons
+            if (this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) {
+                this.sunsetMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunset_icon}"></ha-icon>`;
+            } else {
+                this.sunsetMarker.innerHTML = `<span>${this.sunConfig.sunset_icon || '↓'}</span>`;
+            }
+            this._elements.clockFace.appendChild(this.sunsetMarker);
+        } else {
+            this.sunriseMarker = null;
+            this.sunsetMarker = null;
+        }
+    }
+
     updateSunMarkers() {
-        if (!this._hass || !this.sunEntity || !this._hass.states[this.sunEntity]) {
+        const showSunMarkers = this.sunConfig.show !== false;
+        const sunEntityId = this.sunConfig.entity || 'sun.sun'; // Use configured entity or default  //todo(hatem): don't process if false
+
+        if (!showSunMarkers || !this._hass || !this._hass.states[sunEntityId]) {
             if (this.sunriseMarker) this.sunriseMarker.style.display = 'none';
             if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
             return;
         }
 
-        const sunState = this._hass.states[this.sunEntity];
+        const sunState = this._hass.states[sunEntityId];
         const attributes = sunState.attributes;
 
         if (attributes.next_rising && attributes.next_setting) {
@@ -434,20 +465,38 @@ class RingsClockCard extends HTMLElement {
                 return;
             }
 
-            if (this.sunriseMarker) this.sunriseMarker.style.display = '';
-            if (this.sunsetMarker) this.sunsetMarker.style.display = '';
+            if (this.sunriseMarker) {
+                this.sunriseMarker.style.display = '';
+                this.sunriseMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)'; // Apply custom color or default
+            }
+            if (this.sunsetMarker) {
+                this.sunsetMarker.style.display = '';
+                this.sunsetMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)'; // Apply custom color or default
+            }
 
             const sunriseAngle = this.dateToAngle(sunrise);
             const sunsetAngle = this.dateToAngle(sunset);
 
             if (this.sunriseMarker) {
                 this.sunriseMarker.style.transform = `translateX(-50%) rotate(${sunriseAngle}deg)`;
-                this.sunriseMarker.querySelector('span').style.transform = `rotate(${-sunriseAngle}deg)`;
+
+                if (this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) {
+                    this.sunriseMarker.querySelector('ha-icon').style.transform = `rotate(${-sunriseAngle}deg)`;
+                } else {
+                    this.sunriseMarker.querySelector('span').style.transform = `rotate(${-sunriseAngle}deg)`;
+                }
+
             }
 
             if (this.sunsetMarker) {
                 this.sunsetMarker.style.transform = `translateX(-50%) rotate(${sunsetAngle}deg)`;
-                this.sunsetMarker.querySelector('span').style.transform = `rotate(${-sunsetAngle}deg)`;
+
+                if (this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) {
+                    this.sunsetMarker.querySelector('ha-icon').style.transform = `rotate(${-sunsetAngle}deg)`;
+                } else {
+                    this.sunsetMarker.querySelector('span').style.transform = `rotate(${-sunsetAngle}deg)`;
+                }
+
             }
         } else {
             if (this.sunriseMarker) this.sunriseMarker.style.display = 'none';
@@ -462,7 +511,15 @@ class RingsClockCard extends HTMLElement {
 
     static getStubConfig() {
         return {
-            title: '24-Hour Rings Clock', sun_entity: 'sun.sun', ranges: [{
+            title: '24-Hour Rings Clock',
+            sun: { 
+                entity: 'sun.sun',
+                show: true,
+                color: '#FFA500', // Example color
+                sunrise_icon: 'mdi:weather-sunny-alert', // Example MDI icon for sunrise
+                sunset_icon: 'mdi:weather-night' // Example MDI icon for sunset
+            },
+            ranges: [{
                 start_time: 'input_datetime.start_time',
                 end_time: 'input_datetime.end_time',
                 ring: 'ring1',
