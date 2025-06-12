@@ -880,7 +880,6 @@ class RingsClockCard extends HTMLElement {
             show_hours: true,
             show_legend: true,
             sun: {
-                entity: 'sun.sun',
                 show: true,
                 color: '#FFA500', // Example color
                 sunrise_icon: 'mdi:weather-sunny-alert', // Example MDI icon for sunrise
