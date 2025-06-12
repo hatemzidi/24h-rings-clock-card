@@ -944,9 +944,7 @@ class RingsClockCard extends HTMLElement {
                 show: true,
                 color: '#FFA500',
                 sunrise_icon: 'mdi:weather-sunny-alert',
-                sunset_icon: 'mdi:weather-night',
-                sunrise_name: 'Sunrise',
-                sunset_name: 'Sunset'
+                sunset_icon: 'mdi:weather-night'
             },
             ranges: [{
                 start_time: 'input_datetime.start_time',
