@@ -1,43 +1,49 @@
-class Clock24HourCard extends HTMLElement {
+class RingsClockCard extends HTMLElement {
+
+    // private properties
+    _config;
+    _hass;
+    _elements = {};
+
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
-        this.clockInterval = null;
+        this.doCard();
+        this.doStyle();
+        this.doAttach();
+        this.doQueryElements();
         this.updateClock = this.updateClock.bind(this);
         this.updateSunMarkers = this.updateSunMarkers.bind(this);
     }
 
     setConfig(config) {
-        this.config = config;
+        this._config = config;
         this.ranges = config.ranges || [];
         this.sunEntity = config.sun_entity || 'sun.sun';
-        this.render();
+        this.doRender();
     }
 
     set hass(hass) {
         this._hass = hass;
+        this.doUpdateConfig()
         this.updateClock();
         this.updateSunMarkers();
     }
 
-    render() {
-        this.shadowRoot.innerHTML = `
-            <style>
-                :host {
-                    display: block;
-                    background: var(--card-background-color, #fff);
-                    border-radius: var(--ha-card-border-radius, 12px);
-                    box-shadow: var(--ha-card-box-shadow, 0 2px 8px rgba(0,0,0,0.1));
+    doAttach() {
+        this.attachShadow({ mode: "open" });
+        this.shadowRoot.append(this._elements.style, this._elements.card);
+    }
+
+    doStyle() {
+        this._elements.style = document.createElement("style");
+        this._elements.style.textContent = `
+                ha-card {
                     padding: 20px;
-                    font-family: var(--paper-font-body1_-_font-family);
-                    color: var(--primary-text-color);
                 }
+                
+                .hidden { display: none; }
 
                 .card-header {
-                    font-size: 1.2em;
-                    font-weight: 500;
-                    margin-bottom: 16px;
-                    text-align: center;
                     color: inherit;
                 }
 
@@ -235,23 +241,41 @@ class Clock24HourCard extends HTMLElement {
                         height: 18px;
                     }
                 }
-            </style>
-            
-            ${this.config.title ? `<div class="card-header">${this.config.title}</div>` : ''}
+            `
+    }
+
+    doCard() {
+        this._elements.card = document.createElement("ha-card");
+        this._elements.card.innerHTML = `         
+            <div class="card-header hidden" id="card-header"></div>
             <div class="clock-container">
                 <div class="clock">
-                    <div class="clock-face" id="clockFace">
-                        <div class="circle1"></div>
-                        <div class="circle2"></div>
-                        <div class="circle3"></div>
-                        <div class="circle4"></div>
+                    <div class="clock-face" id="clock-face">
+                        <div class="ring1"></div>
+                        <div class="ring2"></div>
+                        <div class="ring3"></div>
+                        <div class="ring4"></div>
                     </div>
                 </div>
             </div>
         `;
 
-        this.clockFace = this.shadowRoot.getElementById('clockFace');
+    }
 
+    doQueryElements() {
+        const card = this._elements.card;
+        this._elements.cardTitle = card.querySelector("#card-header");
+        this._elements.clockFace = card.querySelector("#clock-face");
+    }
+
+    doUpdateConfig() {
+        if (this._config.title) {
+            this._elements.cardTitle.textContent = `${this._config.title}`;
+            this._elements.cardTitle.classList.remove("hidden");
+        }
+    }
+
+    doRender() {
         this.createHourMarkers();
         this.createArcs();
         this.createSunMarkers();
@@ -277,7 +301,7 @@ class Clock24HourCard extends HTMLElement {
             hourNumber.appendChild(textSpan);
             fragment.appendChild(hourNumber);
         }
-        this.clockFace.appendChild(fragment);
+        this._elements.clockFace.appendChild(fragment);
     }
 
     createArcs() {
@@ -292,7 +316,7 @@ class Clock24HourCard extends HTMLElement {
             this.arcElements.push({ element: arc, range: range });
             this.updateArc(arc, range);
         });
-        this.clockFace.appendChild(fragment);
+        this._elements.clockFace.appendChild(fragment);
     }
 
     createSunMarkers() {
@@ -300,25 +324,25 @@ class Clock24HourCard extends HTMLElement {
         this.sunriseMarker.className = 'sun-marker';
         this.sunriseMarker.id = 'sunrise-marker';
         this.sunriseMarker.innerHTML = '<span>↑</span>';
-        this.clockFace.appendChild(this.sunriseMarker);
+        this._elements.clockFace.appendChild(this.sunriseMarker);
 
         this.sunsetMarker = document.createElement('div');
         this.sunsetMarker.className = 'sun-marker';
         this.sunsetMarker.id = 'sunset-marker';
         this.sunsetMarker.innerHTML = '<span>↓</span>';
-        this.clockFace.appendChild(this.sunsetMarker);
+        this._elements.clockFace.appendChild(this.sunsetMarker);
     }
 
     createHourHandAndCenterDot() {
         this.hourHand = document.createElement('div');
         this.hourHand.className = 'hour-hand';
         this.hourHand.id = 'hourHand';
-        this.clockFace.appendChild(this.hourHand);
+        this._elements.clockFace.appendChild(this.hourHand);
 
         this.centerDot = document.createElement('div');
         this.centerDot.className = 'center-dot';
         this.centerDot.id = 'centerDot';
-        this.clockFace.appendChild(this.centerDot);
+        this._elements.clockFace.appendChild(this.centerDot);
     }
 
     updateArc(arcElement, range) {
@@ -436,47 +460,32 @@ class Clock24HourCard extends HTMLElement {
     }
 
 
-
-    disconnectedCallback() {
-        if (this.clockInterval) {
-            clearInterval(this.clockInterval);
-            this.clockInterval = null;
-        }
-    }
-
     static getStubConfig() {
         return {
-            title: '24-Hour Clock',
-            sun_entity: 'sun.sun',
-            ranges: [
-                {
-                    start_time: 'input_datetime.start_time',
-                    end_time: 'input_datetime.end_time',
-                    circle: 'circle1',
-                    color: '#03a9f4'
-                },
-                {
-                    start_time: '06:00',
-                    end_time: '18:00',
-                    circle: 'circle2',
-                    color: '#FFD700'
-                }
-            ]
+            title: '24-Hour Rings Clock', sun_entity: 'sun.sun', ranges: [{
+                start_time: 'input_datetime.start_time',
+                end_time: 'input_datetime.end_time',
+                ring: 'ring1',
+                color: '#03a9f4'
+            }, {
+                start_time: '06:00',
+                end_time: '18:00',
+                ring: 'ring2',
+                color: '#FFD700'
+            }]
         };
     }
 }
 
-customElements.define('clock-24hour-card', Clock24HourCard);
+customElements.define('rings-clock-card', RingsClockCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-    type: 'clock-24hour-card',
-    name: '24-Hour Clock Card',
-    description: 'Enhanced 24-hour analog clock with time ranges and more options'
+    type: 'rings-clock-card',
+    name: '24-Hours Rings Clock Card',
+    description: 'Enhanced 24-hours analog clock with time ranges and more options'
 });
 
-console.info(
-    '%c24-HOUR-CLOCK-CARD %c0.0.0',
+console.info('%c24H-RINGS-CLOCK-CARD %c0.0.0',
     'color: orange; font-weight: bold; background: black',
-    'color: white; font-weight: bold; background: dimgray',
-);
+    'color: white; font-weight: bold; background: dimgray',);
