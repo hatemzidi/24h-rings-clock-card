@@ -18,6 +18,7 @@ class RingsClockCard extends HTMLElement {
     setConfig(config) {
         this._config = config;
         this.ranges = config.ranges || [];
+        this.markers = config.markers || [];
         this.sunConfig = config.sun || {};
         this.doRender();
     }
@@ -27,6 +28,7 @@ class RingsClockCard extends HTMLElement {
         this.doUpdateConfig()
         this.updateClock();
         this.updateSunMarkers();
+        this.updateMarkers();
     }
 
     doAttach() {
@@ -207,6 +209,37 @@ class RingsClockCard extends HTMLElement {
                     display: block;
                     transform: translateY(1px); 
                 }
+                
+                .custom-marker {
+                    position: absolute;
+                    font-size: 16px; /* Adjust as needed */
+                    color: var(--primary-text-color, #333); /* Default color */
+                    left: 50%;
+                    top: 5px; /* Same top as sun markers and hour markers */
+                    transform-origin: 50% 185px; /* Same origin as sun markers and hour markers */
+                    transform: translateX(-50%);
+                    font-weight: bold;
+                    pointer-events: none; /* Make it non-interactive */
+                    background: var(--card-background-color, #fff); /* Background similar to sun marker */
+                    border-radius: 50%; /* Make it round */
+                    width: 24px; /* Adjust size */
+                    height: 24px; /* Adjust size */
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Add shadow */
+                }
+
+                .custom-marker span {
+                    display: block;
+                    transform: translateY(1px); /* Fine-tune text alignment */
+                }
+
+                .custom-marker ha-icon {
+                    --mdc-icon-size: 20px; /* Adjust icon size */
+                    color: inherit;
+                }
+
 
                 @media (max-width: 480px) {
                     .clock {
@@ -250,6 +283,16 @@ class RingsClockCard extends HTMLElement {
                         width: 18px;
                         height: 18px;
                     }
+                    
+                    .custom-marker {
+                        transform-origin: 50% 135px; /* Adjust origin for smaller screens */
+                        font-size: 14px;
+                        width: 20px;
+                        height: 20px;
+                    }
+                    .custom-marker ha-icon {
+                        --mdc-icon-size: 16px;
+                    }
                 }
             `
     }
@@ -289,6 +332,7 @@ class RingsClockCard extends HTMLElement {
         this.createHourMarkers();
         this.createArcs();
         this.createSunMarkers();
+        this.createMarkers();
         this.createHourHandAndCenterDot();
     }
 
@@ -411,6 +455,66 @@ class RingsClockCard extends HTMLElement {
         }
     }
 
+
+    createMarkers() {
+        this.markerElements = [];
+        const fragment = document.createDocumentFragment();
+
+        this.markers.forEach((markerConfig, index) => {
+            const markerDiv = document.createElement('div');
+            markerDiv.className = 'custom-marker'; // Add a new class for styling
+            markerDiv.id = `custom-marker-${index}`;
+
+            // Handle icon or name for display
+            if (markerConfig.icon && markerConfig.icon.startsWith('mdi:')) {
+                markerDiv.innerHTML = `<ha-icon icon="${markerConfig.icon}"></ha-icon>`;
+            } else if (markerConfig.icon) {
+                markerDiv.innerHTML = `<span>${markerConfig.icon}</span>`;
+            } else if (markerConfig.name) {
+                markerDiv.innerHTML = `<span>${markerConfig.name}</span>`;
+            } else {
+                markerDiv.innerHTML = `<span>•</span>`; // Default if no icon or name
+            }
+
+            if (markerConfig.color) {
+                markerDiv.style.color = markerConfig.color;
+                // Optional: set background if it's an icon, to make it more visible
+                if (markerConfig.icon) {
+                    markerDiv.style.backgroundColor = 'var(--card-background-color, #fff)';
+                }
+            }
+
+            fragment.appendChild(markerDiv);
+            this.markerElements.push({ element: markerDiv, config: markerConfig });
+        });
+        this._elements.clockFace.appendChild(fragment);
+    }
+
+    updateMarkers() {
+        if (!this.markerElements || this.markerElements.length === 0) {
+            return;
+        }
+
+        this.markerElements.forEach(({ element, config }) => {
+            const time = this.parseTime(config.marker); // Use parseTime for dynamic marker position
+            if (!time) {
+                element.style.display = 'none'; // Hide if time is invalid/unavailable
+                return;
+            }
+
+            element.style.display = ''; // Show if time is valid
+
+            const markerAngle = this.timeToAngle(time);
+            element.style.transform = `translateX(-50%) rotate(${markerAngle}deg)`;
+
+            // Adjust icon/text rotation to remain upright
+            const innerContent = element.querySelector('span') || element.querySelector('ha-icon');
+            if (innerContent) {
+                innerContent.style.transform = `rotate(${-markerAngle}deg)`;
+            }
+        });
+    }
+
     createSunMarkers() {
         const showSunMarkers = this.sunConfig.show !== false;
 
@@ -529,7 +633,27 @@ class RingsClockCard extends HTMLElement {
                 end_time: '18:00',
                 ring: 'ring2',
                 color: '#FFD700'
-            }]
+            }],
+            markers: [
+                {
+                    marker: '12:00',
+                    name: 'Noon',
+                    icon: 'mdi:white-balance-sunny', // Example MDI icon
+                    color: 'gold'
+                },
+                {
+                    marker: '22:30',
+                    name: 'Bed',
+                    icon: 'mdi:bed',
+                    color: 'purple'
+                },
+                {
+                    marker: 'input_datetime.my_custom_marker_time', // Example with an entity
+                    name: 'Event',
+                    icon: 'mdi:calendar-star',
+                    color: 'green'
+                }
+            ],
         };
     }
 }
