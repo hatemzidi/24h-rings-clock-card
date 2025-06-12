@@ -26,42 +26,62 @@ class RingsClockCard extends HTMLElement {
 
     constructor() {
         super();
-        this.doCard();
-        this.doStyle();
-        this.doAttach();
-        this.doQueryElements();
-        this.updateClock = this.updateClock.bind(this);
-        this.updateSunMarkers = this.updateSunMarkers.bind(this);
+        this.doCard(); // Initializes the base card structure
+        this.doStyle(); // Applies the CSS styles
+        this.doAttach(); // Attaches the shadow DOM
+        this.doQueryElements(); // Queries and stores references to key DOM elements
+        this.updateClock = this.updateClock.bind(this); // Binds 'this' context for clock updates
+        this.updateSunMarkers = this.updateSunMarkers.bind(this); // Binds 'this' context for sun marker updates
     }
 
+    /**
+     * Sets the card configuration. This method is called by Home Assistant
+     * when the card's configuration changes.
+     * @param {object} config - The card configuration object.
+     */
     setConfig(config) {
         this._config = config;
-        this.ranges = config.ranges || [];
-        this.markers = config.markers || [];
-        this.sunConfig = config.sun || {};
+        this.ranges = config.ranges || []; // Initialize time ranges
+        this.markers = config.markers || []; // Initialize custom markers
+        this.sunConfig = config.sun || {}; // Initialize sun configuration
 
-        // toggles
+        // Toggles for various display elements
         this.hourHandColor = config.hourhand_color;
         this.showRings = config.show_rings !== false;
         this.showHours = config.show_hours !== false;
 
-        this.doRender();
+        this.doRender(); // Rerender the clock elements based on the new config
     }
 
+    /**
+     * Sets the Home Assistant object. This method is called by Home Assistant
+     * whenever the Home Assistant state changes.
+     * @param {object} hass - The Home Assistant object.
+     */
     set hass(hass) {
         this._hass = hass;
-        this.doUpdateConfig(); //todo(hatem) it's always refreshing
-        this.updateClock();
-        this.updateSunMarkers();
-        this.updateMarkers();
-        this.updateRingsVisibility();
+        this.doUpdateConfig(); // Update card title based on config (always refreshes)
+        this.updateClock(); // Update clock hand position and arc ranges
+        this.updateSunMarkers(); // Update sun marker positions
+        this.updateMarkers(); // Update custom marker positions
+        this.updateRingsVisibility(); // Update visibility of static rings
     }
 
+    // ========================================================================
+    //  DOM MANIPULATION & STYLING
+    // ========================================================================
+
+    /**
+     * Attaches the shadow DOM to the custom element.
+     */
     doAttach() {
         this.attachShadow({ mode: "open" });
         this.shadowRoot.append(this._elements.style, this._elements.card);
     }
 
+    /**
+     * Creates and appends the `<style>` element for the card.
+     */
     doStyle() {
         this._elements.style = document.createElement("style");
         this._elements.style.textContent = `
@@ -325,6 +345,9 @@ class RingsClockCard extends HTMLElement {
             `
     }
 
+    /**
+     * Creates the main `<ha-card>` element and its initial HTML structure.
+     */
     doCard() {
         this._elements.card = document.createElement("ha-card");
         this._elements.card.innerHTML = `         
@@ -340,9 +363,11 @@ class RingsClockCard extends HTMLElement {
                 </div>
             </div>
         `;
-
     }
 
+    /**
+     * Queries and stores references to essential DOM elements within the card.
+     */
     doQueryElements() {
         const card = this._elements.card;
         this._elements.cardTitle = card.querySelector("#card-header");
@@ -350,6 +375,9 @@ class RingsClockCard extends HTMLElement {
         this._elements.rings = this._elements.clockFace.querySelectorAll('.static-ring');
     }
 
+    /**
+     * Updates the card's title visibility based on the configuration.
+     */
     doUpdateConfig() {
         if (this._config.title) {
             this._elements.cardTitle.textContent = `${this._config.title}`;
@@ -359,6 +387,9 @@ class RingsClockCard extends HTMLElement {
         }
     }
 
+    /**
+     * Renders all dynamic elements of the clock (hour markers, arcs, hands, markers).
+     */
     doRender() {
         this.createHourMarkers();
         this.createArcs();
@@ -367,15 +398,24 @@ class RingsClockCard extends HTMLElement {
         this.createHourHandAndCenterDot();
     }
 
+    // ========================================================================
+    //  CLOCK ELEMENTS (Hour Markers, Rings, Hand, Center Dot)
+    // ========================================================================
+
+    /**
+     * Toggles the visibility of the static rings based on the `showRings` configuration.
+     */
     updateRingsVisibility() {
-        // Loop through the NodeList of static rings
         this._elements.rings.forEach(ring => {
-            if (ring) { // Always check if the element exists
+            if (ring) {
                 ring.classList.toggle('hidden', !this.showRings);
             }
         });
     }
 
+    /**
+     * Creates and appends the 24 hour markers and hour numbers to the clock face.
+     */
     createHourMarkers() {
         const fragment = document.createDocumentFragment();
         for (let hour = 0; hour < 24; hour++) {
@@ -386,15 +426,14 @@ class RingsClockCard extends HTMLElement {
 
             const hourNumber = document.createElement('div');
             hourNumber.className = 'hour-number';
-            // Add class to hide if show_hours is false
             if (!this.showHours) {
-                hourNumber.classList.add('hidden');
+                hourNumber.classList.add('hidden'); // Hide if show_hours is false
             }
             hourNumber.style.transform = `translateX(-50%) rotate(${hour * 15}deg)`;
 
             const textSpan = document.createElement('span');
             textSpan.textContent = hour.toString().padStart(2, '0');
-            textSpan.style.transform = `rotate(${-hour * 15}deg)`;
+            textSpan.style.transform = `rotate(${-hour * 15}deg)`; // Counter-rotate to keep text upright
 
             hourNumber.appendChild(textSpan);
             fragment.appendChild(hourNumber);
@@ -402,27 +441,14 @@ class RingsClockCard extends HTMLElement {
         this._elements.clockFace.appendChild(fragment);
     }
 
-    createArcs() {
-        this.arcElements = [];
-        const fragment = document.createDocumentFragment();
-
-        this.ranges.forEach((range, index) => {
-            const arc = document.createElement('div');
-            arc.className = `arc ${range.ring || 'ring1'}`;
-            arc.id = `arc-${index}`;
-            fragment.appendChild(arc);
-            this.arcElements.push({ element: arc, range: range });
-            this.updateArc(arc, range);
-        });
-        this._elements.clockFace.appendChild(fragment);
-    }
-
-
+    /**
+     * Creates the hour hand and the center dot of the clock.
+     */
     createHourHandAndCenterDot() {
         this.hourHand = document.createElement('div');
         this.hourHand.className = 'hour-hand';
         this.hourHand.id = 'hourHand';
-        // Apply custom color if provided, otherwise default to CSS variable
+        // Apply custom color if provided
         if (this.hourHandColor) {
             this.hourHand.style.background = this.hourHandColor;
         }
@@ -431,47 +457,111 @@ class RingsClockCard extends HTMLElement {
         this.centerDot = document.createElement('div');
         this.centerDot.className = 'center-dot';
         this.centerDot.id = 'centerDot';
-        // Apply custom color to center dot as well for consistency
+        // Apply custom color to center dot for consistency
         if (this.hourHandColor) {
             this.centerDot.style.background = this.hourHandColor;
         }
         this._elements.clockFace.appendChild(this.centerDot);
     }
 
+    /**
+     * Updates the position of the hour hand based on the current time.
+     */
+    updateClock() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        // Calculate total minutes in a 24-hour cycle for smooth rotation
+        const totalMinutes = hours * 60 + minutes + seconds / 60;
+        const hourAngle = (totalMinutes / (24 * 60)) * 360;
+
+        if (this.hourHand) {
+            this.hourHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${hourAngle}deg)`;
+        }
+
+        // Update arc ranges in case their entity states have changed
+        if (this._hass) {
+            this.arcElements.forEach(({ element, range }) => {
+                this.updateArc(element, range);
+            });
+        }
+    }
+
+    // ========================================================================
+    //  TIME RANGES (Arcs)
+    // ========================================================================
+
+    /**
+     * Creates and appends the arc elements for time ranges.
+     */
+    createArcs() {
+        this.arcElements = []; // Store references to arc elements and their configurations
+        const fragment = document.createDocumentFragment();
+
+        this.ranges.forEach((range, index) => {
+            const arc = document.createElement('div');
+            arc.className = `arc ${range.ring || 'ring1'}`; // Assign ring class, default to ring1
+            arc.id = `arc-${index}`;
+            fragment.appendChild(arc);
+            this.arcElements.push({ element: arc, range: range });
+            this.updateArc(arc, range); // Initial update for the arc
+        });
+        this._elements.clockFace.appendChild(fragment);
+    }
+
+    /**
+     * Updates the style of a single arc element to reflect its start, end, and color.
+     * @param {HTMLElement} arcElement - The arc DOM element.
+     * @param {object} range - The range configuration object.
+     */
     updateArc(arcElement, range) {
         const startTime = this.parseTime(range.start_time);
         const endTime = this.parseTime(range.end_time);
 
         if (!startTime || !endTime) {
-            arcElement.style.background = 'transparent';
+            arcElement.style.background = 'transparent'; // Hide arc if times are invalid
             return;
         }
 
         const startAngle = this.timeToAngle(startTime);
         let endAngle = this.timeToAngle(endTime);
 
+        // Adjust end angle if it crosses midnight (e.g., 22:00 to 06:00)
         if (endAngle < startAngle) {
             endAngle += 360;
         }
 
         const arcLength = endAngle - startAngle;
+        const color = range.color || 'var(--accent-color, #03a9f4)'; // Use configured color or default
 
-        const color = range.color || 'var(--accent-color, #03a9f4)';
-
+        // Apply conic gradient to create the arc
         arcElement.style.background = `conic-gradient(from ${startAngle}deg, transparent 0deg, ${color} 0deg, ${color} ${arcLength}deg, transparent ${arcLength}deg)`;
     }
 
+    // ========================================================================
+    //  TIME UTILITIES
+    // ========================================================================
+
+    /**
+     * Parses a time input (e.g., "HH:MM" or an entity ID) into an object
+     * with hours and minutes.
+     * @param {string} timeInput - The time string or entity ID.
+     * @returns {object|null} An object { hours, minutes } or null if invalid.
+     */
     parseTime(timeInput) {
         if (!timeInput) return null;
 
         let timeStr = timeInput;
 
+        // If timeInput is an entity ID, retrieve its state from Home Assistant
         if (typeof timeInput === 'string' && timeInput.includes('.')) {
             const entityState = this._hass?.states[timeInput];
             if (entityState && entityState.state !== 'unavailable' && entityState.state !== 'unknown') {
                 timeStr = entityState.state;
             } else {
-                return null;
+                return null; // Entity state is not available or invalid
             }
         }
 
@@ -480,44 +570,46 @@ class RingsClockCard extends HTMLElement {
             return { hours: parts[0], minutes: parts[1] };
         }
 
-        return null;
+        return null; // Invalid time format
     }
 
+    /**
+     * Converts a time object (hours, minutes) to an angle in degrees for a 24-hour clock.
+     * @param {object} time - An object with hours and minutes.
+     * @returns {number} The angle in degrees (0-360).
+     */
     timeToAngle(time) {
+        // 24 hours * 15 degrees/hour = 360 degrees
+        // 60 minutes * 0.25 degrees/minute = 15 degrees/hour
         return (time.hours * 15) + (time.minutes * 0.25);
     }
 
-    updateClock() {
-        const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-
-        const totalMinutes = hours * 60 + minutes + seconds / 60;
-        const hourAngle = (totalMinutes / (24 * 60)) * 360;
-
-        if (this.hourHand) {
-            this.hourHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${hourAngle}deg)`;
-        }
-
-        if (this._hass) {
-            this.arcElements.forEach(({ element, range }) => {
-                this.updateArc(element, range);
-            });
-        }
+    /**
+     * Converts a Date object to an angle in degrees for a 24-hour clock.
+     * @param {Date} date - The Date object.
+     * @returns {number} The angle in degrees (0-360).
+     */
+    dateToAngle(date) {
+        return this.timeToAngle({ hours: date.getHours(), minutes: date.getMinutes() });
     }
 
+    // ========================================================================
+    //  CUSTOM MARKERS
+    // ========================================================================
 
+    /**
+     * Creates and appends custom marker elements to the clock face.
+     */
     createMarkers() {
-        this.markerElements = [];
+        this.markerElements = []; // Store references to marker elements and their configurations
         const fragment = document.createDocumentFragment();
 
         this.markers.forEach((markerConfig, index) => {
             const markerDiv = document.createElement('div');
-            markerDiv.className = 'custom-marker'; // Add a new class for styling
+            markerDiv.className = 'custom-marker';
             markerDiv.id = `custom-marker-${index}`;
 
-            // Handle icon or name for display
+            // Determine content based on icon or name, falling back to a default text icon
             if (markerConfig.icon && markerConfig.icon.startsWith('mdi:')) {
                 markerDiv.innerHTML = `<ha-icon icon="${markerConfig.icon}"></ha-icon>`;
             } else if (markerConfig.icon) {
@@ -525,13 +617,13 @@ class RingsClockCard extends HTMLElement {
             } else if (markerConfig.name) {
                 markerDiv.innerHTML = `<span>${markerConfig.name}</span>`;
             } else {
-                markerDiv.innerHTML = `<span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`; // Use constant
+                markerDiv.innerHTML = `<span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`;
             }
 
+            // Apply custom color if provided
             if (markerConfig.color) {
                 markerDiv.style.color = markerConfig.color;
-                // Optional: set background if it's an icon, to make it more visible
-                if (markerConfig.icon) {
+                if (markerConfig.icon) { // Optional: set background for icons for better visibility
                     markerDiv.style.backgroundColor = 'var(--card-background-color, #fff)';
                 }
             }
@@ -542,13 +634,16 @@ class RingsClockCard extends HTMLElement {
         this._elements.clockFace.appendChild(fragment);
     }
 
+    /**
+     * Updates the position and visibility of custom markers.
+     */
     updateMarkers() {
         if (!this.markerElements || this.markerElements.length === 0) {
             return;
         }
 
         this.markerElements.forEach(({ element, config }) => {
-            const time = this.parseTime(config.marker); // Use parseTime for dynamic marker position
+            const time = this.parseTime(config.marker); // Parse time for marker position (can be entity)
             if (!time) {
                 element.style.display = 'none'; // Hide if time is invalid/unavailable
                 return;
@@ -559,7 +654,7 @@ class RingsClockCard extends HTMLElement {
             const markerAngle = this.timeToAngle(time);
             element.style.transform = `translateX(-50%) rotate(${markerAngle}deg)`;
 
-            // Adjust icon/text rotation to remain upright
+            // Counter-rotate the inner content (icon/text) to keep it upright
             const innerContent = element.querySelector('span') || element.querySelector('ha-icon');
             if (innerContent) {
                 innerContent.style.transform = `rotate(${-markerAngle}deg)`;
@@ -567,6 +662,13 @@ class RingsClockCard extends HTMLElement {
         });
     }
 
+    // ========================================================================
+    //  SUN MARKERS
+    // ========================================================================
+
+    /**
+     * Creates and appends the sunrise and sunset marker elements.
+     */
     createSunMarkers() {
         const showSunMarkers = this.sunConfig.show !== false;
 
@@ -574,34 +676,39 @@ class RingsClockCard extends HTMLElement {
             this.sunriseMarker = document.createElement('div');
             this.sunriseMarker.className = 'sun-marker';
             this.sunriseMarker.id = 'sunrise-marker';
-            // Check if sunrise_icon starts with 'mdi:' to use ha-icon, otherwise use span for text/other icons
+            // Use ha-icon for MDI icons, otherwise use span for text/other icons
             if (this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) {
                 this.sunriseMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunrise_icon}"></ha-icon>`;
             } else {
-                this.sunriseMarker.innerHTML = `<span>${this.sunConfig.sunrise_icon || RingsClockCard.DEFAULT_SUNRISE_ICON_TEXT}</span>`; // Use constant
+                this.sunriseMarker.innerHTML = `<span>${this.sunConfig.sunrise_icon || RingsClockCard.DEFAULT_SUNRISE_ICON_TEXT}</span>`;
             }
             this._elements.clockFace.appendChild(this.sunriseMarker);
 
             this.sunsetMarker = document.createElement('div');
             this.sunsetMarker.className = 'sun-marker';
             this.sunsetMarker.id = 'sunset-marker';
-            // Check if sunset_icon starts with 'mdi:' to use ha-icon, otherwise use span for text/other icons
+            // Use ha-icon for MDI icons, otherwise use span for text/other icons
             if (this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) {
                 this.sunsetMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunset_icon}"></ha-icon>`;
             } else {
-                this.sunsetMarker.innerHTML = `<span>${this.sunConfig.sunset_icon || RingsClockCard.DEFAULT_SUNSET_ICON_TEXT}</span>`; // Use constant
+                this.sunsetMarker.innerHTML = `<span>${this.sunConfig.sunset_icon || RingsClockCard.DEFAULT_SUNSET_ICON_TEXT}</span>`;
             }
             this._elements.clockFace.appendChild(this.sunsetMarker);
         } else {
+            // Ensure markers are null if not shown, to prevent errors in updateSunMarkers
             this.sunriseMarker = null;
             this.sunsetMarker = null;
         }
     }
 
+    /**
+     * Updates the position and visibility of sun (sunrise/sunset) markers.
+     */
     updateSunMarkers() {
         const showSunMarkers = this.sunConfig.show !== false;
-        const sunEntityId = this.sunConfig.entity || 'sun.sun'; // Use configured entity or default  //todo(hatem): don't process if false
+        const sunEntityId = this.sunConfig.entity || 'sun.sun'; // Use configured entity or default
 
+        // Hide markers if not configured to show, or if Home Assistant/sun entity state is unavailable
         if (!showSunMarkers || !this._hass || !this._hass.states[sunEntityId]) {
             if (this.sunriseMarker) this.sunriseMarker.style.display = 'none';
             if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
@@ -611,60 +718,63 @@ class RingsClockCard extends HTMLElement {
         const sunState = this._hass.states[sunEntityId];
         const attributes = sunState.attributes;
 
+        // Check if next_rising and next_setting attributes exist
         if (attributes.next_rising && attributes.next_setting) {
             const sunrise = new Date(attributes.next_rising);
             const sunset = new Date(attributes.next_setting);
 
+            // Hide markers if dates are invalid
             if (isNaN(sunrise.getTime()) || isNaN(sunset.getTime())) {
                 if (this.sunriseMarker) this.sunriseMarker.style.display = 'none';
                 if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
                 return;
             }
 
+            // Ensure markers are visible and apply custom color
             if (this.sunriseMarker) {
                 this.sunriseMarker.style.display = '';
-                this.sunriseMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)'; // Apply custom color or default
+                this.sunriseMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)';
             }
             if (this.sunsetMarker) {
                 this.sunsetMarker.style.display = '';
-                this.sunsetMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)'; // Apply custom color or default
+                this.sunsetMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)';
             }
 
             const sunriseAngle = this.dateToAngle(sunrise);
             const sunsetAngle = this.dateToAngle(sunset);
 
+            // Position and counter-rotate sunrise marker
             if (this.sunriseMarker) {
                 this.sunriseMarker.style.transform = `translateX(-50%) rotate(${sunriseAngle}deg)`;
-
-                if (this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) {
-                    this.sunriseMarker.querySelector('ha-icon').style.transform = `rotate(${-sunriseAngle}deg)`;
-                } else {
-                    this.sunriseMarker.querySelector('span').style.transform = `rotate(${-sunriseAngle}deg)`;
+                const sunriseInnerContent = this.sunriseMarker.querySelector('ha-icon') || this.sunriseMarker.querySelector('span');
+                if (sunriseInnerContent) {
+                    sunriseInnerContent.style.transform = `rotate(${-sunriseAngle}deg)`;
                 }
-
             }
 
+            // Position and counter-rotate sunset marker
             if (this.sunsetMarker) {
                 this.sunsetMarker.style.transform = `translateX(-50%) rotate(${sunsetAngle}deg)`;
-
-                if (this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) {
-                    this.sunsetMarker.querySelector('ha-icon').style.transform = `rotate(${-sunsetAngle}deg)`;
-                } else {
-                    this.sunsetMarker.querySelector('span').style.transform = `rotate(${-sunsetAngle}deg)`;
+                const sunsetInnerContent = this.sunsetMarker.querySelector('ha-icon') || this.sunsetMarker.querySelector('span');
+                if (sunsetInnerContent) {
+                    sunsetInnerContent.style.transform = `rotate(${-sunsetAngle}deg)`;
                 }
-
             }
         } else {
+            // Hide markers if attributes are missing
             if (this.sunriseMarker) this.sunriseMarker.style.display = 'none';
             if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
         }
     }
 
-    dateToAngle(date) {
-        return this.timeToAngle({ hours: date.getHours(), minutes: date.getMinutes() });
-    }
+    // ========================================================================
+    //  CARD METADATA & EXAMPLE CONFIG
+    // ========================================================================
 
-
+    /**
+     * Provides a stub configuration for the card, used for example purposes.
+     * @returns {object} An example configuration object.
+     */
     static getStubConfig() {
         return {
             title: '24-Hour Rings Clock',
@@ -713,15 +823,18 @@ class RingsClockCard extends HTMLElement {
     }
 }
 
+// Define the custom element for Home Assistant
 customElements.define('rings-clock-card', RingsClockCard);
 
+// Register the card with the Home Assistant custom card registry
 window.customCards = window.customCards || [];
 window.customCards.push({
     type: 'rings-clock-card',
     name: '24-Hours Rings Clock Card',
-    description: RingsClockCard.CARD_DESCRIPTION // Use constant
+    description: RingsClockCard.CARD_DESCRIPTION // Use constant for description
 });
 
-console.info('%c24H-RINGS-CLOCK-CARD %c' + RingsClockCard.CARD_VERSION, // Use constant
+// Log card version to console for debugging/information
+console.info('%c24H-RINGS-CLOCK-CARD %c' + RingsClockCard.CARD_VERSION,
     'color: orange; font-weight: bold; background: black',
     'color: white; font-weight: bold; background: dimgray',);
