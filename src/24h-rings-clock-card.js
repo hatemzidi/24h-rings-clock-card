@@ -16,13 +16,9 @@ class RingsClockCard extends HTMLElement {
     static DEFAULT_SUNSET_ICON_TEXT = '↓';
     static DEFAULT_CUSTOM_MARKER_ICON_TEXT = '•';
 
-    // Default Material Design Icons (MDI) for stub configuration/examples
-    static DEFAULT_SUNRISE_ICON_MDI = 'mdi:weather-sunny-alert';
-    static DEFAULT_SUNSET_ICON_MDI = 'mdi:weather-night';
-    static DEFAULT_NOON_MARKER_ICON_MDI = 'mdi:white-balance-sunny';
-    static DEFAULT_BED_MARKER_ICON_MDI = 'mdi:bed';
-    static DEFAULT_EVENT_MARKER_ICON_MDI = 'mdi:calendar-star';
-
+    // ========================================================================
+    //  Home Assistant Code
+    // ========================================================================
 
     constructor() {
         super();
@@ -32,6 +28,7 @@ class RingsClockCard extends HTMLElement {
         this.doQueryElements(); // Queries and stores references to key DOM elements
         this.updateClock = this.updateClock.bind(this); // Binds 'this' context for clock updates
         this.updateSunMarkers = this.updateSunMarkers.bind(this); // Binds 'this' context for sun marker updates
+        this.updateMarkers = this.updateMarkers.bind(this); // Bind this context for custom marker updates
     }
 
     /**
@@ -40,6 +37,11 @@ class RingsClockCard extends HTMLElement {
      * @param {object} config - The card configuration object.
      */
     setConfig(config) {
+        // Check if config has actually changed to avoid unnecessary re-renders
+        if (JSON.stringify(this._config) === JSON.stringify(config)) {
+            return;
+        }
+
         this._config = config;
         this.rangesConfig = config.ranges || []; // Initialize time ranges
         this.markersConfig = config.markers || []; // Initialize custom markers
@@ -50,6 +52,10 @@ class RingsClockCard extends HTMLElement {
         this.showRings = config.show_rings !== false;
         this.showHours = config.show_hours !== false;
         this.showLegends = config.show_legends !== false; // Default to true
+
+        // Header specific configuration
+        this.headerTitle = config.title; // Store the title
+        this.headerIcon = config.header_icon; // New: Store the header icon
 
         this.doRender(); // Rerender the clock elements based on the new config
     }
@@ -66,6 +72,7 @@ class RingsClockCard extends HTMLElement {
         this.updateSunMarkers(); // Update sun marker positions
         this.updateMarkers(); // Update custom marker positions
         this.updateRingsVisibility(); // Update visibility of static rings
+        this.doRenderLegends(); // Update legends based on current state (e.g., entity names)
     }
 
     // ========================================================================
@@ -94,9 +101,28 @@ class RingsClockCard extends HTMLElement {
                   display: none !important;
                 }               
 
+                /* Modified header styling */
                 .card-header {
+                    display: flex; /* Use flexbox for alignment */
+                    justify-content: space-between; /* Space out title and icon */
+                    align-items: center; /* Vertically align items */
+                    padding: 0 0 10px 0; /* Add bottom padding */
                     color: inherit;
+                    font-size: 1.2em;
+                    font-weight: var(--mcg-title-font-weight, 500);
                 }
+
+                .card-title-text {
+                    flex-grow: 1; /* Allow text to take available space */
+                    text-align: left;
+                    padding-right: 10px; /* Space between title and icon */
+                }
+
+                .card-header-icon ha-icon {
+                    --mdc-icon-size: 24px; /* Adjust icon size */
+                    color: var(--primary-text-color, #333); /* Icon color */
+                }
+
 
                 .clock-container {
                     display: flex;
@@ -167,43 +193,6 @@ class RingsClockCard extends HTMLElement {
                     width: 100%;
                     text-align: center;
                 }
-                
-                .legends-container {
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    gap: 15px;
-                    margin-top: 20px;
-                    width: 100%;
-                }
-
-                .legend-item {
-                    display: flex;
-                    align-items: center;
-                    font-size: 14px;
-                    color: var(--primary-text-color, #333);
-                }
-
-                .legend-color-box {
-                    width: 18px;
-                    height: 18px;
-                    border-radius: 4px;
-                    margin-right: 8px;
-                    border: 1px solid var(--divider-color, #e0e0e0);
-                }
-
-                .legend-icon {
-                    margin-right: 8px;
-                    font-size: 18px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .legend-icon ha-icon {
-                    --mdc-icon-size: 18px;
-                    color: inherit;
-                }
 
                 .ring1, .ring2, .ring3, .ring4 {
                     position: absolute;
@@ -226,6 +215,7 @@ class RingsClockCard extends HTMLElement {
                     left: 50%;
                     top: 50%;
                     transform: translate(-50%, -50%);
+                    /* Masking ensures only the ring area is colored, not the full circle */
                     mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
                     -webkit-mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
                 }
@@ -245,7 +235,7 @@ class RingsClockCard extends HTMLElement {
                     transform-origin: 50% 100%;
                     transform: translateX(-50%) translateY(-100%);
                     border-radius: 3px;
-                    transition: transform 0.1s linear;
+                    transition: transform 0.1s linear; /* Smooth transition for clock hand */
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                 }
 
@@ -291,41 +281,78 @@ class RingsClockCard extends HTMLElement {
                     color: inherit; 
                 }
                 
-                .sun-marker span {
-                    display: block;
-                    transform: translateY(1px); 
-                }
-                
                 .custom-marker {
                     position: absolute;
-                    font-size: 16px; /* Adjust as needed */
-                    color: var(--primary-text-color, #333); /* Default color */
+                    font-size: 16px;
+                    color: var(--primary-text-color, #333);
                     left: 50%;
-                    top: 5px; /* Same top as sun markers and hour markers */
-                    transform-origin: 50% 185px; /* Same origin as sun markers and hour markers */
+                    top: 5px;
+                    transform-origin: 50% 185px;
                     transform: translateX(-50%);
                     font-weight: bold;
-                    pointer-events: none; /* Make it non-interactive */
-                    background: var(--card-background-color, #fff); /* Background similar to sun marker */
-                    border-radius: 50%; /* Make it round */
-                    width: 24px; /* Adjust size */
-                    height: 24px; /* Adjust size */
+                    pointer-events: none;
+                    background: var(--card-background-color, #fff);
+                    border-radius: 50%;
+                    width: 24px;
+                    height: 24px;
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    box-shadow: 0 0 5px rgba(0,0,0,0.3); /* Add shadow */
+                    box-shadow: 0 0 5px rgba(0,0,0,0.3);
                 }
 
                 .custom-marker span {
                     display: block;
-                    transform: translateY(1px); /* Fine-tune text alignment */
+                    transform: translateY(1px);
                 }
 
                 .custom-marker ha-icon {
-                    --mdc-icon-size: 20px; /* Adjust icon size */
+                    --mdc-icon-size: 20px;
                     color: inherit;
                 }
 
+                /* Legends Styling */
+                .legends-container {
+                    display: flex;
+                    flex-wrap: wrap; /* Allows items to wrap to next line */
+                    justify-content: center;
+                    gap: 15px; /* Space between legend items */
+                    margin-top: 20px;
+                    width: 100%;
+                    padding: 0 10px; /* Some padding on the sides */
+                    box-sizing: border-box; /* Include padding in element's total width */
+                }
+
+                .legend-item {
+                    display: flex;
+                    align-items: center;
+                    font-size: 14px;
+                    color: var(--primary-text-color, #333);
+                    white-space: nowrap; /* Prevent text wrapping within an item */
+                }
+
+                .legend-color-box {
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 4px;
+                    margin-right: 8px;
+                    border: 1px solid var(--divider-color, #e0e0e0); /* Add a subtle border */
+                    flex-shrink: 0; /* Prevent the box from shrinking */
+                }
+
+                .legend-icon {
+                    margin-right: 8px;
+                    font-size: 18px; /* Base size for text icons */
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+
+                .legend-icon ha-icon {
+                    --mdc-icon-size: 18px; /* MDI icon specific size */
+                    color: inherit; 
+                }
 
                 @media (max-width: 480px) {
                     .clock {
@@ -371,7 +398,7 @@ class RingsClockCard extends HTMLElement {
                     }
                     
                     .custom-marker {
-                        transform-origin: 50% 135px; /* Adjust origin for smaller screens */
+                        transform-origin: 50% 135px;
                         font-size: 14px;
                         width: 20px;
                         height: 20px;
@@ -379,8 +406,22 @@ class RingsClockCard extends HTMLElement {
                     .custom-marker ha-icon {
                         --mdc-icon-size: 16px;
                     }
+
+                    .legend-item {
+                        font-size: 12px;
+                    }
+                    .legend-color-box {
+                        width: 15px;
+                        height: 15px;
+                    }
+                    .legend-icon {
+                        font-size: 15px;
+                    }
+                    .legend-icon ha-icon {
+                        --mdc-icon-size: 15px;
+                    }
                 }
-            `
+            `;
     }
 
     /**
@@ -389,7 +430,10 @@ class RingsClockCard extends HTMLElement {
     doCard() {
         this._elements.card = document.createElement("ha-card");
         this._elements.card.innerHTML = `         
-            <div class="card-header hidden" id="card-header"></div>
+            <div class="card-header hidden" id="card-header">
+                <div class="card-title-text" id="card-title-text"></div>
+                <div class="card-header-icon" id="card-header-icon"></div>
+            </div>
             <div class="clock-container">
                 <div class="clock">
                     <div class="clock-face" id="clock-face">
@@ -409,28 +453,51 @@ class RingsClockCard extends HTMLElement {
      */
     doQueryElements() {
         const card = this._elements.card;
-        this._elements.cardTitle = card.querySelector("#card-header");
+        this._elements.cardHeader = card.querySelector("#card-header"); // Get the full header div
+        this._elements.cardTitleText = card.querySelector("#card-title-text"); // Get the title text div
+        this._elements.cardHeaderIcon = card.querySelector("#card-header-icon"); // Get the icon div
         this._elements.clockFace = card.querySelector("#clock-face");
         this._elements.rings = this._elements.clockFace.querySelectorAll('.static-ring');
         this._elements.legendsContainer = card.querySelector("#legends-container");
     }
 
     /**
-     * Updates the card's title visibility based on the configuration.
+     * Updates the card's title and icon visibility based on the configuration.
      */
     doUpdateConfig() {
-        if (this._config.title) {
-            this._elements.cardTitle.textContent = `${this._config.title}`;
-            this._elements.cardTitle.classList.remove("hidden");
+        const hasTitle = !!this.headerTitle;
+        const hasIcon = !!this.headerIcon;
+
+        // Show/hide the entire header based on whether title or icon exists
+        if (hasTitle || hasIcon) {
+            this._elements.cardHeader.classList.remove("hidden");
         } else {
-            this._elements.cardTitle.classList.add("hidden");
+            this._elements.cardHeader.classList.add("hidden");
+        }
+
+        // Update title text
+        this._elements.cardTitleText.textContent = this.headerTitle || '';
+
+        // Update header icon
+        if (hasIcon) {
+            this._elements.cardHeaderIcon.innerHTML = `<ha-icon icon="${this.headerIcon}"></ha-icon>`;
+            this._elements.cardHeaderIcon.classList.remove("hidden");
+        } else {
+            this._elements.cardHeaderIcon.innerHTML = '';
+            this._elements.cardHeaderIcon.classList.add("hidden");
         }
     }
 
     /**
      * Renders all dynamic elements of the clock (hour markers, arcs, hands, markers).
+     * This is called on setConfig, so it clears and recreates elements as necessary.
      */
     doRender() {
+        // Clear existing dynamic elements before re-rendering
+        // This is important because setConfig might change configuration
+        // that affects the number or type of elements (e.g., new ranges/markers)
+        this._elements.clockFace.querySelectorAll('.hour-marker, .hour-number, .arc, .sun-marker, .custom-marker, #hourHand, #centerDot').forEach(el => el.remove());
+
         this.createHourMarkers();
         this.createArcs();
         this.createSunMarkers();
@@ -527,7 +594,7 @@ class RingsClockCard extends HTMLElement {
         }
 
         // Update arc ranges in case their entity states have changed
-        if (this._hass) {
+        if (this._hass && this._elements.arcs) {
             this._elements.arcs.forEach(({ element, range }) => {
                 this.updateArc(element, range);
             });
@@ -551,7 +618,6 @@ class RingsClockCard extends HTMLElement {
             arc.id = `arc-${index}`;
             fragment.appendChild(arc);
             this._elements.arcs.push({ element: arc, range: range });
-            this.updateArc(arc, range); // Initial update for the arc
         });
         this._elements.clockFace.appendChild(fragment);
     }
@@ -579,7 +645,7 @@ class RingsClockCard extends HTMLElement {
         }
 
         const arcLength = endAngle - startAngle;
-        const color = range.color || 'var(--accent-color, #03a9f4)'; // Use configured color or default
+        const color = range.color || 'var(--accent-color, #03a9f4)';
 
         // Apply conic gradient to create the arc
         arcElement.style.background = `conic-gradient(from ${startAngle}deg, transparent 0deg, ${color} 0deg, ${color} ${arcLength}deg, transparent ${arcLength}deg)`;
@@ -646,7 +712,7 @@ class RingsClockCard extends HTMLElement {
      * Creates and appends custom marker elements to the clock face.
      */
     createMarkers() {
-        this._elements.markers = []; // Store references to marker elements and their configurations
+        this._elements.markers = [];
         const fragment = document.createDocumentFragment();
 
         this.markersConfig.forEach((markerConfig, index) => {
@@ -660,7 +726,7 @@ class RingsClockCard extends HTMLElement {
             } else if (markerConfig.icon) {
                 markerDiv.innerHTML = `<span>${markerConfig.icon}</span>`;
             } else if (markerConfig.name) {
-                markerDiv.innerHTML = `<span>${markerConfig.name}</span>`;
+                markerDiv.innerHTML = `<span>${markerConfig.name.substring(0, 3)}</span>`;
             } else {
                 markerDiv.innerHTML = `<span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`;
             }
@@ -668,9 +734,7 @@ class RingsClockCard extends HTMLElement {
             // Apply custom color if provided
             if (markerConfig.color) {
                 markerDiv.style.color = markerConfig.color;
-                if (markerConfig.icon) { // Optional: set background for icons for better visibility
-                    markerDiv.style.backgroundColor = 'var(--card-background-color, #fff)';
-                }
+                markerDiv.style.backgroundColor = 'var(--card-background-color, #fff)';
             }
 
             fragment.appendChild(markerDiv);
@@ -713,36 +777,42 @@ class RingsClockCard extends HTMLElement {
 
     /**
      * Creates and appends the sunrise and sunset marker elements.
+     * These elements are only created once during doRender if showSunMarkers is true.
      */
     createSunMarkers() {
         const showSunMarkers = this.sunConfig.show !== false;
 
+        // Ensure existing markers are cleared if re-creating
+        if (this._elements.sunriseMarker) this._elements.sunriseMarker.remove();
+        if (this._elements.sunsetMarker) this._elements.sunsetMarker.remove();
+
+        this._elements.sunriseMarker = null;
+        this._elements.sunsetMarker = null;
+
         if (showSunMarkers) {
+            const fragment = document.createDocumentFragment();
+
             this._elements.sunriseMarker = document.createElement('div');
             this._elements.sunriseMarker.className = 'sun-marker';
             this._elements.sunriseMarker.id = 'sunrise-marker';
-            // Use ha-icon for MDI icons, otherwise use span for text/other icons
             if (this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) {
                 this._elements.sunriseMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunrise_icon}"></ha-icon>`;
             } else {
                 this._elements.sunriseMarker.innerHTML = `<span>${this.sunConfig.sunrise_icon || RingsClockCard.DEFAULT_SUNRISE_ICON_TEXT}</span>`;
             }
-            this._elements.clockFace.appendChild(this._elements.sunriseMarker);
+            fragment.appendChild(this._elements.sunriseMarker);
 
-            this.sunsetMarker = document.createElement('div');
-            this.sunsetMarker.className = 'sun-marker';
-            this.sunsetMarker.id = 'sunset-marker';
-            // Use ha-icon for MDI icons, otherwise use span for text/other icons
+            this._elements.sunsetMarker = document.createElement('div');
+            this._elements.sunsetMarker.className = 'sun-marker';
+            this._elements.sunsetMarker.id = 'sunset-marker';
             if (this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) {
-                this.sunsetMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunset_icon}"></ha-icon>`;
+                this._elements.sunsetMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunset_icon}"></ha-icon>`;
             } else {
-                this.sunsetMarker.innerHTML = `<span>${this.sunConfig.sunset_icon || RingsClockCard.DEFAULT_SUNSET_ICON_TEXT}</span>`;
+                this._elements.sunsetMarker.innerHTML = `<span>${this.sunConfig.sunset_icon || RingsClockCard.DEFAULT_SUNSET_ICON_TEXT}</span>`;
             }
-            this._elements.clockFace.appendChild(this.sunsetMarker);
-        } else {
-            // Ensure markers are null if not shown, to prevent errors in updateSunMarkers
-            this._elements.sunriseMarker = null;
-            this.sunsetMarker = null;
+            fragment.appendChild(this._elements.sunsetMarker);
+
+            this._elements.clockFace.appendChild(fragment);
         }
     }
 
@@ -751,64 +821,51 @@ class RingsClockCard extends HTMLElement {
      */
     updateSunMarkers() {
         const showSunMarkers = this.sunConfig.show !== false;
-        const sunEntityId = this.sunConfig.entity || 'sun.sun'; // Use configured entity or default
+        const sunEntityId = this.sunConfig.entity || 'sun.sun';
 
-        // Hide markers if not configured to show, or if Home Assistant/sun entity state is unavailable
-        if (!showSunMarkers || !this._hass || !this._hass.states[sunEntityId]) {
+        // Check if markers elements exist and are supposed to be shown
+        if (!showSunMarkers || !this._elements.sunriseMarker || !this._elements.sunsetMarker || !this._hass || !this._hass.states[sunEntityId]) {
             if (this._elements.sunriseMarker) this._elements.sunriseMarker.style.display = 'none';
-            if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
+            if (this._elements.sunsetMarker) this._elements.sunsetMarker.style.display = 'none';
             return;
         }
 
         const sunState = this._hass.states[sunEntityId];
         const attributes = sunState.attributes;
 
-        // Check if next_rising and next_setting attributes exist
         if (attributes.next_rising && attributes.next_setting) {
             const sunrise = new Date(attributes.next_rising);
             const sunset = new Date(attributes.next_setting);
 
-            // Hide markers if dates are invalid
             if (isNaN(sunrise.getTime()) || isNaN(sunset.getTime())) {
-                if (this._elements.sunriseMarker) this._elements.sunriseMarker.style.display = 'none';
-                if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
+                this._elements.sunriseMarker.style.display = 'none';
+                this._elements.sunsetMarker.style.display = 'none';
                 return;
             }
 
-            // Ensure markers are visible and apply custom color
-            if (this._elements.sunriseMarker) {
-                this._elements.sunriseMarker.style.display = '';
-                this._elements.sunriseMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)';
-            }
-            if (this.sunsetMarker) {
-                this.sunsetMarker.style.display = '';
-                this.sunsetMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)';
-            }
+            this._elements.sunriseMarker.style.display = '';
+            this._elements.sunriseMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)';
+            this._elements.sunsetMarker.style.display = '';
+            this._elements.sunsetMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)';
+
 
             const sunriseAngle = this.dateToAngle(sunrise);
             const sunsetAngle = this.dateToAngle(sunset);
 
-            // Position and counter-rotate sunrise marker
-            if (this._elements.sunriseMarker) {
-                this._elements.sunriseMarker.style.transform = `translateX(-50%) rotate(${sunriseAngle}deg)`;
-                const sunriseInnerContent = this._elements.sunriseMarker.querySelector('ha-icon') || this._elements.sunriseMarker.querySelector('span');
-                if (sunriseInnerContent) {
-                    sunriseInnerContent.style.transform = `rotate(${-sunriseAngle}deg)`;
-                }
+            this._elements.sunriseMarker.style.transform = `translateX(-50%) rotate(${sunriseAngle}deg)`;
+            const sunriseInnerContent = this._elements.sunriseMarker.querySelector('ha-icon') || this._elements.sunriseMarker.querySelector('span');
+            if (sunriseInnerContent) {
+                sunriseInnerContent.style.transform = `rotate(${-sunriseAngle}deg)`;
             }
 
-            // Position and counter-rotate sunset marker
-            if (this.sunsetMarker) {
-                this.sunsetMarker.style.transform = `translateX(-50%) rotate(${sunsetAngle}deg)`;
-                const sunsetInnerContent = this.sunsetMarker.querySelector('ha-icon') || this.sunsetMarker.querySelector('span');
-                if (sunsetInnerContent) {
-                    sunsetInnerContent.style.transform = `rotate(${-sunsetAngle}deg)`;
-                }
+            this._elements.sunsetMarker.style.transform = `translateX(-50%) rotate(${sunsetAngle}deg)`;
+            const sunsetInnerContent = this._elements.sunsetMarker.querySelector('ha-icon') || this._elements.sunsetMarker.querySelector('span');
+            if (sunsetInnerContent) {
+                sunsetInnerContent.style.transform = `rotate(${-sunsetAngle}deg)`;
             }
         } else {
-            // Hide markers if attributes are missing
-            if (this._elements.sunriseMarker) this._elements.sunriseMarker.style.display = 'none';
-            if (this.sunsetMarker) this.sunsetMarker.style.display = 'none';
+            this._elements.sunriseMarker.style.display = 'none';
+            this._elements.sunsetMarker.style.display = 'none';
         }
     }
 
@@ -817,7 +874,7 @@ class RingsClockCard extends HTMLElement {
     // ========================================================================
 
     /**
-     * Renders the legends for arcs and markers.
+     * Renders the legends for arcs, custom markers, and sun markers.
      */
     doRenderLegends() {
         if (!this.showLegends) {
@@ -853,11 +910,12 @@ class RingsClockCard extends HTMLElement {
                 iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><ha-icon icon="${markerConfig.icon}"></ha-icon></div>`;
             } else if (markerConfig.icon) {
                 iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${markerConfig.icon}</span></div>`;
-            } else if (markerConfig.name) { // Fallback to a default icon if neither icon nor name is provided for visual consistency
+            } else {
                 iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span></div>`;
             }
 
-            legendItem.innerHTML = `${iconHtml}<span>${markerConfig.name || 'Marker'}</span>`; // Fallback name
+            // Display full name for legend
+            legendItem.innerHTML = `${iconHtml}<span>${markerConfig.name || 'Custom Marker'}</span>`;
             fragment.appendChild(legendItem);
         });
 
@@ -875,43 +933,49 @@ class RingsClockCard extends HTMLElement {
     static getStubConfig() {
         return {
             title: '24-Hour Rings Clock',
+            header_icon: 'mdi:clock-outline', // Added new header icon
             hand_color: '#FF0000',
             show_rings: true,
             show_hours: true,
-            show_legend: true,
+            show_legends: true,
             sun: {
+                entity: 'sun.sun',
                 show: true,
-                color: '#FFA500', // Example color
-                sunrise_icon: 'mdi:weather-sunny-alert', // Example MDI icon for sunrise
-                sunset_icon: 'mdi:weather-night' // Example MDI icon for sunset
+                color: '#FFA500',
+                sunrise_icon: 'mdi:weather-sunny-alert',
+                sunset_icon: 'mdi:weather-night',
+                sunrise_name: 'Sunrise',
+                sunset_name: 'Sunset'
             },
             ranges: [{
                 start_time: 'input_datetime.start_time',
                 end_time: 'input_datetime.end_time',
                 ring: 'ring1',
-                color: '#03a9f4'
+                color: '#03a9f4',
+                name: 'Custom Event'
             }, {
                 start_time: '06:00',
                 end_time: '18:00',
                 ring: 'ring2',
-                color: '#FFD700'
+                color: '#FFD700',
+                name: 'Daylight Hours'
             }],
             markers: [
                 {
                     marker: '12:00',
                     name: 'Noon',
-                    icon: 'mdi:white-balance-sunny', // Example MDI icon
+                    icon: 'mdi:white-balance-sunny',
                     color: 'gold'
                 },
                 {
                     marker: '22:30',
-                    name: 'Bed',
+                    name: 'Bedtime',
                     icon: 'mdi:bed',
                     color: 'purple'
                 },
                 {
-                    marker: 'input_datetime.my_custom_marker_time', // Example with an entity
-                    name: 'Event',
+                    marker: 'input_datetime.my_custom_marker_time',
+                    name: 'Meeting',
                     icon: 'mdi:calendar-star',
                     color: 'green'
                 }
@@ -928,7 +992,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
     type: 'rings-clock-card',
     name: '24-Hours Rings Clock Card',
-    description: RingsClockCard.CARD_DESCRIPTION // Use constant for description
+    description: RingsClockCard.CARD_DESCRIPTION
 });
 
 // Log card version to console for debugging/information
