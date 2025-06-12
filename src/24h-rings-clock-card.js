@@ -4,6 +4,7 @@ class RingsClockCard extends HTMLElement {
     _config;
     _hass;
     _elements = {};
+    _isAttached = false;
 
     // ========================================================================
     //  CONSTANTS (Defaults, Icons, Metadata)
@@ -24,8 +25,6 @@ class RingsClockCard extends HTMLElement {
         super();
         this.doCard(); // Initializes the base card structure
         this.doStyle(); // Applies the CSS styles
-        this.doAttach(); // Attaches the shadow DOM
-        this.doQueryElements(); // Queries and stores references to key DOM elements
         this.updateClock = this.updateClock.bind(this); // Binds 'this' context for clock updates
         this.updateSunMarkers = this.updateSunMarkers.bind(this); // Binds 'this' context for sun marker updates
         this.updateMarkers = this.updateMarkers.bind(this); // Bind this context for custom marker updates
@@ -41,6 +40,14 @@ class RingsClockCard extends HTMLElement {
         if (JSON.stringify(this._config) === JSON.stringify(config)) {
             return;
         }
+
+        // Debouncer, attach the elements once.
+        if (!this._isAttached) {
+            this.doAttach();
+            this.doQueryElements();
+            this._isAttached = true;
+        }
+
 
         this._config = config;
         this.rangesConfig = config.ranges || []; // Initialize time ranges
@@ -67,12 +74,12 @@ class RingsClockCard extends HTMLElement {
      */
     set hass(hass) {
         this._hass = hass;
-        this.doUpdateConfig(); // Update card title based on config (always refreshes)
+
         this.updateClock(); // Update clock hand position and arc ranges
+        this.updateArcs(); // Update arcs positions
         this.updateSunMarkers(); // Update sun marker positions
         this.updateMarkers(); // Update custom marker positions
         this.updateRingsVisibility(); // Update visibility of static rings
-        this.doRenderLegends(); // Update legends based on current state (e.g., entity names)
     }
 
     // ========================================================================
@@ -465,7 +472,7 @@ class RingsClockCard extends HTMLElement {
     /**
      * Updates the card's title and icon visibility based on the configuration.
      */
-    doUpdateConfig() {
+    updateCardHeader() {
         const hasTitle = !!this.headerTitle;
         const hasIcon = !!this.headerIcon;
 
@@ -499,12 +506,13 @@ class RingsClockCard extends HTMLElement {
         // that affects the number or type of elements (e.g., new ranges/markers)
         this._elements.clockFace.querySelectorAll('.hour-marker, .hour-number, .arc, .sun-marker, .custom-marker, #hourHand, #centerDot').forEach(el => el.remove());
 
+        this.updateCardHeader();
         this.createHourMarkers();
         this.createArcs();
         this.createSunMarkers();
         this.createMarkers();
         this.createHourHandAndCenterDot();
-        this.doRenderLegends();
+        this.createLegends();
     }
 
     // ========================================================================
@@ -593,16 +601,9 @@ class RingsClockCard extends HTMLElement {
         if (this._elements.hourHand) {
             this._elements.hourHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${hourAngle}deg)`;
         }
-
-        // Update arc ranges in case their entity states have changed
-        if (this._hass && this._elements.arcs) {
-            this._elements.arcs.forEach(({ element, range }) => {
-                this.updateArc(element, range);
-            });
-        }
     }
 
-    // ========================================================================
+// ========================================================================
     //  TIME RANGES (Arcs)
     // ========================================================================
 
@@ -621,6 +622,18 @@ class RingsClockCard extends HTMLElement {
             this._elements.arcs.push({ element: arc, range: range });
         });
         this._elements.clockFace.appendChild(fragment);
+    }
+
+    /**
+     * Update all the arcs
+     */
+    updateArcs() {
+        // Update arc ranges in case their entity states have changed
+        if (this._hass && this._elements.arcs) {
+            this._elements.arcs.forEach(({ element, range }) => {
+                this.updateArc(element, range);
+            });
+        }
     }
 
     /**
@@ -877,7 +890,7 @@ class RingsClockCard extends HTMLElement {
     /**
      * Renders the legends for arcs, custom markers, and sun markers.
      */
-    doRenderLegends() {
+    createLegends() {
         if (!this.showLegends) {
             this._elements.legendsContainer.classList.add('hidden');
             return;
