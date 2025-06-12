@@ -1,2 +1,190 @@
-# 24h-rings-clock-card
-Minimalistic rings card for Home Assistant Lovelace UI
+# 24h-rings-clock-card by [@hatemzidi](https://github.com/hatemzidi)
+[![GitHub Release][releases-shield]][releases]
+[![hacs_badge](https://img.shields.io/badge/HACS-default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
+
+Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, custom markers, and more display options.
+
+![Preview][preview]
+![Preview 2][preview-2]
+
+#### Please ⭐️ this repo if you find it useful
+
+## TOC
+- [Installation](#installation)
+    - [HACS](#hacs)
+    - [Manual](#manual)
+- [Configuration](#configuration)
+    - [Visual Editor](#visual-editor)
+    - [Options](#options)
+        - [Icon options](#icon-options)
+        - [Slider options](#slider-options)
+        - [Action button options](#action-button-options)
+        - [Tap action](#action-options)
+    - [Styles](#styles)
+- [Examples](#examples)
+    - [Minimal working config](#minimal-working-config)
+    - [Per feature](#per-feature)
+        - [General](#general)
+        - [Icon](#icon)
+        - [Action button](#action-button)
+        - [Slider](#slider)
+    - [Full examples](#full-examples)
+        - [Fan](#fan)
+        - [Switch](#switch)
+        - [Cover](#cover)
+        - [Media player](#media-player)
+        - [Climate](#climate)
+        - [Lock](#lock)
+        - [In a grid](#grid)
+- [Group support](#groups)
+- [Known issues](#known-issues)
+- [Languages](#languages)
+- [Credits](#credits)
+
+## Installation
+
+### HACS
+This card is available in [HACS][hacs] (Home Assistant Community Store).
+Just search for `24h rings clock` in Frontend tab.
+
+### Manual
+
+1. Download `24h-rings-clock-card.js` file from the [latest-release].
+2. Put `24h-rings-clock-card.js` file into your `config/www` folder.
+3. Go to _Configuration_ → _Lovelace Dashboards_ → _Resources_ → Click Plus button → Set _Url_ as `/local/24h-rings-clock-card.js` → Set _Resource type_ as `JavaScript Module`.
+4. Add `custom:rings-clock-card` to Lovelace UI as any other card (using either editor or YAML configuration).
+
+## Configuration
+
+### Visual Editor
+
+24h-rings-clock-card  Lovelace's Visual Editor.
+<details>
+  <summary>Show screenshot</summary>
+
+![Visual Editor][visual-editor]
+</details>
+
+
+### Options
+| Name         | Type    | Requirement | Description                                                                          | Default                      |
+|--------------|---------|-------------|--------------------------------------------------------------------------------------|------------------------------|
+| type         | string  | Required    | The card type. Must be custom:rings-clock-card.                                      | custom:rings-clock-card      |
+| title        | string  | Optional    | The main title displayed at the top left of the card.                                | None                         |
+| header_icon  | string  | Optional    | An MDI icon to display at the top right of the card next to the title.               | None                         |
+| hand_color   | string  | Optional    | Custom color for the hour hand and the center dot (e.g., "#FF0000" or "red").        | var(--accent-color, #03a9f4) |
+| show_rings   | boolean | Optional    | Show/hide the static dashed rings on the clock face.                                 | true                         |
+| show_hours   | boolean | Optional    | Show/hide the hour numbers (00-23) on the clock face.                                | true                         |
+| show_legends | boolean | Optional    | Show/hide the legends at the bottom of the card for ranges, markers, and sun events. | true                         |
+| sun          | object  | Optional    | Sun options to display sunrise and sunset markers.                                   | See Sun Options              |
+| ranges       | array   | Optional    | An array of Range options to define custom time arcs.                                | []                           |
+| markers      | array   | Optional    | An array of Marker options to define custom time markers.                            | []                           |
+
+
+### Sun Options
+| Name         | Type    | Requirement | Description                                                     | Default                      |
+|--------------|---------|-------------|-----------------------------------------------------------------|------------------------------|
+| entity       | string  | Optional    | The Home Assistant sun entity ID (e.g., sun.sun).               | sun.sun                      |
+| show         | boolean | Optional    | Show/hide the sunrise and sunset markers on the clock face.     | true                         |
+| color        | string  | Optional    | Custom color for the sun markers (e.g., "#FFA500" or "orange"). | var(--accent-color, #FFA500) |
+| sunrise_icon | string  | Optional    | An MDI icon or custom text for the sunrise marker.              | mdi:weather-sunny-alert or ↑ |
+| sunset_icon  | string  | Optional    | An MDI icon or custom text for the sunset marker.               | mdi:weather-night or ↓       |
+
+
+### Ranges Options
+| Name       | Type   | Requirement | Description                                                                                     | Default                      |
+|------------|--------|-------------|-------------------------------------------------------------------------------------------------|------------------------------|
+| start_time | string | Required    | The start time of the arc (e.g., "06:00") or an entity ID (e.g., input_datetime.my_start_time). | None                         |
+| end_time   | string | Required    | The end time of the arc (e.g., "18:00") or an entity ID (e.g., input_datetime.my_end_time).     | None                         |
+| ring       | string | Optional    | Specifies which ring the arc should be drawn on (ring1, ring2, ring3, or ring4).                | ring1                        |
+| color      | string | Optional    | Custom color for the arc (e.g., "#03a9f4" or "blue").                                           | var(--accent-color, #03a9f4) |
+| name       | string | Optional    | Name for the arc legend entry.                                                                  | None                         |
+
+### Markers Options
+| Name   | Type   | Requirement | Description                                                                                                                             | Default                         |
+|--------|--------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| marker | string | Required    | The time for the marker (e.g., "12:00") or an entity ID (e.g., input_datetime.my_event_time).                                           | None                            |
+| name   | string | Optional    | Name for the marker legend entry. Also used as a fallback text on the marker itself if no icon is provided (truncated to 3 characters). | None                            |
+| icon   | string | Optional    | An MDI icon or custom text for the marker.                                                                                              | mdi:white-balance-sunny or •    |
+| color  | string | Optional    | Custom color for the marker (e.g., "gold" or "green").                                                                                  | var(--primary-text-color, #333) |
+
+
+## Examples
+
+### Minimal working config
+```
+type: custom:rings-clock-card
+markers:
+  - marker: "14:30"
+    name: "Meeting"
+    icon: "mdi:calendar-clock"
+show_legends: false # Optional: Hide legends for a more minimal look
+```                            
+
+### Full examples
+```
+type: custom:rings-clock-card
+title: 'My Daily Schedule'
+header_icon: 'mdi:clock-outline' # Example header icon
+hourhand_color: '#DC143C' # Crimson red for the hour hand
+show_rings: true
+show_hours: true
+show_legends: true
+sun:
+  entity: 'sun.sun'
+  show: true
+  color: '#FFD700' # Gold color for sun markers
+  sunrise_icon: 'mdi:weather-sunny-alert'
+  sunset_icon: 'mdi:weather-night'
+  sunrise_name: 'Sunrise Time'
+  sunset_name: 'Sunset Time'
+ranges:
+  - start_time: 'input_datetime.work_start' # Using an entity for start time
+    end_time: 'input_datetime.work_end'   # Using an entity for end time
+    ring: 'ring1'
+    color: '#4CAF50' # Green for work hours
+    name: 'Work Hours'
+  - start_time: '18:00'
+    end_time: '23:00'
+    ring: 'ring2'
+    color: '#2196F3' # Blue for evening
+    name: 'Evening Chill'
+  - start_time: '00:00' # Crosses midnight
+    end_time: '06:00'
+    ring: 'ring3'
+    color: '#9C27B0' # Purple for night
+    name: 'Sleep Time'
+markers:
+  - marker: '08:00'
+    name: 'Breakfast'
+    icon: 'mdi:silverware-fork-knife'
+    color: '#FF5722' # Orange
+  - marker: '12:00'
+    name: 'Lunch Break'
+    icon: 'mdi:food'
+    color: '#00BCD4' # Cyan
+  - marker: 'input_datetime.gym_time' # Marker from an entity
+    name: 'Gym Session'
+    icon: 'mdi:dumbbell'
+    color: '#673AB7' # Deep Purple
+  - marker: '22:00'
+    name: 'Bedtime Reminder'
+    icon: 'mdi:bed-empty'
+    color: '#795548' # Brown
+```                                
+
+## Known issues
+When you discover any bugs please open an [issue](https://github.com/custom-cards/slider-button-card/issues).
+
+
+---
+[![beer](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://buymeacoffee.com/hatemzidi)
+
+<!-- References -->
+[hacs]: https://hacs.xyz
+[visual-editor]: https://raw.githubusercontent.com/custom-cards/slider-button-card/main/assets/card-editor.png
+[preview]: https://raw.githubusercontent.com/custom-cards/slider-button-card/main/assets/preview.gif
+[preview-2]: https://raw.githubusercontent.com/custom-cards/slider-button-card/main/assets/preview-2.gif
+[latest-release]: https://github.com/custom-cards/slider-button-card/releases/latest
+[releases-shield]: https://img.shields.io/github/release/custom-cards/slider-button-card.svg?style=for-the-badge
+[releases]: https://github.com/custom-cards/slider-button-card/releases
