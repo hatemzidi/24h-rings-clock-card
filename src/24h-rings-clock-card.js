@@ -108,7 +108,6 @@ class RingsClockCard extends HTMLElement {
                   display: none !important;
                 }               
 
-                /* Modified header styling */
                 .card-header {
                     display: flex; 
                     justify-content: space-between; /* Space out title and icon */
@@ -568,8 +567,8 @@ class RingsClockCard extends HTMLElement {
         this._elements.hourHand.className = 'hour-hand';
         this._elements.hourHand.id = 'hourHand';
         // Apply custom color if provided
-        if (this._elements.handColor) {
-            this._elements.hourHand.style.background = this._elements.handColor;
+        if (this.handColor) {
+            this._elements.hourHand.style.background = this.handColor;
         }
         fragment.appendChild(this._elements.hourHand); // Append to the fragment
 
@@ -577,8 +576,8 @@ class RingsClockCard extends HTMLElement {
         this._elements.centerDot.className = 'center-dot';
         this._elements.centerDot.id = 'centerDot';
         // Apply custom color to center dot for consistency
-        if (this._elements.handColor) {
-            this._elements.centerDot.style.background = this._elements.handColor;
+        if (this.handColor) {
+            this._elements.centerDot.style.background = this.handColor;
         }
         fragment.appendChild(this._elements.centerDot); // Append to the fragment
 
@@ -603,7 +602,7 @@ class RingsClockCard extends HTMLElement {
         }
     }
 
-// ========================================================================
+    // ========================================================================
     //  TIME RANGES (Arcs)
     // ========================================================================
 
@@ -948,7 +947,7 @@ class RingsClockCard extends HTMLElement {
         return {
             title: '24-Hour Rings Clock',
             header_icon: 'mdi:clock-outline', // Added new header icon
-            hand_color: '#FF0000',
+            hand_color: "#03a9f4",
             show_rings: true,
             show_hours: true,
             show_legends: true,
