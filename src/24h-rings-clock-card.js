@@ -674,9 +674,9 @@ class RingsClockCard extends HTMLElement {
     // ========================================================================
 
     /**
-     * Parses a time input (e.g., "HH:MM" or an entity ID) into an object
+     * Parses a time input (e.g., "HH:MM" or an entity ID or entity.attribute path) into an object
      * with hours and minutes.
-     * @param {string} timeInput - The time string or entity ID.
+     * @param {string} timeInput - The time string, entity ID, or entity.attribute path.
      * @returns {object|null} An object { hours, minutes } or null if invalid.
      */
     parseTime(timeInput) {
@@ -684,16 +684,47 @@ class RingsClockCard extends HTMLElement {
 
         let timeStr = timeInput;
 
-        // If timeInput is an entity ID, retrieve its state from Home Assistant
+        // Check if timeInput is an entity ID or an entity.attribute path
         if (typeof timeInput === 'string' && timeInput.includes('.')) {
-            const entityState = this._hass?.states[timeInput];
+            const parts = timeInput.split('#attributes#');
+            const entityId = parts[0];
+            const attributePath = parts.length > 1 ? parts[1] : null;
+
+            const entityState = this._hass?.states[entityId];
+
             if (entityState && entityState.state !== 'unavailable' && entityState.state !== 'unknown') {
-                timeStr = entityState.state;
+                if (attributePath) {
+                    // Navigate through attributes to find the value
+                    let attributeValue = entityState.attributes;
+                    for (const attr of attributePath.split('.')) {
+                        if (attributeValue && attributeValue.hasOwnProperty(attr)) {
+                            attributeValue = attributeValue[attr];
+                        } else {
+                            attributeValue = null; // Path not found
+                            break;
+                        }
+                    }
+
+                    if (attributeValue) {
+                        // If it's a date string (like next_rising/setting), parse it as a Date object first
+                        const date = new Date(attributeValue);
+                        if (!isNaN(date.getTime())) {
+                            return { hours: date.getHours(), minutes: date.getMinutes() };
+                        } else {
+                            timeStr = String(attributeValue); // Treat as a direct time string if not a valid date
+                        }
+                    } else {
+                        return null; // Attribute value not found or invalid
+                    }
+                } else {
+                    timeStr = entityState.state; // Use the direct state if no attribute path
+                }
             } else {
                 return null; // Entity state is not available or invalid
             }
         }
 
+        // Handle "HH:MM" format or value obtained from entity/attribute
         const parts = timeStr.split(':').map(Number);
         if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
             return { hours: parts[0], minutes: parts[1] };
