@@ -94,19 +94,19 @@ class RingsClockCard extends HTMLElement {
         this._elements.style = document.createElement("style");
         this._elements.style.textContent = `
                 ha-card {
-                    padding: 20px;
+                    padding: 0 16px;
                 }
-                
+                          
                 .hidden {
                   display: none !important;
                 }               
 
                 /* Modified header styling */
                 .card-header {
-                    display: flex; /* Use flexbox for alignment */
+                    display: flex; 
                     justify-content: space-between; /* Space out title and icon */
-                    align-items: center; /* Vertically align items */
-                    padding: 0 0 10px 0; /* Add bottom padding */
+                    align-items: center; 
+                    padding: 0 10px;
                     color: inherit;
                     font-size: 1.2em;
                     font-weight: var(--mcg-title-font-weight, 500);
@@ -129,6 +129,7 @@ class RingsClockCard extends HTMLElement {
                     flex-direction: column;
                     align-items: center;
                     width: 100%;
+                    padding-bottom: 10px;
                 }
 
                 .clock {
@@ -319,7 +320,7 @@ class RingsClockCard extends HTMLElement {
                     gap: 15px; /* Space between legend items */
                     margin-top: 20px;
                     width: 100%;
-                    padding: 0 10px; /* Some padding on the sides */
+                    padding: 0 10px 10px 0;
                     box-sizing: border-box; /* Include padding in element's total width */
                 }
 
