@@ -5,6 +5,25 @@ class RingsClockCard extends HTMLElement {
     _hass;
     _elements = {};
 
+    // ========================================================================
+    //  CONSTANTS (Defaults, Icons, Metadata)
+    // ========================================================================
+    static CARD_DESCRIPTION = 'Enhanced 24-hours analog clock with time ranges, sun information, custom markers, and more display options.';
+    static CARD_VERSION = '0.0.1'; // Increment this with new features/fixes
+
+    // Default Icons (text-based for simplicity if MDI is not used)
+    static DEFAULT_SUNRISE_ICON_TEXT = '↑';
+    static DEFAULT_SUNSET_ICON_TEXT = '↓';
+    static DEFAULT_CUSTOM_MARKER_ICON_TEXT = '•';
+
+    // Default Material Design Icons (MDI) for stub configuration/examples
+    static DEFAULT_SUNRISE_ICON_MDI = 'mdi:weather-sunny-alert';
+    static DEFAULT_SUNSET_ICON_MDI = 'mdi:weather-night';
+    static DEFAULT_NOON_MARKER_ICON_MDI = 'mdi:white-balance-sunny';
+    static DEFAULT_BED_MARKER_ICON_MDI = 'mdi:bed';
+    static DEFAULT_EVENT_MARKER_ICON_MDI = 'mdi:calendar-star';
+
+
     constructor() {
         super();
         this.doCard();
@@ -31,7 +50,7 @@ class RingsClockCard extends HTMLElement {
 
     set hass(hass) {
         this._hass = hass;
-        this.doUpdateConfig()
+        this.doUpdateConfig(); //todo(hatem) it's always refreshing
         this.updateClock();
         this.updateSunMarkers();
         this.updateMarkers();
@@ -506,7 +525,7 @@ class RingsClockCard extends HTMLElement {
             } else if (markerConfig.name) {
                 markerDiv.innerHTML = `<span>${markerConfig.name}</span>`;
             } else {
-                markerDiv.innerHTML = `<span>•</span>`; // Default if no icon or name
+                markerDiv.innerHTML = `<span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`; // Use constant
             }
 
             if (markerConfig.color) {
@@ -559,7 +578,7 @@ class RingsClockCard extends HTMLElement {
             if (this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) {
                 this.sunriseMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunrise_icon}"></ha-icon>`;
             } else {
-                this.sunriseMarker.innerHTML = `<span>${this.sunConfig.sunrise_icon || '↑'}</span>`;
+                this.sunriseMarker.innerHTML = `<span>${this.sunConfig.sunrise_icon || RingsClockCard.DEFAULT_SUNRISE_ICON_TEXT}</span>`; // Use constant
             }
             this._elements.clockFace.appendChild(this.sunriseMarker);
 
@@ -570,7 +589,7 @@ class RingsClockCard extends HTMLElement {
             if (this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) {
                 this.sunsetMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunset_icon}"></ha-icon>`;
             } else {
-                this.sunsetMarker.innerHTML = `<span>${this.sunConfig.sunset_icon || '↓'}</span>`;
+                this.sunsetMarker.innerHTML = `<span>${this.sunConfig.sunset_icon || RingsClockCard.DEFAULT_SUNSET_ICON_TEXT}</span>`; // Use constant
             }
             this._elements.clockFace.appendChild(this.sunsetMarker);
         } else {
@@ -650,9 +669,9 @@ class RingsClockCard extends HTMLElement {
         return {
             title: '24-Hour Rings Clock',
             hourhand_color: '#FF0000',
-            show_rings: true, 
+            show_rings: true,
             show_hours: true,
-            sun: { 
+            sun: {
                 entity: 'sun.sun',
                 show: true,
                 color: '#FFA500', // Example color
@@ -700,9 +719,9 @@ window.customCards = window.customCards || [];
 window.customCards.push({
     type: 'rings-clock-card',
     name: '24-Hours Rings Clock Card',
-    description: 'Enhanced 24-hours analog clock with time ranges and more options'
+    description: RingsClockCard.CARD_DESCRIPTION // Use constant
 });
 
-console.info('%c24H-RINGS-CLOCK-CARD %c0.0.0',
+console.info('%c24H-RINGS-CLOCK-CARD %c' + RingsClockCard.CARD_VERSION, // Use constant
     'color: orange; font-weight: bold; background: black',
     'color: white; font-weight: bold; background: dimgray',);
