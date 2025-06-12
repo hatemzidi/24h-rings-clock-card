@@ -48,7 +48,6 @@ class RingsClockCard extends HTMLElement {
             this._isAttached = true;
         }
 
-
         this._config = config;
         this.rangesConfig = config.ranges || []; // Initialize time ranges
         this.markersConfig = config.markers || []; // Initialize custom markers
@@ -938,7 +937,8 @@ class RingsClockCard extends HTMLElement {
 
         // Add Arc Legends
         this.rangesConfig.forEach(range => {
-            if (range.name) { // Only add legend if a name is provided for the arc
+            // Only add legend if a name is provided AND show_in_legend is true
+            if (range.name && range.show_in_legend !== false) {
                 const legendItem = document.createElement('div');
                 legendItem.className = 'legend-item';
                 legendItem.innerHTML = `
@@ -951,21 +951,25 @@ class RingsClockCard extends HTMLElement {
 
         // Add Custom Marker Legends
         this.markersConfig.forEach(markerConfig => {
-            const legendItem = document.createElement('div');
-            legendItem.className = 'legend-item';
+            // Only add legend if a name is provided and show_in_legend is not explicitly false
+            // A name is generally expected for a legend entry
+            if (markerConfig.name && markerConfig.show_in_legend !== false) {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
 
-            let iconHtml = '';
-            if (markerConfig.icon && markerConfig.icon.startsWith('mdi:')) {
-                iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><ha-icon icon="${markerConfig.icon}"></ha-icon></div>`;
-            } else if (markerConfig.icon) {
-                iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${markerConfig.icon}</span></div>`;
-            } else {
-                iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span></div>`;
+                let iconHtml = '';
+                if (markerConfig.icon && markerConfig.icon.startsWith('mdi:')) {
+                    iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><ha-icon icon="${markerConfig.icon}"></ha-icon></div>`;
+                } else if (markerConfig.icon) {
+                    iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${markerConfig.icon}</span></div>`;
+                } else {
+                    iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span></div>`;
+                }
+
+                // Display full name for legend
+                legendItem.innerHTML = `${iconHtml}<span>${markerConfig.name || 'Custom Marker'}</span>`;
+                fragment.appendChild(legendItem);
             }
-
-            // Display full name for legend
-            legendItem.innerHTML = `${iconHtml}<span>${markerConfig.name || 'Custom Marker'}</span>`;
-            fragment.appendChild(legendItem);
         });
 
         this._elements.legendsContainer.appendChild(fragment);
@@ -1005,7 +1009,20 @@ class RingsClockCard extends HTMLElement {
                 end_time: '18:00',
                 ring: 'ring2',
                 color: '#FFD700',
-                name: 'Daylight Hours'
+                name: 'Daylight Hours',
+                show_in_legend: false
+            }, {
+                start_time: 'sun.sun#attributes#next_setting', // Night arc
+                end_time: 'sun.sun#attributes#next_rising',
+                ring: 'ring1',
+                color: '#34495e',
+                name: 'Night'
+            }, {
+                start_time: 'sun.sun#attributes#next_rising', // Day arc
+                end_time: 'sun.sun#attributes#next_setting',
+                ring: 'ring1',
+                color: '#FFD700',
+                name: 'Day'
             }],
             markers: [
                 {
