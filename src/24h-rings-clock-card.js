@@ -392,10 +392,15 @@ class RingsClockCard extends HTMLElement {
                         height: 15px;
                     }
 
-                    .ring1, .arc.ring1 { width: 200px; height: 200px; }
-                    .ring2, .arc.ring2 { width: 180px; height: 180px; }
-                    .ring3, .arc.ring3 { width: 160px; height: 160px; }
-                    .ring4, .arc.ring4 { width: 140px; height: 140px; }
+                    .ring1 { width: 180px; height: 180px; }
+                    .ring2 { width: 160px; height: 160px; }
+                    .ring3 { width: 140px; height: 140px; }
+                    .ring4 { width: 120px; height: 120px; }
+
+                    .arc.ring1 { width: 245px; height: 245px; }
+                    .arc.ring2 { width: 220px; height: 220px; }
+                    .arc.ring3 { width: 190px; height: 190px; }
+                    .arc.ring4 { width: 160px; height: 160px; }
 
                     .sun-marker {
                         transform-origin: 50% 135px;
@@ -422,7 +427,7 @@ class RingsClockCard extends HTMLElement {
                         height: 15px;
                     }
                     .legend-icon {
-                        font-size: 15px;
+                        font-size: 14px;
                     }
                     .legend-icon ha-icon {
                         --mdc-icon-size: 15px;
