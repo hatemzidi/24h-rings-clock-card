@@ -445,23 +445,27 @@ class RingsClockCard extends HTMLElement {
      * Creates the hour hand and the center dot of the clock.
      */
     createHourHandAndCenterDot() {
-        this.hourHand = document.createElement('div');
-        this.hourHand.className = 'hour-hand';
-        this.hourHand.id = 'hourHand';
-        // Apply custom color if provided
-        if (this.hourHandColor) {
-            this.hourHand.style.background = this.hourHandColor;
-        }
-        this._elements.clockFace.appendChild(this.hourHand);
+        const fragment = document.createDocumentFragment(); // Create a document fragment
 
-        this.centerDot = document.createElement('div');
-        this.centerDot.className = 'center-dot';
-        this.centerDot.id = 'centerDot';
-        // Apply custom color to center dot for consistency
-        if (this.hourHandColor) {
-            this.centerDot.style.background = this.hourHandColor;
+        this._elements.hourHand = document.createElement('div');
+        this._elements.hourHand.className = 'hour-hand';
+        this._elements.hourHand.id = 'hourHand';
+        // Apply custom color if provided
+        if (this._elements.hourHandColor) {
+            this._elements.hourHand.style.background = this._elements.hourHandColor;
         }
-        this._elements.clockFace.appendChild(this.centerDot);
+        fragment.appendChild(this._elements.hourHand); // Append to the fragment
+
+        this._elements.centerDot = document.createElement('div');
+        this._elements.centerDot.className = 'center-dot';
+        this._elements.centerDot.id = 'centerDot';
+        // Apply custom color to center dot for consistency
+        if (this._elements.hourHandColor) {
+            this._elements.centerDot.style.background = this._elements.hourHandColor;
+        }
+        fragment.appendChild(this._elements.centerDot); // Append to the fragment
+
+        this._elements.clockFace.appendChild(fragment); // Append the fragment to the clock face
     }
 
     /**
@@ -477,13 +481,13 @@ class RingsClockCard extends HTMLElement {
         const totalMinutes = hours * 60 + minutes + seconds / 60;
         const hourAngle = (totalMinutes / (24 * 60)) * 360;
 
-        if (this.hourHand) {
-            this.hourHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${hourAngle}deg)`;
+        if (this._elements.hourHand) {
+            this._elements.hourHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${hourAngle}deg)`;
         }
 
         // Update arc ranges in case their entity states have changed
         if (this._hass) {
-            this.arcElements.forEach(({ element, range }) => {
+            this._elements.arcs.forEach(({ element, range }) => {
                 this.updateArc(element, range);
             });
         }
@@ -497,7 +501,7 @@ class RingsClockCard extends HTMLElement {
      * Creates and appends the arc elements for time ranges.
      */
     createArcs() {
-        this.arcElements = []; // Store references to arc elements and their configurations
+        this._elements.arcs = []; // Store references to arc elements and their configurations
         const fragment = document.createDocumentFragment();
 
         this.rangesConfig.forEach((range, index) => {
@@ -505,7 +509,7 @@ class RingsClockCard extends HTMLElement {
             arc.className = `arc ${range.ring || 'ring1'}`; // Assign ring class, default to ring1
             arc.id = `arc-${index}`;
             fragment.appendChild(arc);
-            this.arcElements.push({ element: arc, range: range });
+            this._elements.arcs.push({ element: arc, range: range });
             this.updateArc(arc, range); // Initial update for the arc
         });
         this._elements.clockFace.appendChild(fragment);
