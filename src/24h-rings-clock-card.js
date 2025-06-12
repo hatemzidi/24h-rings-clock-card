@@ -20,6 +20,12 @@ class RingsClockCard extends HTMLElement {
         this.ranges = config.ranges || [];
         this.markers = config.markers || [];
         this.sunConfig = config.sun || {};
+
+        // toggles
+        this.hourHandColor = config.hourhand_color;
+        this.showRings = config.show_rings !== false;
+        this.showHours = config.show_hours !== false;
+
         this.doRender();
     }
 
@@ -29,6 +35,7 @@ class RingsClockCard extends HTMLElement {
         this.updateClock();
         this.updateSunMarkers();
         this.updateMarkers();
+        this.updateRingsVisibility();
     }
 
     doAttach() {
@@ -43,7 +50,9 @@ class RingsClockCard extends HTMLElement {
                     padding: 20px;
                 }
                 
-                .hidden { display: none; }
+                .hidden {
+                  display: none !important;
+                }               
 
                 .card-header {
                     color: inherit;
@@ -304,10 +313,10 @@ class RingsClockCard extends HTMLElement {
             <div class="clock-container">
                 <div class="clock">
                     <div class="clock-face" id="clock-face">
-                        <div class="ring1"></div>
-                        <div class="ring2"></div>
-                        <div class="ring3"></div>
-                        <div class="ring4"></div>
+                        <div class="ring1 static-ring" ></div>
+                        <div class="ring2 static-ring"></div>
+                        <div class="ring3 static-ring"></div>
+                        <div class="ring4 static-ring"></div>
                     </div>
                 </div>
             </div>
@@ -319,12 +328,15 @@ class RingsClockCard extends HTMLElement {
         const card = this._elements.card;
         this._elements.cardTitle = card.querySelector("#card-header");
         this._elements.clockFace = card.querySelector("#clock-face");
+        this._elements.rings = this._elements.clockFace.querySelectorAll('.static-ring');
     }
 
     doUpdateConfig() {
         if (this._config.title) {
             this._elements.cardTitle.textContent = `${this._config.title}`;
             this._elements.cardTitle.classList.remove("hidden");
+        } else {
+            this._elements.cardTitle.classList.add("hidden");
         }
     }
 
@@ -334,6 +346,15 @@ class RingsClockCard extends HTMLElement {
         this.createSunMarkers();
         this.createMarkers();
         this.createHourHandAndCenterDot();
+    }
+
+    updateRingsVisibility() {
+        // Loop through the NodeList of static rings
+        this._elements.rings.forEach(ring => {
+            if (ring) { // Always check if the element exists
+                ring.classList.toggle('hidden', !this.showRings);
+            }
+        });
     }
 
     createHourMarkers() {
@@ -346,6 +367,10 @@ class RingsClockCard extends HTMLElement {
 
             const hourNumber = document.createElement('div');
             hourNumber.className = 'hour-number';
+            // Add class to hide if show_hours is false
+            if (!this.showHours) {
+                hourNumber.classList.add('hidden');
+            }
             hourNumber.style.transform = `translateX(-50%) rotate(${hour * 15}deg)`;
 
             const textSpan = document.createElement('span');
@@ -378,11 +403,19 @@ class RingsClockCard extends HTMLElement {
         this.hourHand = document.createElement('div');
         this.hourHand.className = 'hour-hand';
         this.hourHand.id = 'hourHand';
+        // Apply custom color if provided, otherwise default to CSS variable
+        if (this.hourHandColor) {
+            this.hourHand.style.background = this.hourHandColor;
+        }
         this._elements.clockFace.appendChild(this.hourHand);
 
         this.centerDot = document.createElement('div');
         this.centerDot.className = 'center-dot';
         this.centerDot.id = 'centerDot';
+        // Apply custom color to center dot as well for consistency
+        if (this.hourHandColor) {
+            this.centerDot.style.background = this.hourHandColor;
+        }
         this._elements.clockFace.appendChild(this.centerDot);
     }
 
@@ -616,6 +649,9 @@ class RingsClockCard extends HTMLElement {
     static getStubConfig() {
         return {
             title: '24-Hour Rings Clock',
+            hourhand_color: '#FF0000',
+            show_rings: true, 
+            show_hours: true,
             sun: { 
                 entity: 'sun.sun',
                 show: true,
