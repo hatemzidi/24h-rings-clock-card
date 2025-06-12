@@ -135,7 +135,7 @@ class RingsClockCard extends HTMLElement {
                     flex-direction: column;
                     align-items: center;
                     width: 100%;
-                    padding-bottom: 10px;
+                    padding: 10px 0;
                 }
 
                 .clock {
