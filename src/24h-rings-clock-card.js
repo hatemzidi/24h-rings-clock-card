@@ -46,7 +46,7 @@ class RingsClockCard extends HTMLElement {
         this.sunConfig = config.sun || {}; // Initialize sun configuration
 
         // Toggles for various display elements
-        this.hourHandColor = config.hourhand_color;
+        this.handColor = config.hand_color;
         this.showRings = config.show_rings !== false;
         this.showHours = config.show_hours !== false;
         this.showLegends = config.show_legends !== false; // Default to true
@@ -492,8 +492,8 @@ class RingsClockCard extends HTMLElement {
         this._elements.hourHand.className = 'hour-hand';
         this._elements.hourHand.id = 'hourHand';
         // Apply custom color if provided
-        if (this._elements.hourHandColor) {
-            this._elements.hourHand.style.background = this._elements.hourHandColor;
+        if (this._elements.handColor) {
+            this._elements.hourHand.style.background = this._elements.handColor;
         }
         fragment.appendChild(this._elements.hourHand); // Append to the fragment
 
@@ -501,8 +501,8 @@ class RingsClockCard extends HTMLElement {
         this._elements.centerDot.className = 'center-dot';
         this._elements.centerDot.id = 'centerDot';
         // Apply custom color to center dot for consistency
-        if (this._elements.hourHandColor) {
-            this._elements.centerDot.style.background = this._elements.hourHandColor;
+        if (this._elements.handColor) {
+            this._elements.centerDot.style.background = this._elements.handColor;
         }
         fragment.appendChild(this._elements.centerDot); // Append to the fragment
 
@@ -875,7 +875,7 @@ class RingsClockCard extends HTMLElement {
     static getStubConfig() {
         return {
             title: '24-Hour Rings Clock',
-            hourhand_color: '#FF0000',
+            hand_color: '#FF0000',
             show_rings: true,
             show_hours: true,
             show_legend: true,
