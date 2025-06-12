@@ -111,7 +111,7 @@ class Clock24HourCard extends HTMLElement {
                     text-align: center;
                 }
 
-                .circle1, .circle2, .circle3, .circle4 {
+                .ring1, .ring2, .ring3, .ring4 {
                     position: absolute;
                     border-radius: 50%;
                     border: 1px dashed var(--divider-color, #e0e0e0);
@@ -120,10 +120,10 @@ class Clock24HourCard extends HTMLElement {
                     transform: translate(-50%, -50%);
                 }
 
-                .circle1 { width: 250px; height: 250px; }
-                .circle2 { width: 230px; height: 230px; }
-                .circle3 { width: 210px; height: 210px; }
-                .circle4 { width: 190px; height: 190px; }
+                .ring1 { width: 250px; height: 250px; }
+                .ring2 { width: 230px; height: 230px; }
+                .ring3 { width: 210px; height: 210px; }
+                .ring4 { width: 190px; height: 190px; }
 
                 .arc {
                     position: absolute;
@@ -136,10 +136,10 @@ class Clock24HourCard extends HTMLElement {
                     -webkit-mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
                 }
 
-                .arc.circle1 { width: 345px; height: 345px; }
-                .arc.circle2 { width: 320px; height: 320px; }
-                .arc.circle3 { width: 290px; height: 290px; }
-                .arc.circle4 { width: 260px; height: 260px; }
+                .arc.ring1 { width: 345px; height: 345px; }
+                .arc.ring2 { width: 320px; height: 320px; }
+                .arc.ring3 { width: 290px; height: 290px; }
+                .arc.ring4 { width: 260px; height: 260px; }
 
                 .hour-hand {
                     position: absolute;
@@ -223,10 +223,10 @@ class Clock24HourCard extends HTMLElement {
                         height: 15px;
                     }
 
-                    .circle1, .arc.circle1 { width: 200px; height: 200px; }
-                    .circle2, .arc.circle2 { width: 180px; height: 180px; }
-                    .circle3, .arc.circle3 { width: 160px; height: 160px; }
-                    .circle4, .arc.circle4 { width: 140px; height: 140px; }
+                    .ring1, .arc.ring1 { width: 200px; height: 200px; }
+                    .ring2, .arc.ring2 { width: 180px; height: 180px; }
+                    .ring3, .arc.ring3 { width: 160px; height: 160px; }
+                    .ring4, .arc.ring4 { width: 140px; height: 140px; }
 
                     .sun-marker {
                         transform-origin: 50% 135px;
@@ -286,7 +286,7 @@ class Clock24HourCard extends HTMLElement {
 
         this.ranges.forEach((range, index) => {
             const arc = document.createElement('div');
-            arc.className = `arc ${range.circle || 'circle1'}`;
+            arc.className = `arc ${range.ring || 'ring1'}`;
             arc.id = `arc-${index}`;
             fragment.appendChild(arc);
             this.arcElements.push({ element: arc, range: range });
