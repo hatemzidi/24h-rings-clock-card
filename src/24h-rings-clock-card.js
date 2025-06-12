@@ -49,6 +49,7 @@ class RingsClockCard extends HTMLElement {
         this.hourHandColor = config.hourhand_color;
         this.showRings = config.show_rings !== false;
         this.showHours = config.show_hours !== false;
+        this.showLegends = config.show_legends !== false; // Default to true
 
         this.doRender(); // Rerender the clock elements based on the new config
     }
@@ -165,6 +166,43 @@ class RingsClockCard extends HTMLElement {
                     display: block;
                     width: 100%;
                     text-align: center;
+                }
+                
+                .legends-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: 15px;
+                    margin-top: 20px;
+                    width: 100%;
+                }
+
+                .legend-item {
+                    display: flex;
+                    align-items: center;
+                    font-size: 14px;
+                    color: var(--primary-text-color, #333);
+                }
+
+                .legend-color-box {
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 4px;
+                    margin-right: 8px;
+                    border: 1px solid var(--divider-color, #e0e0e0);
+                }
+
+                .legend-icon {
+                    margin-right: 8px;
+                    font-size: 18px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .legend-icon ha-icon {
+                    --mdc-icon-size: 18px;
+                    color: inherit;
                 }
 
                 .ring1, .ring2, .ring3, .ring4 {
@@ -361,6 +399,7 @@ class RingsClockCard extends HTMLElement {
                         <div class="ring4 static-ring"></div>
                     </div>
                 </div>
+                <div class="legends-container hidden" id="legends-container"></div>
             </div>
         `;
     }
@@ -373,6 +412,7 @@ class RingsClockCard extends HTMLElement {
         this._elements.cardTitle = card.querySelector("#card-header");
         this._elements.clockFace = card.querySelector("#clock-face");
         this._elements.rings = this._elements.clockFace.querySelectorAll('.static-ring');
+        this._elements.legendsContainer = card.querySelector("#legends-container");
     }
 
     /**
@@ -396,6 +436,7 @@ class RingsClockCard extends HTMLElement {
         this.createSunMarkers();
         this.createMarkers();
         this.createHourHandAndCenterDot();
+        this.doRenderLegends();
     }
 
     // ========================================================================
@@ -772,6 +813,58 @@ class RingsClockCard extends HTMLElement {
     }
 
     // ========================================================================
+    //  LEGENDS
+    // ========================================================================
+
+    /**
+     * Renders the legends for arcs and markers.
+     */
+    doRenderLegends() {
+        if (!this.showLegends) {
+            this._elements.legendsContainer.classList.add('hidden');
+            return;
+        }
+
+        this._elements.legendsContainer.classList.remove('hidden');
+        this._elements.legendsContainer.innerHTML = ''; // Clear existing legends
+
+        const fragment = document.createDocumentFragment();
+
+        // Add Arc Legends
+        this.rangesConfig.forEach(range => {
+            if (range.name) { // Only add legend if a name is provided for the arc
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color-box" style="background-color: ${range.color || 'var(--accent-color, #03a9f4)'};"></div>
+                    <span>${range.name}</span>
+                `;
+                fragment.appendChild(legendItem);
+            }
+        });
+
+        // Add Custom Marker Legends
+        this.markersConfig.forEach(markerConfig => {
+            const legendItem = document.createElement('div');
+            legendItem.className = 'legend-item';
+
+            let iconHtml = '';
+            if (markerConfig.icon && markerConfig.icon.startsWith('mdi:')) {
+                iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><ha-icon icon="${markerConfig.icon}"></ha-icon></div>`;
+            } else if (markerConfig.icon) {
+                iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${markerConfig.icon}</span></div>`;
+            } else if (markerConfig.name) { // Fallback to a default icon if neither icon nor name is provided for visual consistency
+                iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span></div>`;
+            }
+
+            legendItem.innerHTML = `${iconHtml}<span>${markerConfig.name || 'Marker'}</span>`; // Fallback name
+            fragment.appendChild(legendItem);
+        });
+
+        this._elements.legendsContainer.appendChild(fragment);
+    }
+
+    // ========================================================================
     //  CARD METADATA & EXAMPLE CONFIG
     // ========================================================================
 
@@ -785,6 +878,7 @@ class RingsClockCard extends HTMLElement {
             hourhand_color: '#FF0000',
             show_rings: true,
             show_hours: true,
+            show_legend: true,
             sun: {
                 entity: 'sun.sun',
                 show: true,
