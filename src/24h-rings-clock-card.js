@@ -74,7 +74,7 @@ class RingsClockCard extends HTMLElement {
     set hass(hass) {
         this._hass = hass;
 
-        this.updateClock(); // Update clock hand position and arc ranges
+        this.updateClock(); // Update clock hand position 
         this.updateArcs(); // Update arcs positions
         this.updateSunMarkers(); // Update sun marker positions
         this.updateMarkers(); // Update custom marker positions
