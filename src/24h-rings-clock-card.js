@@ -226,7 +226,7 @@ class RingsClockCard extends HTMLElement {
                     -webkit-mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
                 }
 
-                .arc.ring1 { width: 345px; height: 345px; }
+                .arc.ring1 { width: 350px; height: 350px; }
                 .arc.ring2 { width: 320px; height: 320px; }
                 .arc.ring3 { width: 290px; height: 290px; }
                 .arc.ring4 { width: 260px; height: 260px; }
@@ -387,8 +387,8 @@ class RingsClockCard extends HTMLElement {
                     }
 
                     .hour-marker.major {
-                        transform-origin: 50% 135px;
-                        height: 15px;
+                        transform-origin: 50% 120px;
+                        height: 20px;
                     }
 
                     .ring1 { width: 180px; height: 180px; }
@@ -396,7 +396,7 @@ class RingsClockCard extends HTMLElement {
                     .ring3 { width: 140px; height: 140px; }
                     .ring4 { width: 120px; height: 120px; }
 
-                    .arc.ring1 { width: 245px; height: 245px; }
+                    .arc.ring1 { width: 250px; height: 250px; }
                     .arc.ring2 { width: 220px; height: 220px; }
                     .arc.ring3 { width: 190px; height: 190px; }
                     .arc.ring4 { width: 160px; height: 160px; }
