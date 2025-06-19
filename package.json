@@ -1,6 +1,18 @@
 {
   "source": "src/index.js",
   "module": "dist/24h-rings-clock-card.js",
+  "description": "Minimalistic rings card for Home Assistant Lovelace UI",
+  "keywords": [
+    "home-assistant",
+    "homeassistant",
+    "hass",
+    "automation",
+    "lovelace",
+    "custom-cards"
+  ],
+  "repository": "https://github.com/hatemzidi/24h-rings-clock-card",
+  "author": "Hatem ZIDI <hatem.zidi@gmail.com>",
+  "license": "MIT",
   "targets": {
     "module": {
       "includeNodeModules": true
