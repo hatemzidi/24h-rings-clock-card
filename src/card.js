@@ -3,6 +3,7 @@ import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { map } from 'lit/directives/map.js';
 import { range } from 'lit/directives/range.js';
+import {repeat} from 'lit/directives/repeat.js';
 
 import styles from './card.style';
 
@@ -121,8 +122,11 @@ export class RingsClockCard extends LitElement {
                             <div class="hours-markers">
                                 ${map(range(24), (i) => this.renderHourMarker(i))}
                             </div>
-                            <div class="hour_hand" style="${styleMap({background: this.handColor, transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)` })}"></div>
-                            <div class="center-dot" style="${styleMap({background: this.handColor})}"></div>
+                            <div class="hour_hand" style="${styleMap({
+                                background: this.handColor,
+                                transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)`
+                            })}"></div>
+                            <div class="center-dot" style="${styleMap({ background: this.handColor })}"></div>
                             <div class="rings">
                                 <div class="ring1 ${classMap({ hidden: !this.showRings })}"></div>
                                 <div class="ring2 ${classMap({ hidden: !this.showRings })}"></div>
@@ -140,7 +144,9 @@ export class RingsClockCard extends LitElement {
                             </div>
                         </div>
                     </div>
-                    <div class="legends-container ${classMap({ hidden: !this.showLegends })}" id="legends-container"></div>
+                    <div class="legends-container ${classMap({ hidden: !this.showLegends })}" id="legends-container">
+                        ${this.renderLegends()}
+                    </div>
                 </div>
                 <ha-card>
         `;
@@ -170,7 +176,7 @@ export class RingsClockCard extends LitElement {
         this._elements.clockFace.querySelectorAll('.hour-marker, .hour-number, .arc, .sun-marker, .custom-marker, #hourHand, #centerDot').forEach(el => el.remove());
 
         // this.createSunMarkers();
-        this.createLegends();
+        this.renderLegends();
     }
 
     // ========================================================================
@@ -184,7 +190,7 @@ export class RingsClockCard extends LitElement {
     renderHourMarker(hour) {
         return html`
             <div
-                    class="${classMap({major: hour % 6 === 0 })} hour_marker"
+                    class="${classMap({ major: hour % 6 === 0 })} hour_marker"
                     style="transform: translateX(-50%) rotate(${hour * 15}deg)"
             >
             </div>
@@ -211,14 +217,14 @@ export class RingsClockCard extends LitElement {
         const totalMinutes = hours * 60 + minutes + seconds / 60;
         const hourAngle = (totalMinutes / (24 * 60)) * 360;
 
-        this.tic= hourAngle;
+        this.tic = hourAngle;
     }
 
     // ========================================================================
     //  TIME RANGES (Arcs)
     // ========================================================================
 
-    renderRange(rangeConfig, index){
+    renderRange(rangeConfig, index) {
         const startTime = this.parseTime(rangeConfig.start_time);
         const endTime = this.parseTime(rangeConfig.end_time);
 
@@ -243,15 +249,15 @@ export class RingsClockCard extends LitElement {
         };
 
         return html`
-            <div id="arc_${index}" 
+            <div id="arc_${index}"
                  class="${rangeConfig.ring || 'ring1'} clock_arc"
                  style="${styleMap(divStyle)}"
-                 
+
             >
             </div>
         `;
     }
-    
+
     // ========================================================================
     //  TIME UTILITIES
     // ========================================================================
@@ -348,7 +354,7 @@ export class RingsClockCard extends LitElement {
             return html``
         }
         const markerAngle = this.timeToAngle(time);
-        
+
         const divStyle = {
             transform: `translateX(-50%) rotate(${markerAngle}deg)`,
             color: markerConfig.color ? `${markerConfig.color}` : '',
@@ -375,7 +381,7 @@ export class RingsClockCard extends LitElement {
         const sunEntityId = this.sunConfig.entity || 'sun.sun';
 
         // Check if markers exist and are supposed to be shown
-        if (!this.sunConfig.show  || !this._hass || !this._hass.states[sunEntityId]) {
+        if (!this.sunConfig.show || !this._hass || !this._hass.states[sunEntityId]) {
             return html``;
         }
 
@@ -405,16 +411,17 @@ export class RingsClockCard extends LitElement {
 
             return html
                 `
-                    <div id="sunrise-marker" 
-                         class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}" 
+                    <div id="sunrise-marker"
+                         class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
                          style="${styleMap(sunriseDivStyle)}"
                     >
                         ${(this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) ? html`
-                            <ha-icon style="transform: rotate(${-sunriseAngle}deg)" icon="${this.sunConfig.sunrise_icon}"></ha-icon>` : html`
+                            <ha-icon style="transform: rotate(${-sunriseAngle}deg)"
+                                     icon="${this.sunConfig.sunrise_icon}"></ha-icon>` : html`
                             <span style="transform: rotate(${-sunriseAngle}deg)">${this.sunConfig.sunrise_icon || RingsClockCard.DEFAULT_SUNRISE_ICON_TEXT}</span>`}
                     </div>
-                    <div id="sunset-marker" 
-                         class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}" 
+                    <div id="sunset-marker"
+                         class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
                          style="${styleMap(sunsetDivStyle)}"
                     >
                         ${(this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) ? html`
@@ -433,47 +440,25 @@ export class RingsClockCard extends LitElement {
     /**
      * Renders the legends for arcs, custom markers, and sun markers.
      */
-    createLegends() {
-        const fragment = document.createDocumentFragment();
-
-        // Add Arc Legends
-        this.rangesConfig.forEach(range => {
-            // Only add legend if a name is provided AND show_in_legend is true
-            if (range.name && range.show_in_legend !== false) {
-                const legendItem = document.createElement('div');
-                legendItem.className = 'legend-item';
-                legendItem.innerHTML = `
-                    <div class="legend-color-box" style="background-color: ${range.color || 'var(--accent-color, #03a9f4)'};"></div>
+    renderLegends() {
+        return html`
+            ${repeat(this.rangesConfig, (range) => html`
+                <div class="legend_item ${classMap({ hidden: (range.name && range.show_in_legend === false) })}">
+                    <div class="legend_color_box" style="background-color: ${range.color || 'var(--accent-color, #03a9f4)'};"></div>
                     <span>${range.name}</span>
-                `;
-                fragment.appendChild(legendItem);
+                </div>`)
             }
-        });
-
-        // Add Custom Marker Legends
-        this.markersConfig.forEach(markerConfig => {
-            // Only add legend if a name is provided and show_in_legend is not explicitly false
-            // A name is generally expected for a legend entry
-            if (markerConfig.name && markerConfig.show_in_legend !== false) {
-                const legendItem = document.createElement('div');
-                legendItem.className = 'legend-item';
-
-                let iconHtml = '';
-                if (markerConfig.icon && markerConfig.icon.startsWith('mdi:')) {
-                    iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><ha-icon icon="${markerConfig.icon}"></ha-icon></div>`;
-                } else if (markerConfig.icon) {
-                    iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${markerConfig.icon}</span></div>`;
-                } else {
-                    iconHtml = `<div class="legend-icon" style="color: ${markerConfig.color || 'var(--primary-text-color, #333)'};"><span>${RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span></div>`;
-                }
-
-                // Display full name for legend
-                legendItem.innerHTML = `${iconHtml}<span>${markerConfig.name || 'Custom Marker'}</span>`;
-                fragment.appendChild(legendItem);
+            ${repeat(this.markersConfig, (marker) => html`
+                <div class="legend_item ${classMap({ hidden: (!!marker.name && marker.show_in_legend === false) })}">
+                    <div class="legend_icon" style="color: ${marker.color || 'var(--primary-text-color, #333)'};">
+                        ${(marker.icon && marker.icon.startsWith('mdi:')) ? html`
+                            <ha-icon icon="${marker.icon}"></ha-icon>` : html`
+                            <span>${marker.icon || RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
+                    </div>
+                    <span>${marker.name}</span>
+                </div>`)
             }
-        });
-
-        this._elements.legendsContainer.appendChild(fragment);
+        `
     }
 
     // ========================================================================

@@ -226,7 +226,7 @@ export default css`
                     box-sizing: border-box; /* Include padding in element's total width */
                 }
 
-                .legend-item {
+                .legend_item {
                     display: flex;
                     align-items: center;
                     font-size: 14px;
@@ -234,7 +234,7 @@ export default css`
                     white-space: nowrap; /* Prevent text wrapping within an item */
                 }
 
-                .legend-color-box {
+                .legend_color_box {
                     width: 18px;
                     height: 18px;
                     border-radius: 4px;
@@ -243,7 +243,7 @@ export default css`
                     flex-shrink: 0; /* Prevent the box from shrinking */
                 }
 
-                .legend-icon {
+                .legend_icon {
                     margin-right: 8px;
                     font-size: 18px; /* Base size for text icons */
                     display: flex;
@@ -252,7 +252,7 @@ export default css`
                     flex-shrink: 0;
                 }
 
-                .legend-icon ha-icon {
+                .legend_icon ha-icon {
                     --mdc-icon-size: 18px; /* MDI icon specific size */
                     color: inherit; 
                 }
@@ -315,17 +315,17 @@ export default css`
                         --mdc-icon-size: 16px;
                     }
 
-                    .legend-item {
+                    .legend_item {
                         font-size: 12px;
                     }
-                    .legend-color-box {
+                    .legend_color_box {
                         width: 15px;
                         height: 15px;
                     }
-                    .legend-icon {
+                    .legend_icon {
                         font-size: 14px;
                     }
-                    .legend-icon ha-icon {
+                    .legend_icon ha-icon {
                         --mdc-icon-size: 15px;
                     }
                 }
