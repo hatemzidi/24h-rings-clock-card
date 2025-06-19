@@ -1,4 +1,5 @@
 import { html, LitElement, nothing } from 'lit';
+import * as Constants from './const';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { map } from 'lit/directives/map.js';
@@ -13,13 +14,6 @@ export class RingsClockCard extends LitElement {
     _config;
     _hass;
     tic;
-
-    // Constants (Defaults, Icons, Metadata)
-    static CARD_DESCRIPTION = 'Enhanced 24-hours analog clock with time ranges, sun information, custom markers, and more display options.';
-    static CARD_VERSION = '0.0.1';
-    static DEFAULT_SUNRISE_ICON_TEXT = '↑';
-    static DEFAULT_SUNSET_ICON_TEXT = '↓';
-    static DEFAULT_CUSTOM_MARKER_ICON_TEXT = '•';
 
     // LitElement Static Styles
     static styles = styles;
@@ -254,7 +248,7 @@ export class RingsClockCard extends LitElement {
             >
                 ${(markerConfig.icon && markerConfig.icon.startsWith('mdi:')) ? html`
                     <ha-icon style="transform: rotate(${-markerAngle}deg)" icon="${markerConfig.icon}"></ha-icon>` : html`
-                    <span style="transform: rotate(${-markerAngle}deg)">${markerConfig.icon || RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
+                    <span style="transform: rotate(${-markerAngle}deg)">${markerConfig.icon || Constants.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
             </div>
         `;
     }
@@ -303,7 +297,7 @@ export class RingsClockCard extends LitElement {
                     ${(this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) ? html`
                         <ha-icon style="transform: rotate(${-sunriseAngle}deg)"
                                  icon="${this.sunConfig.sunrise_icon}"></ha-icon>` : html`
-                        <span style="transform: rotate(${-sunriseAngle}deg)">${this.sunConfig.sunrise_icon || RingsClockCard.DEFAULT_SUNRISE_ICON_TEXT}</span>`}
+                        <span style="transform: rotate(${-sunriseAngle}deg)">${this.sunConfig.sunrise_icon || Constants.DEFAULT_SUNRISE_ICON_TEXT}</span>`}
                 </div>
                 <div id="sunset-marker"
                      class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
@@ -311,7 +305,7 @@ export class RingsClockCard extends LitElement {
                 >
                     ${(this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) ? html`
                         <ha-icon style="transform: rotate(${-sunsetAngle}deg)" icon="${this.sunConfig.sunset_icon}"></ha-icon>` : html`
-                        <span style="transform: rotate(${-sunsetAngle}deg)">${this.sunConfig.sunset_icon || RingsClockCard.DEFAULT_SUNSET_ICON_TEXT}</span>`}
+                        <span style="transform: rotate(${-sunsetAngle}deg)">${this.sunConfig.sunset_icon || Constants.DEFAULT_SUNSET_ICON_TEXT}</span>`}
                 </div>`;
         } else {
             return html``;
@@ -388,7 +382,7 @@ export class RingsClockCard extends LitElement {
                     <div class="legend_icon" style="color: ${marker.color || 'var(--primary-text-color, #333)'};">
                         ${(marker.icon && marker.icon.startsWith('mdi:')) ? html`
                             <ha-icon icon="${marker.icon}"></ha-icon>` : html`
-                            <span>${marker.icon || RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
+                            <span>${marker.icon || Constants.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
                     </div>
                     <span>${marker.name}</span>
                 </div>`)
