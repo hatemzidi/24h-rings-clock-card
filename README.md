@@ -1,5 +1,4 @@
 # 24h-rings-clock-card by [@hatemzidi](https://github.com/hatemzidi)
-[![GitHub Release][releases-shield]][releases]
 [![hacs_badge](https://img.shields.io/badge/HACS-default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 
 Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, custom markers, and more display options.
@@ -154,9 +153,9 @@ When you discover any bugs please open an [issue](https://github.com/custom-card
 
 <!-- References -->
 [hacs]: https://hacs.xyz
-[visual-editor]: https://raw.githubusercontent.com/custom-cards/slider-button-card/main/assets/card-editor.png
-[preview]: https://raw.githubusercontent.com/custom-cards/slider-button-card/main/assets/preview.gif
-[preview-2]: https://raw.githubusercontent.com/custom-cards/slider-button-card/main/assets/preview-2.gif
-[latest-release]: https://github.com/custom-cards/slider-button-card/releases/latest
+
+[preview]: https://raw.githubusercontent.com/hatemzidi/24h-rings-clock-card/main/assets/clock-dark.png
+[preview-2]: https://raw.githubusercontent.com/hatemzidi/24h-rings-clock-card/main/assets/clock-light.png
+[latest-release]: https://github.com/hatemzidi/24h-rings-clock-card/releases/latest
 [releases-shield]: https://img.shields.io/github/release/custom-cards/slider-button-card.svg?style=for-the-badge
-[releases]: https://github.com/custom-cards/slider-button-card/releases
+[releases]: https://github.com/hatemzidi/24h-rings-clock-card/releases
