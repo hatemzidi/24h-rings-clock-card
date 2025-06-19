@@ -55,7 +55,7 @@ export class RingsClockCard extends LitElement {
             color: '#FFA500', // Default sun marker color
             sunrise_icon: 'mdi:weather-sunny', // Default sunrise icon
             sunset_icon: 'mdi:weather-night', // Default sunset icon
-            show_day_night_arcs: false, // NEW: Default to false
+            show_day_night_arcs: false, // Default to false
             ...(config.sun || {}) // Override with user config
         };
 
@@ -86,7 +86,7 @@ export class RingsClockCard extends LitElement {
     /**
      * Called after the component's DOM has been updated.
      */
-    updated() {
+    updated(changed) {
         // Update clock hand position based on current time
         this.updateTic();
     }
@@ -176,9 +176,7 @@ export class RingsClockCard extends LitElement {
         // Calculate total minutes in a 24-hour cycle for smooth rotation
         const totalMinutes = hours * 60 + minutes + seconds / 60;
         // Each hour is 15 degrees (360 degrees / 24 hours)
-        const hourAngle = (totalMinutes / (24 * 60)) * 360;
-
-        this.tic = hourAngle;
+        this.tic = (totalMinutes / (24 * 60)) * 360;
     }
 
     // Time Ranges (Arcs)
