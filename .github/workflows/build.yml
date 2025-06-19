@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Test build
+    name: Build Artifact
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
