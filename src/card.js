@@ -367,7 +367,8 @@ export class RingsClockCard extends LitElement {
                  id="custom-marker-${index}"
             >
                 ${(markerConfig.icon && markerConfig.icon.startsWith('mdi:')) ? html`
-                    <ha-icon style="transform: rotate(${-markerAngle}deg)" icon="${markerConfig.icon}"></ha-icon>` : ''}
+                            <ha-icon style="transform: rotate(${-markerAngle}deg)" icon="${markerConfig.icon}"></ha-icon>` : html`
+                            <span style="transform: rotate(${-markerAngle}deg)">${markerConfig.icon || RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
             </div>
         `;
     }
