@@ -14,32 +14,11 @@ Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, c
     - [HACS](#hacs)
     - [Manual](#manual)
 - [Configuration](#configuration)
-    - [Visual Editor](#visual-editor)
     - [Options](#options)
-        - [Icon options](#icon-options)
-        - [Slider options](#slider-options)
-        - [Action button options](#action-button-options)
-        - [Tap action](#action-options)
-    - [Styles](#styles)
 - [Examples](#examples)
     - [Minimal working config](#minimal-working-config)
-    - [Per feature](#per-feature)
-        - [General](#general)
-        - [Icon](#icon)
-        - [Action button](#action-button)
-        - [Slider](#slider)
     - [Full examples](#full-examples)
-        - [Fan](#fan)
-        - [Switch](#switch)
-        - [Cover](#cover)
-        - [Media player](#media-player)
-        - [Climate](#climate)
-        - [Lock](#lock)
-        - [In a grid](#grid)
-- [Group support](#groups)
 - [Known issues](#known-issues)
-- [Languages](#languages)
-- [Credits](#credits)
 
 ## Installation
 
@@ -56,57 +35,52 @@ Just search for `24h rings clock` in Frontend tab.
 
 ## Configuration
 
-### Visual Editor
-
-24h-rings-clock-card  Lovelace's Visual Editor.
-<details>
-  <summary>Show screenshot</summary>
-
-![Visual Editor][visual-editor]
-</details>
-
-
 ### Options
-| Name         | Type    | Requirement | Description                                                                          | Default                      |
-|--------------|---------|-------------|--------------------------------------------------------------------------------------|------------------------------|
-| type         | string  | Required    | The card type. Must be custom:rings-clock-card.                                      | custom:rings-clock-card      |
-| title        | string  | Optional    | The main title displayed at the top left of the card.                                | None                         |
-| header_icon  | string  | Optional    | An MDI icon to display at the top right of the card next to the title.               | None                         |
-| hand_color   | string  | Optional    | Custom color for the hour hand and the center dot (e.g., "#FF0000" or "red").        | var(--accent-color, #03a9f4) |
-| show_rings   | boolean | Optional    | Show/hide the static dashed rings on the clock face.                                 | true                         |
-| show_hours   | boolean | Optional    | Show/hide the hour numbers (00-23) on the clock face.                                | true                         |
-| show_legends | boolean | Optional    | Show/hide the legends at the bottom of the card for ranges, markers, and sun events. | true                         |
-| sun          | object  | Optional    | Sun options to display sunrise and sunset markers.                                   | See Sun Options              |
-| ranges       | array   | Optional    | An array of Range options to define custom time arcs.                                | []                           |
-| markers      | array   | Optional    | An array of Marker options to define custom time markers.                            | []                           |
+| **Name**     | **Type** | **Requirement** | **Description**                                                                      | **Default**                  |
+|--------------|----------|-----------------|--------------------------------------------------------------------------------------|------------------------------|
+| type         | string   | Required        | The card type. Must be custom:rings-clock-card.                                      | custom:rings-clock-card      |
+| title        | string   | Optional        | The main title displayed at the top left of the card.                                | None                         |
+| header_icon  | string   | Optional        | An MDI icon to display at the top right of the card next to the title.               | None                         |
+| hand_color   | string   | Optional        | Custom color for the hour hand and the center dot (e.g., "#FF0000" or "red").        | var(--accent-color, #03a9f4) |
+| show_rings   | boolean  | Optional        | Show/hide the static dashed rings on the clock face.                                 | true                         |
+| show_hours   | boolean  | Optional        | Show/hide the hour numbers (00-23) on the clock face.                                | true                         |
+| show_legends | boolean  | Optional        | Show/hide the legends at the bottom of the card for ranges, markers, and sun events. | true                         |
+| sun          | object   | Optional        | [Sun options](#sun-options) to display sunrise and sunset markers.                   | See Sun Options              |
+| ranges       | array    | Optional        | An array of [Range options](#ranges-options) to define custom time arcs.             | []                           |
+| markers      | array    | Optional        | An array of [Marker options](#markers-options) to define custom time markers.        | []                           |
 
 
 ### Sun Options
-| Name         | Type    | Requirement | Description                                                     | Default                      |
-|--------------|---------|-------------|-----------------------------------------------------------------|------------------------------|
-| entity       | string  | Optional    | The Home Assistant sun entity ID (e.g., sun.sun).               | sun.sun                      |
-| show         | boolean | Optional    | Show/hide the sunrise and sunset markers on the clock face.     | true                         |
-| color        | string  | Optional    | Custom color for the sun markers (e.g., "#FFA500" or "orange"). | var(--accent-color, #FFA500) |
-| sunrise_icon | string  | Optional    | An MDI icon or custom text for the sunrise marker.              | mdi:weather-sunny-alert or ↑ |
-| sunset_icon  | string  | Optional    | An MDI icon or custom text for the sunset marker.               | mdi:weather-night or ↓       |
+| **Name**            | **Type** | **Requirement** | **Description**                                                 | **Default**                  |
+|---------------------|----------|-----------------|-----------------------------------------------------------------|------------------------------|
+| entity              | string   | Optional        | The Home Assistant sun entity ID (e.g., sun.sun).               | sun.sun                      |
+| show                | boolean  | Optional        | Show/hide the sunrise and sunset markers on the clock face.     | true                         |
+| color               | string   | Optional        | Custom color for the sun markers (e.g., "#FFA500" or "orange"). | var(--accent-color, #FFA500) |
+| sunrise_icon        | string   | Optional        | An MDI icon or custom text for the sunrise marker.              | mdi:weather-sunny-alert or ↑ |
+| sunset_icon         | string   | Optional        | An MDI icon or custom text for the sunset marker.               | mdi:weather-night or ↓       |
+| show_day_night_arcs | string   | Optional        | Show/hide the day and night arcs.                               | true                         |
+| day_arc_color       | string   | Optional        | Custom color for the day arc (e.g., "#FFA500" or "orange").     | #FFD700                      |
+| night_arc_color     | string   | Optional        | Custom color for the night arc (e.g., "#FFA500" or "orange").   | #34495e                      |
 
 
 ### Ranges Options
-| Name       | Type   | Requirement | Description                                                                                     | Default                      |
-|------------|--------|-------------|-------------------------------------------------------------------------------------------------|------------------------------|
-| start_time | string | Required    | The start time of the arc (e.g., "06:00") or an entity ID (e.g., input_datetime.my_start_time). | None                         |
-| end_time   | string | Required    | The end time of the arc (e.g., "18:00") or an entity ID (e.g., input_datetime.my_end_time).     | None                         |
-| ring       | string | Optional    | Specifies which ring the arc should be drawn on (ring1, ring2, ring3, or ring4).                | ring1                        |
-| color      | string | Optional    | Custom color for the arc (e.g., "#03a9f4" or "blue").                                           | var(--accent-color, #03a9f4) |
-| name       | string | Optional    | Name for the arc legend entry.                                                                  | None                         |
+| **Name**       | **Type** | **Requirement** | **Description**                                                                                 | **Default**                  |
+|----------------|----------|-----------------|-------------------------------------------------------------------------------------------------|------------------------------|
+| start_time     | string   | Required        | The start time of the arc (e.g., "06:00") or an entity ID (e.g., input_datetime.my_start_time). | None                         |
+| end_time       | string   | Required        | The end time of the arc (e.g., "18:00") or an entity ID (e.g., input_datetime.my_end_time).     | None                         |
+| ring           | string   | Optional        | Specifies which ring the arc should be drawn on (ring1, ring2, ring3, or ring4).                | ring1                        |
+| color          | string   | Optional        | Custom color for the arc (e.g., "#03a9f4" or "blue").                                           | var(--accent-color, #03a9f4) |
+| name           | string   | Optional        | Name for the arc legend entry.                                                                  | None                         |
+| show_in_legend | boolean  | Optional        | Show/hide the color and the name of the range in the legends.                                   | true                         |
 
 ### Markers Options
-| Name   | Type   | Requirement | Description                                                                                                                             | Default                         |
-|--------|--------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| marker | string | Required    | The time for the marker (e.g., "12:00") or an entity ID (e.g., input_datetime.my_event_time).                                           | None                            |
-| name   | string | Optional    | Name for the marker legend entry. Also used as a fallback text on the marker itself if no icon is provided (truncated to 3 characters). | None                            |
-| icon   | string | Optional    | An MDI icon or custom text for the marker.                                                                                              | mdi:white-balance-sunny or •    |
-| color  | string | Optional    | Custom color for the marker (e.g., "gold" or "green").                                                                                  | var(--primary-text-color, #333) |
+| **Name**       | **Type** | **Requirement** | **Description**                                                                                                                         | **Default**                     |
+|----------------|----------|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| marker         | string   | Required        | The time for the marker (e.g., "12:00") or an entity ID (e.g., input_datetime.my_event_time).                                           | None                            |
+| name           | string   | Optional        | Name for the marker legend entry. Also used as a fallback text on the marker itself if no icon is provided (truncated to 3 characters). | None                            |
+| icon           | string   | Optional        | An MDI icon or custom text for the marker.                                                                                              | mdi:white-balance-sunny or •    |
+| color          | string   | Optional        | Custom color for the marker (e.g., "gold" or "green").                                                                                  | var(--primary-text-color, #333) |
+| show_in_legend | boolean  | Optional        | Show/hide the colored icon and the name of the marker in the legends.                                                                   | true                            |
 
 
 ## Examples
@@ -114,11 +88,11 @@ Just search for `24h rings clock` in Frontend tab.
 ### Minimal working config
 ```
 type: custom:rings-clock-card
+show_legends: false # Optional: Hide legends for a more minimal look
 markers:
   - marker: "14:30"
     name: "Meeting"
     icon: "mdi:calendar-clock"
-show_legends: false # Optional: Hide legends for a more minimal look
 ```                            
 
 ### Full examples
@@ -136,8 +110,6 @@ sun:
   color: '#FFD700' # Gold color for sun markers
   sunrise_icon: 'mdi:weather-sunny-alert'
   sunset_icon: 'mdi:weather-night'
-  sunrise_name: 'Sunrise Time'
-  sunset_name: 'Sunset Time'
 ranges:
   - start_time: 'input_datetime.work_start' # Using an entity for start time
     end_time: 'input_datetime.work_end'   # Using an entity for end time
