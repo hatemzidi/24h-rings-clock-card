@@ -20,7 +20,7 @@
   },
   "scripts": {
     "watch": "parcel watch",
-    "lint": "lit-analyzer src --format markdown --outFile result.md ",
+    "lint": "lit-analyzer src",
     "build": "parcel build",
     "rollup": "rollup -c"
   },
