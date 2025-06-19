@@ -12,7 +12,6 @@ export class RingsClockCard extends LitElement {
     // Private Properties
     _config;
     _hass;
-    _elements = {};
     tic;
 
     // Constants (Defaults, Icons, Metadata)
@@ -54,8 +53,8 @@ export class RingsClockCard extends LitElement {
         this._config = config;
 
         // Initialize configuration for different clock elements
-        this.rangesConfig = config.ranges || [];
-        this.markersConfig = config.markers || [];
+        this.rangesConfig = config.ranges || [];    //todo(hatem) default value
+        this.markersConfig = config.markers || [];  //todo(hatem) default value
         this.sunConfig = config.sun || {};
 
         // Toggles and styles for various display elements
@@ -80,7 +79,7 @@ export class RingsClockCard extends LitElement {
         // Update clock hand position based on current time
         this.updateTic();
     }
-    
+
     // LitElement Lifecycle Callbacks
     /**
      * Called after the component's DOM has been updated.
@@ -88,17 +87,6 @@ export class RingsClockCard extends LitElement {
     updated() {
         // Update clock hand position based on current time
         this.updateTic();
-    }
-
-    /**
-     * Called once after the component's first update.
-     * Used to query DOM elements and perform initial rendering.
-     */
-    firstUpdated() {
-        this._elements.clockFace = this.renderRoot.querySelector("#clock-face");
-        this._elements.rings = this._elements.clockFace.querySelectorAll('.static-ring');
-        this._elements.legendsContainer = this.renderRoot.querySelector("#legends-container");
-        this.doRender();
     }
 
     // Rendering Logic
@@ -121,9 +109,9 @@ export class RingsClockCard extends LitElement {
                                 ${map(range(24), (i) => this.renderHourMarker(i))}
                             </div>
                             <div class="hour_hand" style="${styleMap({
-            background: this.handColor,
-            transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)`
-        })}"></div>
+                                background: this.handColor,
+                                transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)`
+                            })}"></div>
                             <div class="center-dot" style="${styleMap({ background: this.handColor })}"></div>
                             <div class="rings">
                                 <div class="ring1 ${classMap({ hidden: !this.showRings })}"></div>
@@ -150,16 +138,6 @@ export class RingsClockCard extends LitElement {
         `;
     }
 
-    /**
-     * Renders all dynamic elements of the clock (hour markers, arcs, hands, markers).
-     * This is called on setConfig, so it clears and recreates elements as necessary.
-     */
-    doRender() {
-        // Clear existing dynamic elements before re-rendering
-        this._elements.clockFace.querySelectorAll('.hour-marker, .hour-number, .arc, .sun-marker, .custom-marker, #hourHand, #centerDot').forEach(el => el.remove());
-        // Re-render legends as they might depend on updated configs
-        this.renderLegends();
-    }
 
     // Clock Elements
     /**
@@ -266,8 +244,8 @@ export class RingsClockCard extends LitElement {
                  id="custom-marker-${index}"
             >
                 ${(markerConfig.icon && markerConfig.icon.startsWith('mdi:')) ? html`
-                            <ha-icon style="transform: rotate(${-markerAngle}deg)" icon="${markerConfig.icon}"></ha-icon>` : html`
-                            <span style="transform: rotate(${-markerAngle}deg)">${markerConfig.icon || RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
+                    <ha-icon style="transform: rotate(${-markerAngle}deg)" icon="${markerConfig.icon}"></ha-icon>` : html`
+                    <span style="transform: rotate(${-markerAngle}deg)">${markerConfig.icon || RingsClockCard.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
             </div>
         `;
     }
@@ -342,7 +320,7 @@ export class RingsClockCard extends LitElement {
                     <div class="legend_color_box" style="background-color: ${range.color || 'var(--accent-color, #03a9f4)'};"></div>
                     <span>${range.name}</span>
                 </div>`)
-        }
+            }
             ${repeat(this.markersConfig, (marker) => html`
                 <div class="legend_item ${classMap({ hidden: !marker.name || marker.show_in_legend === false })}">
                     <div class="legend_icon" style="color: ${marker.color || 'var(--primary-text-color, #333)'};">
@@ -352,7 +330,7 @@ export class RingsClockCard extends LitElement {
                     </div>
                     <span>${marker.name}</span>
                 </div>`)
-        }
+            }
         `;
     }
 
