@@ -13,7 +13,7 @@ export default css`
         display: flex; 
         justify-content: space-between; /* Space out title and icon */
         align-items: center; 
-        padding: 0 10px;
+        padding-top: 10px;
         color: inherit;
         font-size: 1.2em;
         font-weight: var(--mcg-title-font-weight, 500);
@@ -223,7 +223,7 @@ export default css`
         gap: 15px; /* Space between legend items */
         margin-top: 20px;
         width: 100%;
-        padding: 0 10px 10px 0;
+        padding-bottom: 10px;
         box-sizing: border-box; /* Include padding in element's total width */
     }
 
