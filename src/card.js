@@ -55,7 +55,15 @@ export class RingsClockCard extends LitElement {
         // Initialize configuration for different clock elements
         this.rangesConfig = config.ranges || [];    //todo(hatem) default value
         this.markersConfig = config.markers || [];  //todo(hatem) default value
-        this.sunConfig = config.sun || {};
+        this.sunConfig = {
+            entity: 'sun.sun', // Default sun entity
+            show: true, // Default show sun markers
+            color: '#FFA500', // Default sun marker color
+            sunrise_icon: 'mdi:weather-sunny', // Default sunrise icon
+            sunset_icon: 'mdi:weather-night', // Default sunset icon
+            show_day_night_arcs: false, // NEW: Default to false
+            ...(config.sun || {}) // Override with user config
+        };
 
         // Toggles and styles for various display elements
         this.handColor = config.hand_color;
@@ -121,6 +129,7 @@ export class RingsClockCard extends LitElement {
                             </div>
                             <div class="arcs">
                                 ${this.rangesConfig.map((range, idx) => this.renderRange(range, idx))}
+                                ${this.renderDayNightArc()}
                             </div>
                             <div class="markers">
                                 ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
@@ -185,8 +194,8 @@ export class RingsClockCard extends LitElement {
      * @param {number} index - Index of the range, used for unique ID.
      */
     renderRange(rangeConfig, index) {
-        const startTime = this.parseTime(rangeConfig.start_time);
-        const endTime = this.parseTime(rangeConfig.end_time);
+        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : this.parseTime(rangeConfig.start_time);
+        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null) ? rangeConfig.end_time : this.parseTime(rangeConfig.end_time);
 
         if (!startTime || !endTime) {
             return html``;
@@ -308,6 +317,59 @@ export class RingsClockCard extends LitElement {
             return html``;
         }
     }
+
+
+    // Sun Arcs
+    /**
+     * Renders sunrise and sunset arcs based on the 'sun.sun' entity.
+     */
+    renderDayNightArc() {
+        const showDayNightArcs = this.sunConfig.show_day_night_arcs;
+        const sunEntityId = this.sunConfig.entity || 'sun.sun';
+
+        if (!showDayNightArcs || !this._hass || !this._hass.states[sunEntityId]) {
+            return;
+        }
+
+        const sunState = this._hass.states[sunEntityId];
+        const attributes = sunState.attributes;
+
+        if (attributes.next_rising && attributes.next_setting) {
+            const sunrise = new Date(attributes.next_rising);
+            const sunset = new Date(attributes.next_setting);
+
+            if (isNaN(sunrise.getTime()) || isNaN(sunset.getTime())) {
+                return html``;
+            }
+
+            return html`
+                <div class="sun_arcs">
+                    ${
+                            // Day Arc (Sunrise to Sunset)
+                            this.renderRange({
+                                start_time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
+                                end_time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
+                                color: this.sunConfig.day_arc_color || '#FFD700', // Default day color
+                                ring: 'outer_arc day_night_arc',
+                            }, 0)
+                    }
+                    ${
+                            // Night Arc (Sunset to Sunrise)
+                            this.renderRange({
+                                start_time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
+                                end_time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
+                                color: this.sunConfig.night_arc_color || '#34495e', // Default night color
+                                ring: 'outer_arc day_night_arc',
+                            }, -1)
+                    }
+                </div>`;
+
+        } else {
+            return html``;
+        }
+
+    }
+
 
     // Legends
     /**
@@ -433,7 +495,10 @@ export class RingsClockCard extends LitElement {
                 show: true,
                 color: '#FFA500',
                 sunrise_icon: 'mdi:weather-sunny-alert',
-                sunset_icon: 'mdi:weather-night'
+                sunset_icon: 'mdi:weather-night',
+                show_day_night_arcs: true, // Set to true to show them by default
+                day_arc_color: '#FFD700', // Optional: customize day arc color
+                night_arc_color: '#34495e', // Optional: customize night arc color
             },
             ranges: [{
                 start_time: 'input_datetime.start_time',
@@ -466,7 +531,8 @@ export class RingsClockCard extends LitElement {
                     marker: '12:00',
                     name: 'Noon',
                     icon: 'mdi:white-balance-sunny',
-                    color: 'gold'
+                    color: 'gold',
+                    show_in_legend: false
                 },
                 {
                     marker: '22:30',
