@@ -159,7 +159,7 @@ export default css`
                     box-shadow: 0 0 8px rgba(0,0,0,0.2);
                 }
 
-                .sun-marker {
+                .sun_marker {
                     position: absolute;
                     font-size: 16px;
                     color: var(--accent-color, #FFA500);
@@ -179,12 +179,12 @@ export default css`
                     box-shadow: 0 0 5px rgba(0,0,0,0.3);
                 }
 
-                .sun-marker span {
+                .sun_marker span {
                     display: block;
                     transform: translateY(1px);
                 }
                 
-                .sun-marker ha-icon {
+                .sun_marker ha-icon {
                     --mdc-icon-size: 18px;
                     color: inherit; 
                 }
@@ -298,7 +298,7 @@ export default css`
                     .clock_arc.ring3 { width: 190px; height: 190px; }
                     .clock_arc.ring4 { width: 160px; height: 160px; }
 
-                    .sun-marker {
+                    .sun_marker {
                         transform-origin: 50% 135px;
                         font-size: 14px;
                         width: 18px;

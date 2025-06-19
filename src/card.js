@@ -100,8 +100,6 @@ export class RingsClockCard extends LitElement {
 
     updateCard() {
         this.updateTic(); // Update clock hand position
-        this.updateSunMarkers(); // Update sun marker positions
-        //this.updateMarkers(); // Update custom marker positions
     }
 
 // ========================================================================
@@ -137,6 +135,9 @@ export class RingsClockCard extends LitElement {
                             <div class="markers">
                                 ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
                             </div>
+                            <div class="sun-markers">
+                                ${this.renderSunMarkers()}
+                            </div>
                         </div>
                     </div>
                     <div class="legends-container ${classMap({ hidden: !this.showLegends })}" id="legends-container"></div>
@@ -168,9 +169,7 @@ export class RingsClockCard extends LitElement {
         // that affects the number or type of elements (e.g., new ranges/markers)
         this._elements.clockFace.querySelectorAll('.hour-marker, .hour-number, .arc, .sun-marker, .custom-marker, #hourHand, #centerDot').forEach(el => el.remove());
 
-       // this.createHourHandAndCenterDot();
-        //this.createArcs();
-        this.createSunMarkers();
+        // this.createSunMarkers();
         this.createLegends();
     }
 
@@ -371,59 +370,13 @@ export class RingsClockCard extends LitElement {
     //  SUN MARKERS
     // ========================================================================
 
-    /**
-     * Creates and appends the sunrise and sunset marker elements.
-     * These elements are only created once during doRender if showSunMarkers is true.
-     */
-    createSunMarkers() {
-        const showSunMarkers = this.sunConfig.show !== false;
 
-        // Ensure existing markers are cleared if re-creating
-        if (this._elements.sunriseMarker) this._elements.sunriseMarker.remove();
-        if (this._elements.sunsetMarker) this._elements.sunsetMarker.remove();
-
-        this._elements.sunriseMarker = null;
-        this._elements.sunsetMarker = null;
-
-        if (showSunMarkers) {
-            const fragment = document.createDocumentFragment();
-
-            this._elements.sunriseMarker = document.createElement('div');
-            this._elements.sunriseMarker.className = 'sun-marker';
-            this._elements.sunriseMarker.id = 'sunrise-marker';
-            if (this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) {
-                this._elements.sunriseMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunrise_icon}"></ha-icon>`;
-            } else {
-                this._elements.sunriseMarker.innerHTML = `<span>${this.sunConfig.sunrise_icon || RingsClockCard.DEFAULT_SUNRISE_ICON_TEXT}</span>`;
-            }
-            fragment.appendChild(this._elements.sunriseMarker);
-
-            this._elements.sunsetMarker = document.createElement('div');
-            this._elements.sunsetMarker.className = 'sun-marker';
-            this._elements.sunsetMarker.id = 'sunset-marker';
-            if (this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) {
-                this._elements.sunsetMarker.innerHTML = `<ha-icon icon="${this.sunConfig.sunset_icon}"></ha-icon>`;
-            } else {
-                this._elements.sunsetMarker.innerHTML = `<span>${this.sunConfig.sunset_icon || RingsClockCard.DEFAULT_SUNSET_ICON_TEXT}</span>`;
-            }
-            fragment.appendChild(this._elements.sunsetMarker);
-
-            this._elements.clockFace.appendChild(fragment);
-        }
-    }
-
-    /**
-     * Updates the position and visibility of sun (sunrise/sunset) markers.
-     */
-    updateSunMarkers() {
-        const showSunMarkers = this.sunConfig.show !== false;
+    renderSunMarkers() {
         const sunEntityId = this.sunConfig.entity || 'sun.sun';
 
-        // Check if markers elements exist and are supposed to be shown
-        if (!showSunMarkers || !this._elements.sunriseMarker || !this._elements.sunsetMarker || !this._hass || !this._hass.states[sunEntityId]) {
-            if (this._elements.sunriseMarker) this._elements.sunriseMarker.style.display = 'none';
-            if (this._elements.sunsetMarker) this._elements.sunsetMarker.style.display = 'none';
-            return;
+        // Check if markers exist and are supposed to be shown
+        if (!this.sunConfig.show  || !this._hass || !this._hass.states[sunEntityId]) {
+            return html``;
         }
 
         const sunState = this._hass.states[sunEntityId];
@@ -434,34 +387,42 @@ export class RingsClockCard extends LitElement {
             const sunset = new Date(attributes.next_setting);
 
             if (isNaN(sunrise.getTime()) || isNaN(sunset.getTime())) {
-                this._elements.sunriseMarker.style.display = 'none';
-                this._elements.sunsetMarker.style.display = 'none';
-                return;
+                return html``;
             }
-
-            this._elements.sunriseMarker.style.display = '';
-            this._elements.sunriseMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)';
-            this._elements.sunsetMarker.style.display = '';
-            this._elements.sunsetMarker.style.color = this.sunConfig.color || 'var(--accent-color, #FFA500)';
-
 
             const sunriseAngle = this.dateToAngle(sunrise);
             const sunsetAngle = this.dateToAngle(sunset);
 
-            this._elements.sunriseMarker.style.transform = `translateX(-50%) rotate(${sunriseAngle}deg)`;
-            const sunriseInnerContent = this._elements.sunriseMarker.querySelector('ha-icon') || this._elements.sunriseMarker.querySelector('span');
-            if (sunriseInnerContent) {
-                sunriseInnerContent.style.transform = `rotate(${-sunriseAngle}deg)`;
-            }
+            const sunriseDivStyle = {
+                color: this.sunConfig.color || 'var(--accent-color, #FFA500)',
+                transform: `translateX(-50%) rotate(${sunriseAngle}deg)`,
+            };
 
-            this._elements.sunsetMarker.style.transform = `translateX(-50%) rotate(${sunsetAngle}deg)`;
-            const sunsetInnerContent = this._elements.sunsetMarker.querySelector('ha-icon') || this._elements.sunsetMarker.querySelector('span');
-            if (sunsetInnerContent) {
-                sunsetInnerContent.style.transform = `rotate(${-sunsetAngle}deg)`;
-            }
+            const sunsetDivStyle = {
+                color: this.sunConfig.color || 'var(--accent-color, #FFA500)',
+                transform: `translateX(-50%) rotate(${sunsetAngle}deg)`,
+            };
+
+            return html
+                `
+                    <div id="sunrise-marker" 
+                         class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}" 
+                         style="${styleMap(sunriseDivStyle)}"
+                    >
+                        ${(this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) ? html`
+                            <ha-icon style="transform: rotate(${-sunriseAngle}deg)" icon="${this.sunConfig.sunrise_icon}"></ha-icon>` : html`
+                            <span style="transform: rotate(${-sunriseAngle}deg)">${this.sunConfig.sunrise_icon || RingsClockCard.DEFAULT_SUNRISE_ICON_TEXT}</span>`}
+                    </div>
+                    <div id="sunset-marker" 
+                         class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}" 
+                         style="${styleMap(sunsetDivStyle)}"
+                    >
+                        ${(this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) ? html`
+                            <ha-icon style="transform: rotate(${-sunsetAngle}deg)" icon="${this.sunConfig.sunset_icon}"></ha-icon>` : html`
+                            <span style="transform: rotate(${-sunsetAngle}deg)">${this.sunConfig.sunset_icon || RingsClockCard.DEFAULT_SUNSET_ICON_TEXT}</span>`}
+                    </div>`;
         } else {
-            this._elements.sunriseMarker.style.display = 'none';
-            this._elements.sunsetMarker.style.display = 'none';
+            return html``;
         }
     }
 
