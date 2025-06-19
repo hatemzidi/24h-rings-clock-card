@@ -1,6 +1,8 @@
 import { html, LitElement, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
+import { map } from 'lit/directives/map.js';
+import { range } from 'lit/directives/range.js';
 
 import styles from './card.style';
 
@@ -10,6 +12,7 @@ export class RingsClockCard extends LitElement {
     _config;
     _hass;
     _elements = {};
+    tic;
 
 
     //todo(hatem) : extract this outside
@@ -96,7 +99,7 @@ export class RingsClockCard extends LitElement {
     }
 
     updateCard() {
-        this.updateClock(); // Update clock hand position
+        this.updateTic(); // Update clock hand position
         this.updateArcs(); // Update arcs positions
         this.updateSunMarkers(); // Update sun marker positions
         //this.updateMarkers(); // Update custom marker positions
@@ -118,11 +121,16 @@ export class RingsClockCard extends LitElement {
                 <div class="clock-container">
                     <div class="clock">
                         <div class="clock-face" id="clock-face">
+                            <div class="hours-markers">
+                                ${map(range(24), (i) => this.renderHourMarker(i))}
+                            </div>
+                            <div class="hour_hand" style="${styleMap({background: this.handColor, transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)` })}"></div>
+                            <div class="center-dot" style="${styleMap({background: this.handColor})}"></div>
                             <div class="rings">
-                                <div class="ring1 static-ring ${classMap({ hidden: !this.showRings })}"></div>
-                                <div class="ring2 static-ring ${classMap({ hidden: !this.showRings })}"></div>
-                                <div class="ring3 static-ring ${classMap({ hidden: !this.showRings })}"></div>
-                                <div class="ring4 static-ring ${classMap({ hidden: !this.showRings })}"></div>
+                                <div class="ring1 ${classMap({ hidden: !this.showRings })}"></div>
+                                <div class="ring2 ${classMap({ hidden: !this.showRings })}"></div>
+                                <div class="ring3 ${classMap({ hidden: !this.showRings })}"></div>
+                                <div class="ring4 ${classMap({ hidden: !this.showRings })}"></div>
                             </div>
                             <div class="markers">
                                 ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
@@ -158,11 +166,9 @@ export class RingsClockCard extends LitElement {
         // that affects the number or type of elements (e.g., new ranges/markers)
         this._elements.clockFace.querySelectorAll('.hour-marker, .hour-number, .arc, .sun-marker, .custom-marker, #hourHand, #centerDot').forEach(el => el.remove());
 
-        this.createHourMarkers();
-        this.createHourHandAndCenterDot();
+       // this.createHourHandAndCenterDot();
         this.createArcs();
         this.createSunMarkers();
-        //this.createMarkers();
         this.createLegends();
     }
 
@@ -173,62 +179,28 @@ export class RingsClockCard extends LitElement {
     /**
      * Creates and appends the 24-hour markers and hour numbers to the clock face.
      */
-    createHourMarkers() {
-        const fragment = document.createDocumentFragment();
-        for (let hour = 0; hour < 24; hour++) {
-            const marker = document.createElement('div');
-            marker.className = hour % 6 === 0 ? 'hour-marker major' : 'hour-marker';
-            marker.style.transform = `translateX(-50%) rotate(${hour * 15}deg)`;
-            fragment.appendChild(marker);
 
-            const hourNumber = document.createElement('div');
-            hourNumber.className = 'hour-number';
-            if (!this.showHours) {
-                hourNumber.classList.add('hidden'); // Hide if show_hours is false
-            }
-            hourNumber.style.transform = `translateX(-50%) rotate(${hour * 15}deg)`;
-
-            const textSpan = document.createElement('span');
-            textSpan.textContent = hour.toString().padStart(2, '0');
-            textSpan.style.transform = `rotate(${-hour * 15}deg)`; // Counter-rotate to keep text upright
-
-            hourNumber.appendChild(textSpan);
-            fragment.appendChild(hourNumber);
-        }
-        this._elements.clockFace.appendChild(fragment);
+    renderHourMarker(hour) {
+        return html`
+            <div
+                    class="${classMap({major: hour % 6 === 0 })} hour_marker"
+                    style="transform: translateX(-50%) rotate(${hour * 15}deg)"
+            >
+            </div>
+            <div
+                    class="hour_number ${classMap({ hidden: !this.showHours })}"
+                    style="transform: translateX(-50%) rotate(${hour * 15}deg)"
+            >
+                <span style="transform: rotate(${-hour * 15}deg)">${hour.toString().padStart(2, '0')}</span>
+            </div>
+        `;
     }
 
-    /**
-     * Creates the hour hand and the center dot of the clock.
-     */
-    createHourHandAndCenterDot() {
-        const fragment = document.createDocumentFragment(); // Create a document fragment
-
-        this._elements.hourHand = document.createElement('div');
-        this._elements.hourHand.className = 'hour-hand';
-        this._elements.hourHand.id = 'hourHand';
-        // Apply custom color if provided
-        if (this.handColor) {
-            this._elements.hourHand.style.background = this.handColor;
-        }
-        fragment.appendChild(this._elements.hourHand); // Append to the fragment
-
-        this._elements.centerDot = document.createElement('div');
-        this._elements.centerDot.className = 'center-dot';
-        this._elements.centerDot.id = 'centerDot';
-        // Apply custom color to center dot for consistency
-        if (this.handColor) {
-            this._elements.centerDot.style.background = this.handColor;
-        }
-        fragment.appendChild(this._elements.centerDot); // Append to the fragment
-
-        this._elements.clockFace.appendChild(fragment); // Append the fragment to the clock face
-    }
 
     /**
      * Updates the position of the hour hand based on the current time.
      */
-    updateClock() {
+    updateTic() {
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
@@ -238,9 +210,7 @@ export class RingsClockCard extends LitElement {
         const totalMinutes = hours * 60 + minutes + seconds / 60;
         const hourAngle = (totalMinutes / (24 * 60)) * 360;
 
-        if (this._elements.hourHand) {
-            this._elements.hourHand.style.transform = `translateX(-50%) translateY(-100%) rotate(${hourAngle}deg)`;
-        }
+        this.tic= hourAngle;
     }
 
     // ========================================================================

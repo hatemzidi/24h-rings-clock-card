@@ -61,7 +61,7 @@ export default css`
                     background: var(--card-background-color, #fff);
                 }
 
-                .hour-marker {
+                .hour_marker {
                     position: absolute;
                     width: 2px;
                     height: 10px;
@@ -72,14 +72,14 @@ export default css`
                     transform: translateX(-50%);
                 }
 
-                .hour-marker.major {
+                .hour_marker.major {
                     width: 3px;
                     height: 20px;
                     background: var(--primary-text-color, #333);
                     top: 5px;
                 }
 
-                .hour-number {
+                .hour_number {
                     position: absolute;
                     font-size: 14px;
                     font-weight: 500;
@@ -96,7 +96,7 @@ export default css`
                     user-select: none;
                 }
 
-                .hour-number span {
+                .hour_number span {
                     display: block;
                     width: 100%;
                     text-align: center;
@@ -133,7 +133,7 @@ export default css`
                 .arc.ring3 { width: 290px; height: 290px; }
                 .arc.ring4 { width: 260px; height: 260px; }
 
-                .hour-hand {
+                .hour_hand {
                     position: absolute;
                     width: 6px;
                     height: 100px;
@@ -268,22 +268,22 @@ export default css`
                         height: 280px;
                     }
                     
-                    .hour-number {
+                    .hour_number {
                         font-size: 11px;
                         transform-origin: 50% 115px;
                         top: 25px;
                     }
                     
-                    .hour-hand {
+                    .hour_hand {
                         height: 70px;
                     }
 
-                    .hour-marker {
+                    .hour_marker {
                         transform-origin: 50% 135px;
                         height: 8px;
                     }
 
-                    .hour-marker.major {
+                    .hour_marker.major {
                         transform-origin: 50% 120px;
                         height: 20px;
                     }
