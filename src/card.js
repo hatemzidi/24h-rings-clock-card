@@ -100,7 +100,6 @@ export class RingsClockCard extends LitElement {
 
     updateCard() {
         this.updateTic(); // Update clock hand position
-        this.updateArcs(); // Update arcs positions
         this.updateSunMarkers(); // Update sun marker positions
         //this.updateMarkers(); // Update custom marker positions
     }
@@ -131,6 +130,9 @@ export class RingsClockCard extends LitElement {
                                 <div class="ring2 ${classMap({ hidden: !this.showRings })}"></div>
                                 <div class="ring3 ${classMap({ hidden: !this.showRings })}"></div>
                                 <div class="ring4 ${classMap({ hidden: !this.showRings })}"></div>
+                            </div>
+                            <div class="arcs">
+                                ${this.rangesConfig.map((range, idx) => this.renderRange(range, idx))}
                             </div>
                             <div class="markers">
                                 ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
@@ -167,7 +169,7 @@ export class RingsClockCard extends LitElement {
         this._elements.clockFace.querySelectorAll('.hour-marker, .hour-number, .arc, .sun-marker, .custom-marker, #hourHand, #centerDot').forEach(el => el.remove());
 
        // this.createHourHandAndCenterDot();
-        this.createArcs();
+        //this.createArcs();
         this.createSunMarkers();
         this.createLegends();
     }
@@ -217,47 +219,12 @@ export class RingsClockCard extends LitElement {
     //  TIME RANGES (Arcs)
     // ========================================================================
 
-    /**
-     * Creates and appends the arc elements for time ranges.
-     */
-    createArcs() {
-        this._elements.arcs = []; // Store references to arc elements and their configurations
-        const fragment = document.createDocumentFragment();
-
-        this.rangesConfig.forEach((range, index) => {
-            const arc = document.createElement('div');
-            arc.className = `arc ${range.ring || 'ring1'}`; // Assign ring class, default to ring1
-            arc.id = `arc-${index}`;
-            fragment.appendChild(arc);
-            this._elements.arcs.push({ element: arc, range: range });
-        });
-        this._elements.clockFace.appendChild(fragment);
-    }
-
-    /**
-     * Update all the arcs
-     */
-    updateArcs() {
-        // Update arc ranges in case their entity states have changed
-        if (this._hass && this._elements.arcs) {
-            this._elements.arcs.forEach(({ element, range }) => {
-                this.updateArc(element, range);
-            });
-        }
-    }
-
-    /**
-     * Updates the style of a single arc element to reflect its start, end, and color.
-     * @param {HTMLElement} arcElement - The arc DOM element.
-     * @param {object} range - The range configuration object.
-     */
-    updateArc(arcElement, range) {
-        const startTime = this.parseTime(range.start_time);
-        const endTime = this.parseTime(range.end_time);
+    renderRange(rangeConfig, index){
+        const startTime = this.parseTime(rangeConfig.start_time);
+        const endTime = this.parseTime(rangeConfig.end_time);
 
         if (!startTime || !endTime) {
-            arcElement.style.background = 'transparent'; // Hide arc if times are invalid
-            return;
+            return html``;
         }
 
         const startAngle = this.timeToAngle(startTime);
@@ -269,12 +236,23 @@ export class RingsClockCard extends LitElement {
         }
 
         const arcLength = endAngle - startAngle;
-        const color = range.color || 'var(--accent-color, #03a9f4)';
+        const color = rangeConfig.color || 'var(--accent-color, #03a9f4)';
 
-        // Apply conic gradient to create the arc
-        arcElement.style.background = `conic-gradient(from ${startAngle}deg, transparent 0deg, ${color} 0deg, ${color} ${arcLength}deg, transparent ${arcLength}deg)`;
+        const divStyle = {
+            color: color,
+            background: `conic-gradient(from ${startAngle}deg, transparent 0deg, ${color} 0deg, ${color} ${arcLength}deg, transparent ${arcLength}deg)` // Apply conic gradient to create the arc
+        };
+
+        return html`
+            <div id="arc_${index}" 
+                 class="${rangeConfig.ring || 'ring1'} clock_arc"
+                 style="${styleMap(divStyle)}"
+                 
+            >
+            </div>
+        `;
     }
-
+    
     // ========================================================================
     //  TIME UTILITIES
     // ========================================================================
@@ -388,7 +366,6 @@ export class RingsClockCard extends LitElement {
             </div>
         `;
     }
-
 
     // ========================================================================
     //  SUN MARKERS

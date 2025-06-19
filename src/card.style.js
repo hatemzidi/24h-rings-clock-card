@@ -116,7 +116,7 @@ export default css`
                 .ring3 { width: 210px; height: 210px; }
                 .ring4 { width: 190px; height: 190px; }
 
-                .arc {
+                .clock_arc{
                     position: absolute;
                     border-radius: 50%;
                     border: 5px solid transparent;
@@ -128,10 +128,10 @@ export default css`
                     -webkit-mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
                 }
 
-                .arc.ring1 { width: 350px; height: 350px; }
-                .arc.ring2 { width: 320px; height: 320px; }
-                .arc.ring3 { width: 290px; height: 290px; }
-                .arc.ring4 { width: 260px; height: 260px; }
+                .clock_arc.ring1 { width: 350px; height: 350px; }
+                .clock_arc.ring2 { width: 320px; height: 320px; }
+                .clock_arc.ring3 { width: 290px; height: 290px; }
+                .clock_arc.ring4 { width: 260px; height: 260px; }
 
                 .hour_hand {
                     position: absolute;
@@ -293,10 +293,10 @@ export default css`
                     .ring3 { width: 140px; height: 140px; }
                     .ring4 { width: 120px; height: 120px; }
 
-                    .arc.ring1 { width: 250px; height: 250px; }
-                    .arc.ring2 { width: 220px; height: 220px; }
-                    .arc.ring3 { width: 190px; height: 190px; }
-                    .arc.ring4 { width: 160px; height: 160px; }
+                    .clock_arc.ring1 { width: 250px; height: 250px; }
+                    .clock_arc.ring2 { width: 220px; height: 220px; }
+                    .clock_arc.ring3 { width: 190px; height: 190px; }
+                    .clock_arc.ring4 { width: 160px; height: 160px; }
 
                     .sun-marker {
                         transform-origin: 50% 135px;
