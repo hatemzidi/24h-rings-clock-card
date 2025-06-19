@@ -4,7 +4,6 @@
 Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, custom markers, and more display options.
 
 ![Preview][preview]
-![Preview 2][preview-2]
 
 #### Please ⭐️ this repo if you find it useful
 
@@ -154,8 +153,7 @@ When you discover any bugs please open an [issue](https://github.com/custom-card
 <!-- References -->
 [hacs]: https://hacs.xyz
 
-[preview]: https://raw.githubusercontent.com/hatemzidi/24h-rings-clock-card/main/assets/clock-dark.png
-[preview-2]: https://raw.githubusercontent.com/hatemzidi/24h-rings-clock-card/main/assets/clock-light.png
+[preview]: https://raw.githubusercontent.com/hatemzidi/24h-rings-clock-card/main/assets/24h-rings-clock.jpg
 [latest-release]: https://github.com/hatemzidi/24h-rings-clock-card/releases/latest
 [releases-shield]: https://img.shields.io/github/release/custom-cards/slider-button-card.svg?style=for-the-badge
 [releases]: https://github.com/hatemzidi/24h-rings-clock-card/releases
