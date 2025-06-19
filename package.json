@@ -20,11 +20,16 @@
   },
   "scripts": {
     "watch": "parcel watch",
-    "build": "parcel build"
+    "lint": "lit-analyzer src --format markdown --outFile result.md ",
+    "build": "parcel build",
+    "rollup": "rollup -c"
   },
   "devDependencies": {
     "@parcel/transformer-inline-string": "^2.8.3",
-    "parcel": "^2.8.3"
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "parcel": "^2.8.3",
+    "rollup": "^4.44.0"
   },
   "dependencies": {
     "lit": "^2.7.4"
