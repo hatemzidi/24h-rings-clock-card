@@ -476,7 +476,7 @@ export class RingsClockCard extends LitElement {
      */
     static getStubConfig() {
         return {
-            "title": "24-Hour Rings Clock",
+            "title": "24-Hours Rings Clock",
             "header_icon": "mdi:clock-outline",
             "hand_color": "#03a9f4",
             "show_rings": false,
