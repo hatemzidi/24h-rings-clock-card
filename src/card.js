@@ -7,6 +7,7 @@ import { range } from 'lit/directives/range.js';
 import { repeat } from 'lit/directives/repeat.js';
 
 import styles from './card.style';
+import * as Utils from "./utils";
 
 export class RingsClockCard extends LitElement {
 
@@ -18,6 +19,7 @@ export class RingsClockCard extends LitElement {
     // LitElement Static Styles
     static styles = styles;
 
+    //todo(hatem) : it this really useful ?
     // Reactive Properties
     static get properties() {
         return {
@@ -186,15 +188,15 @@ export class RingsClockCard extends LitElement {
      * @param {number} index - Index of the range, used for unique ID.
      */
     renderRange(rangeConfig, index) {
-        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : this.parseTime(rangeConfig.start_time);
-        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null) ? rangeConfig.end_time : this.parseTime(rangeConfig.end_time);
+        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : Utils.parseTime(rangeConfig.start_time, this._hass);
+        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null) ? rangeConfig.end_time : Utils.parseTime(rangeConfig.end_time, this._hass);
 
         if (!startTime || !endTime) {
             return html``;
         }
 
-        const startAngle = this.timeToAngle(startTime);
-        let endAngle = this.timeToAngle(endTime);
+        const startAngle = Utils.timeToAngle(startTime);
+        let endAngle = Utils.timeToAngle(endTime);
 
         // Adjust end angle if it crosses midnight (e.g., 22:00 to 06:00)
         if (endAngle < startAngle) {
@@ -226,12 +228,12 @@ export class RingsClockCard extends LitElement {
      * @param {number} index - Index of the marker, used for unique ID.
      */
     renderMarker(markerConfig, index) {
-        const time = this.parseTime(markerConfig.marker);
+        const time = Utils.parseTime(markerConfig.marker, this._hass);
 
         if (!time) {
             return html``;
         }
-        const markerAngle = this.timeToAngle(time);
+        const markerAngle = Utils.timeToAngle(time);
 
         const divStyle = {
             transform: `translateX(-50%) rotate(${markerAngle}deg)`,
@@ -274,8 +276,8 @@ export class RingsClockCard extends LitElement {
                 return html``;
             }
 
-            const sunriseAngle = this.dateToAngle(sunrise);
-            const sunsetAngle = this.dateToAngle(sunset);
+            const sunriseAngle = Utils.dateToAngle(sunrise);
+            const sunsetAngle = Utils.dateToAngle(sunset);
 
             const sunriseDivStyle = {
                 color: this.sunConfig.color || 'var(--accent-color, #FFA500)',
@@ -386,87 +388,6 @@ export class RingsClockCard extends LitElement {
                 </div>`)
             }
         `;
-    }
-
-    // Time Utilities
-    /**
-     * Parses a time input (e.g., "HH:MM" or an entity ID or entity.attribute path) into an object
-     * with hours and minutes.
-     * @param {string} timeInput - The time string, entity ID, or entity.attribute path.
-     * @returns {object|null} An object { hours, minutes } or null if invalid.
-     */
-    parseTime(timeInput) {
-        if (!timeInput) return null;
-
-        let timeStr = timeInput;
-
-        // Check if timeInput is an entity ID or an entity.attribute path
-        if (typeof timeInput === 'string' && timeInput.includes('.')) {
-            const parts = timeInput.split('#attributes#');
-            const entityId = parts[0];
-            const attributePath = parts.length > 1 ? parts[1] : null;
-
-            const entityState = this._hass?.states[entityId];
-
-            if (entityState && entityState.state !== 'unavailable' && entityState.state !== 'unknown') {
-                if (attributePath) {
-                    // Navigate through attributes to find the value
-                    let attributeValue = entityState.attributes;
-                    for (const attr of attributePath.split('.')) {
-                        if (attributeValue && attributeValue.hasOwnProperty(attr)) {
-                            attributeValue = attributeValue[attr];
-                        } else {
-                            attributeValue = null; // Path not found
-                            break;
-                        }
-                    }
-
-                    if (attributeValue) {
-                        // If it's a date string (like next_rising/setting), parse it as a Date object first
-                        const date = new Date(attributeValue);
-                        if (!isNaN(date.getTime())) {
-                            return { hours: date.getHours(), minutes: date.getMinutes() };
-                        } else {
-                            timeStr = String(attributeValue); // Treat as a direct time string if not a valid date
-                        }
-                    } else {
-                        return null; // Attribute value not found or invalid
-                    }
-                } else {
-                    timeStr = entityState.state; // Use the direct state if no attribute path
-                }
-            } else {
-                return null; // Entity state is not available or invalid
-            }
-        }
-
-        // Handle "HH:MM" format or value obtained from entity/attribute
-        const parts = timeStr.split(':').map(Number);
-        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-            return { hours: parts[0], minutes: parts[1] };
-        }
-
-        return null; // Invalid time format
-    }
-
-    /**
-     * Converts a time object (hours, minutes) to an angle in degrees for a 24-hour clock.
-     * @param {object} time - An object with hours and minutes.
-     * @returns {number} The angle in degrees (0-360).
-     */
-    timeToAngle(time) {
-        // 24 hours * 15 degrees/hour = 360 degrees
-        // 60 minutes * 0.25 degrees/minute = 15 degrees/hour
-        return (time.hours * 15) + (time.minutes * 0.25);
-    }
-
-    /**
-     * Converts a Date object to an angle in degrees for a 24-hour clock.
-     * @param {Date} date - The Date object.
-     * @returns {number} The angle in degrees (0-360).
-     */
-    dateToAngle(date) {
-        return this.timeToAngle({ hours: date.getHours(), minutes: date.getMinutes() });
     }
 
     // Card Metadata & Example Config
