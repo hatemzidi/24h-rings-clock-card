@@ -22,16 +22,22 @@
     "watch": "parcel watch",
     "lint": "lit-analyzer src",
     "build": "parcel build",
-    "rollup": "rollup -c"
+    "rollup": "rollup -c",
+    "start": "concurrently -n homeassistant,card -c blue,green -k \"echo starting home assistant at http://localhost:8123/... && hass -c /config\" \"rollup -c rollup.config.dev.js --watch -m\""
   },
   "devDependencies": {
     "@parcel/transformer-inline-string": "^2.8.3",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
+    "lit-analyzer": "^2.0.3",
     "parcel": "^2.8.3",
-    "rollup": "^4.44.0"
+    "rollup": "^4.44.0",
+    "rollup-plugin-serve": "^3.0.0"
   },
   "dependencies": {
+    "concurrently": "^7.0.0",
     "lit": "^2.7.4"
   }
 }
