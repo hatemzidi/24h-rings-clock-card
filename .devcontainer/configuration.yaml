@@ -1,0 +1,24 @@
+lovelace:
+  mode: yaml
+  resources:
+    - url: http://127.0.0.1:5555/24h-rings-clock-card.js
+      type: module
+
+demo:
+
+input_datetime:
+  start_time:
+    name: Input for start time
+    has_date: false
+    has_time: true
+    initial: '10:30'
+  end_time:
+    name: Input for end time
+    has_date: false
+    has_time: true
+    initial: '21:11'
+  my_custom_marker_time:
+    name: Input for custom event
+    has_date: false
+    has_time: true
+    initial: '14:51'

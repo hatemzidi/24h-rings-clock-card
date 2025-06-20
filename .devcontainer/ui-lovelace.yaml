@@ -1,0 +1,49 @@
+views:
+  - title: Test environment
+    sections:
+      - type: grid
+        cards:
+          - type: custom:rings-clock-card
+            title: 24-Hour Rings Clock
+            header_icon: mdi:clock-outline
+            hand_color: '#03a9f4'
+            show_rings: false
+            show_hours: true
+            show_legends: true
+            show_header: false
+            sun:
+              entity: sun.sun
+              show: true
+              color: '#FFA500'
+              sunrise_icon: mdi:weather-sunny-alert
+              sunset_icon: mdi:weather-night
+              show_day_night_arcs: true
+            ranges:
+              - start_time: '0:00'
+                end_time: '8:00'
+                ring: ring4
+                name: Daylight Hours
+                color: purple
+              - start_time: input_datetime.start_time
+                end_time: input_datetime.end_time
+                ring: ring3
+                color: pink
+                name: Custom Event
+              - start_time: '06:00'
+                end_time: '18:00'
+                ring: ring2
+                name: Daylight Hours
+            markers:
+              - marker: '12:00'
+                name: Noon
+                icon: mdi:white-balance-sunny
+                color: gold
+                show_in_legend: false
+              - marker: '22:31'
+                name: Bedtime
+                icon: mdi:bed
+                color: purple
+              - marker: input_datetime.my_custom_marker_time
+                name: Meeting
+                icon: mdi:calendar-star
+                color: green
