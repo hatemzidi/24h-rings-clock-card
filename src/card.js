@@ -476,69 +476,64 @@ export class RingsClockCard extends LitElement {
      */
     static getStubConfig() {
         return {
-            title: '24-Hour Rings Clock',
-            header_icon: 'mdi:clock-outline',
-            hand_color: "#03a9f4",
-            show_rings: true,
-            show_hours: true,
-            show_legends: true,
-            sun: {
-                entity: 'sun.sun',
-                show: true,
-                color: '#FFA500',
-                sunrise_icon: 'mdi:weather-sunny-alert',
-                sunset_icon: 'mdi:weather-night',
-                show_day_night_arcs: true, // Set to true to show them by default
-                day_arc_color: '#FFD700', // Optional: customize day arc color
-                night_arc_color: '#34495e', // Optional: customize night arc color
+            "title": "24-Hour Rings Clock",
+            "header_icon": "mdi:clock-outline",
+            "hand_color": "#03a9f4",
+            "show_rings": false,
+            "show_hours": true,
+            "show_legends": true,
+            "show_header": false,
+            "sun": {
+                "entity": "sun.sun",
+                "show": true,
+                "color": "#FFA500",
+                "sunrise_icon": "mdi:weather-sunny-alert",
+                "sunset_icon": "mdi:weather-night",
+                "show_day_night_arcs": true
             },
-            ranges: [{
-                start_time: 'input_datetime.start_time',
-                end_time: 'input_datetime.end_time',
-                ring: 'ring1',
-                color: '#03a9f4',
-                name: 'Custom Event'
-            }, {
-                start_time: '06:00',
-                end_time: '18:00',
-                ring: 'ring2',
-                color: '#FFD700',
-                name: 'Daylight Hours',
-                show_in_legend: false
-            }, {
-                start_time: 'sun.sun#attributes#next_setting', // Night arc
-                end_time: 'sun.sun#attributes#next_rising',
-                ring: 'ring1',
-                color: '#34495e',
-                name: 'Night'
-            }, {
-                start_time: 'sun.sun#attributes#next_rising', // Day arc
-                end_time: 'sun.sun#attributes#next_setting',
-                ring: 'ring1',
-                color: '#FFD700',
-                name: 'Day'
-            }],
-            markers: [
+            "ranges": [
                 {
-                    marker: '12:00',
-                    name: 'Noon',
-                    icon: 'mdi:white-balance-sunny',
-                    color: 'gold',
-                    show_in_legend: false
+                    "start_time": "0:00",
+                    "end_time": "8:00",
+                    "ring": "ring4",
+                    "name": "Daylight Hours",
+                    "color": "purple"
                 },
                 {
-                    marker: '22:30',
-                    name: 'Bedtime',
-                    icon: 'mdi:bed',
-                    color: 'purple'
+                    "start_time": "input_datetime.start_time",
+                    "end_time": "input_datetime.end_time",
+                    "ring": "ring3",
+                    "color": "pink",
+                    "name": "Custom Event"
                 },
                 {
-                    marker: 'input_datetime.my_custom_marker_time',
-                    name: 'Meeting',
-                    icon: 'mdi:calendar-star',
-                    color: 'green'
+                    "start_time": "06:00",
+                    "end_time": "18:00",
+                    "ring": "ring2",
+                    "name": "Daylight Hours"
                 }
             ],
+            "markers": [
+                {
+                    "marker": "12:00",
+                    "name": "Noon",
+                    "icon": "mdi:white-balance-sunny",
+                    "color": "gold",
+                    "show_in_legend": false
+                },
+                {
+                    "marker": "22:31",
+                    "name": "Bedtime",
+                    "icon": "mdi:bed",
+                    "color": "purple"
+                },
+                {
+                    "marker": "input_datetime.my_custom_marker_time",
+                    "name": "Meeting",
+                    "icon": "mdi:calendar-star",
+                    "color": "green"
+                }
+            ]
         };
     }
 }
