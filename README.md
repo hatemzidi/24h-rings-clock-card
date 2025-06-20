@@ -21,8 +21,8 @@ Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, c
 ## Installation
 
 ### HACS
-This card is available in [HACS][hacs] (Home Assistant Community Store).
-Just search for `24h rings clock` in Frontend tab.
+~~This card is available in [HACS][hacs] (Home Assistant Community Store).
+Just search for `24h rings clock` in Frontend tab.~~
 
 ### Manual
 
