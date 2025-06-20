@@ -84,7 +84,7 @@ Just search for `24h rings clock` in Frontend tab.~~
 ## Examples
 
 ### Minimal working config
-```
+```yaml
 type: custom:rings-clock-card
 show_legends: false # Optional: Hide legends for a more minimal look
 markers:
@@ -94,7 +94,7 @@ markers:
 ```                            
 
 ### Full examples
-```
+```yaml
 type: custom:rings-clock-card
 title: 'My Daily Schedule'
 header_icon: 'mdi:clock-outline' # Example header icon
