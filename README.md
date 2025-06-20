@@ -54,31 +54,31 @@ Just search for `24h rings clock` in Frontend tab.
 | entity              | string   | Optional        | The Home Assistant sun entity ID (e.g., sun.sun).               | sun.sun                      |
 | show                | boolean  | Optional        | Show/hide the sunrise and sunset markers on the clock face.     | true                         |
 | color               | string   | Optional        | Custom color for the sun markers (e.g., "#FFA500" or "orange"). | var(--accent-color, #FFA500) |
-| sunrise_icon        | string   | Optional        | An MDI icon or custom text for the sunrise marker.              | mdi:weather-sunny-alert or ↑ |
-| sunset_icon         | string   | Optional        | An MDI icon or custom text for the sunset marker.               | mdi:weather-night or ↓       |
+| sunrise_icon        | string   | Optional        | An MDI icon or custom text for the sunrise marker.              | ↑                            |
+| sunset_icon         | string   | Optional        | An MDI icon or custom text for the sunset marker.               | ↓                            |
 | show_day_night_arcs | string   | Optional        | Show/hide the day and night arcs.                               | true                         |
 | day_arc_color       | string   | Optional        | Custom color for the day arc (e.g., "#FFA500" or "orange").     | #FFD700                      |
 | night_arc_color     | string   | Optional        | Custom color for the night arc (e.g., "#FFA500" or "orange").   | #34495e                      |
 
 
 ### Ranges Options
-| **Name**       | **Type** | **Requirement** | **Description**                                                                                 | **Default**                  |
-|----------------|----------|-----------------|-------------------------------------------------------------------------------------------------|------------------------------|
-| start_time     | string   | Required        | The start time of the arc (e.g., "06:00") or an entity ID (e.g., input_datetime.my_start_time). | None                         |
-| end_time       | string   | Required        | The end time of the arc (e.g., "18:00") or an entity ID (e.g., input_datetime.my_end_time).     | None                         |
-| ring           | string   | Optional        | Specifies which ring the arc should be drawn on (ring1, ring2, ring3, or ring4).                | ring1                        |
-| color          | string   | Optional        | Custom color for the arc (e.g., "#03a9f4" or "blue").                                           | var(--accent-color, #03a9f4) |
-| name           | string   | Optional        | Name for the arc legend entry.                                                                  | None                         |
-| show_in_legend | boolean  | Optional        | Show/hide the color and the name of the range in the legends.                                   | true                         |
+| **Name**       | **Type** | **Requirement** | **Description**                                                                                                                | **Default**                  |
+|----------------|----------|-----------------|--------------------------------------------------------------------------------------------------------------------------------|------------------------------|
+| start_time     | string   | Required        | The start time of the arc (e.g., "06:00") or an entity ID (e.g., input_datetime.my_start_time or sensor.my_sensor#start_time). | None                         |
+| end_time       | string   | Required        | The end time of the arc (e.g., "18:00") or an entity ID (e.g., input_datetime.my_end_time or sensor.my_sensor#end_time).       | None                         |
+| ring           | string   | Optional        | Specifies which ring the arc should be drawn on (ring1, ring2, ring3, or ring4).                                               | ring1                        |
+| color          | string   | Optional        | Custom color for the arc (e.g., "#03a9f4" or "blue").                                                                          | var(--accent-color, #03a9f4) |
+| name           | string   | Optional        | Name for the arc legend entry.                                                                                                 | None                         |
+| show_in_legend | boolean  | Optional        | Show/hide the color and the name of the range in the legends.                                                                  | true                         |
 
 ### Markers Options
-| **Name**       | **Type** | **Requirement** | **Description**                                                                                                                         | **Default**                     |
-|----------------|----------|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| marker         | string   | Required        | The time for the marker (e.g., "12:00") or an entity ID (e.g., input_datetime.my_event_time).                                           | None                            |
-| name           | string   | Optional        | Name for the marker legend entry. Also used as a fallback text on the marker itself if no icon is provided (truncated to 3 characters). | None                            |
-| icon           | string   | Optional        | An MDI icon or custom text for the marker.                                                                                              | mdi:white-balance-sunny or •    |
-| color          | string   | Optional        | Custom color for the marker (e.g., "gold" or "green").                                                                                  | var(--primary-text-color, #333) |
-| show_in_legend | boolean  | Optional        | Show/hide the colored icon and the name of the marker in the legends.                                                                   | true                            |
+| **Name**       | **Type** | **Requirement** | **Description**                                                                                                            | **Default**                     |
+|----------------|----------|-----------------|----------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| marker         | string   | Required        | The time for the marker (e.g., "12:00") or an entity ID (e.g., input_datetime.my_event_time or sensor.my_sensor#my_event). | None                            |
+| name           | string   | Optional        | Name for the marker legend entry.                                                                                          | None                            |
+| icon           | string   | Optional        | An MDI icon for the marker.                                                                                                | •                               |
+| color          | string   | Optional        | Custom color for the marker (e.g., "gold" or "green").                                                                     | var(--primary-text-color, #333) |
+| show_in_legend | boolean  | Optional        | Show/hide the colored icon and the name of the marker in the legends.                                                      | true                            |
 
 
 ## Examples
@@ -98,7 +98,7 @@ markers:
 type: custom:rings-clock-card
 title: 'My Daily Schedule'
 header_icon: 'mdi:clock-outline' # Example header icon
-hourhand_color: '#DC143C' # Crimson red for the hour hand
+hand_color: '#DC143C' # Crimson red for the hour hand
 show_rings: true
 show_hours: true
 show_legends: true
@@ -114,6 +114,11 @@ ranges:
     ring: 'ring1'
     color: '#4CAF50' # Green for work hours
     name: 'Work Hours'
+  - start_time: 'sensor.my_sensor#start' #  Using a sensor for start time
+    end_time: 'sensor.my_sensor#end'   # Using a sensor for end time
+    ring: 'ring4'
+    color: '#4CAF50' 
+    name: 'Focus Hours'    
   - start_time: '18:00'
     end_time: '23:00'
     ring: 'ring2'
@@ -129,9 +134,9 @@ markers:
     name: 'Breakfast'
     icon: 'mdi:silverware-fork-knife'
     color: '#FF5722' # Orange
-  - marker: '12:00'
-    name: 'Lunch Break'
-    icon: 'mdi:food'
+  - marker: 'sensor.my_sensor#event' # Marker from a sensor
+    name: 'My Event'
+    icon: 'mdi:dumbbell'
     color: '#00BCD4' # Cyan
   - marker: 'input_datetime.gym_time' # Marker from an entity
     name: 'Gym Session'
