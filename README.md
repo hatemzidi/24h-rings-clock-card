@@ -21,8 +21,8 @@ Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, c
 ## Installation
 
 ### HACS
-~~This card is available in [HACS][hacs] (Home Assistant Community Store).
-Just search for `24h rings clock` in Frontend tab.~~
+This card is available in [HACS][hacs] (Home Assistant Community Store).
+Just search for `24H Rings Clock Card` in Frontend tab.
 
 ### Manual
 
@@ -149,7 +149,7 @@ markers:
 ```                                
 
 ## Known issues
-When you discover any bugs please open an [issue](https://github.com/custom-cards/slider-button-card/issues).
+When you discover any bugs please open an [issue](https://github.com/hatemzidi/24h-rings-clock-card/issues).
 
 
 ---
@@ -157,8 +157,9 @@ When you discover any bugs please open an [issue](https://github.com/custom-card
 
 <!-- References -->
 [hacs]: https://hacs.xyz
-
 [preview]: https://raw.githubusercontent.com/hatemzidi/24h-rings-clock-card/main/assets/24h-rings-clock.jpg
+
+<!-- obsolete -->
 [latest-release]: https://github.com/hatemzidi/24h-rings-clock-card/releases/latest
 [releases-shield]: https://img.shields.io/github/release/custom-cards/slider-button-card.svg?style=for-the-badge
 [releases]: https://github.com/hatemzidi/24h-rings-clock-card/releases
