@@ -6,7 +6,7 @@ import { map } from 'lit/directives/map.js';
 import { range } from 'lit/directives/range.js';
 import { repeat } from 'lit/directives/repeat.js';
 
-import styles from './card.style';
+import styles from './card.css';
 
 export class RingsClockCard extends LitElement {
 
