@@ -76,6 +76,11 @@ export class RingsClockCard extends LitElement {
      * Called after the component's DOM has been updated.
      */
     updated(changed) {
+        super.updated(changed);
+
+        if (!this._config || !this.hass) {
+            return;
+        }
         // Update clock hand position based on current time
         this.updateTic();
     }
