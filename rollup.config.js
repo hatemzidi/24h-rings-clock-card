@@ -3,12 +3,11 @@
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser'
 import { babel } from "@rollup/plugin-babel";
-import {litCss} from 'rollup-plugin-css-lit'
+
 
 
 export default {
     plugins: [
-        litCss({minify: true, inline: {assets: {}}}),
         babel({
             exclude: "node_modules/**",
         }),
