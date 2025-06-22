@@ -1,23 +1,24 @@
 import resolve from '@rollup/plugin-node-resolve';
-import { babel } from '@rollup/plugin-babel';
+import {babel} from '@rollup/plugin-babel';
 import serve from "rollup-plugin-serve";
 import terser from '@rollup/plugin-terser'
-import json from '@rollup/plugin-json';
+import {litCss} from 'rollup-plugin-css-lit'
 
 export default {
     input: 'src/index.js',
     output: {
         file: 'dist/24h-rings-clock-card.js',
-        format: "es",
+        format: 'iife',
+        //format: "es",
         compact: true,
         sourcemap: false,
     },
     plugins: [
-        resolve(),
-        json(),
+        litCss({minify: true, inline: {assets: {}}}),
         babel({
             exclude: "node_modules/**",
         }),
+        resolve(),
         terser(),
         serve({
             contentBase: "./dist",
