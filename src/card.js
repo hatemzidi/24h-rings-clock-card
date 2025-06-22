@@ -10,26 +10,15 @@ import styles from './card.css';
 
 export class RingsClockCard extends LitElement {
 
-    // Private Properties
-    _config;
-    _hass;
-    tic;
-
     // LitElement Static Styles
     static styles = styles;
 
     // Reactive Properties
     static get properties() {
         return {
-            rangesConfig: { state: true },
-            markersConfig: { state: true },
-            sunConfig: { state: true },
-            handColor: { state: true },
-            showRings: { state: true },
-            showHours: { state: true },
-            showLegends: { state: true },
-            headerTitle: { state: true },
-            headerIcon: { state: true },
+            hass: { attribute: false },
+            config: { attribute: false },
+            tic: { attribute: false }
         };
     }
 
