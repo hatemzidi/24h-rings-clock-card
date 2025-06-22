@@ -152,6 +152,7 @@ export class RingsClockCard extends LitElement {
             <div
                     class="${classMap({ major: hour % 6 === 0 })} hour_marker"
                     style="transform: translateX(-50%) rotate(${hour * 15}deg)"
+                    id="hour-${hour}"
             >
             </div>
             <div

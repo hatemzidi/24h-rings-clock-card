@@ -283,12 +283,7 @@ export default css`
             transform-origin: 50% 135px;
             height: 8px;
         }
-
-        .hour_marker.major {
-            transform-origin: 50% 120px;
-            height: 20px;
-        }
-
+        
         .ring1 { width: 180px; height: 180px; }
         .ring2 { width: 160px; height: 160px; }
         .ring3 { width: 140px; height: 140px; }
