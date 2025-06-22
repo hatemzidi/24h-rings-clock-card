@@ -110,10 +110,6 @@ export class RingsClockCard extends LitElement {
                             <div class="hours-markers">
                                 ${map(range(24), (i) => this.renderHourMarker(i))}
                             </div>
-                            <div class="hour_hand" style="${styleMap({
-                                background: this.handColor,
-                                transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)`
-                            })}"></div>
                             <div class="center-dot" style="${styleMap({ background: this.handColor })}"></div>
                             <div class="rings">
                                 <div class="ring1 ${classMap({ hidden: !this.showRings })}"></div>
@@ -125,6 +121,10 @@ export class RingsClockCard extends LitElement {
                                 ${this.rangesConfig.map((range, idx) => this.renderRange(range, idx))}
                                 ${this.renderDayNightArc()}
                             </div>
+                            <div class="hour_hand" style="${styleMap({
+                                background: this.handColor,
+                                transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)`
+                            })}"></div>
                             <div class="markers">
                                 ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
                             </div>
