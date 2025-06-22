@@ -258,7 +258,8 @@ export default css`
         color: inherit; 
     }
 
-    @media (max-width: 480px) {
+    
+    @media (max-width: 600px) {
         .clock {
             width: 300px;
             height: 300px;
@@ -302,6 +303,75 @@ export default css`
             height: 18px;
         }
         
+        .marker {
+            transform-origin: 50% 135px;
+            font-size: 14px;
+            width: 20px;
+            height: 20px;
+        }
+        .marker ha-icon {
+            --mdc-icon-size: 16px;
+        }
+
+        .legend_item {
+            font-size: 12px;
+        }
+        .legend_color_box {
+            width: 15px;
+            height: 15px;
+        }
+        .legend_icon {
+            font-size: 14px;
+        }
+        .legend_icon ha-icon {
+            --mdc-icon-size: 15px;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .clock {
+            width: 300px;
+            height: 300px;
+        }
+
+        .clock-face {
+            width: 290px;
+            height: 290px;
+        }
+
+        .hour_number {
+            font-size: 11px;
+            transform-origin: 50% 115px;
+            top: 25px;
+        }
+
+        .hour_hand {
+            height: 70px;
+        }
+
+        .hour_marker {
+            transform-origin: 50% 135px;
+            height: 8px;
+        }
+
+        .ring1 { width: 180px; height: 180px; }
+        .ring2 { width: 160px; height: 160px; }
+        .ring3 { width: 140px; height: 140px; }
+        .ring4 { width: 120px; height: 120px; }
+
+        .clock_arc.ring1 { width: 250px; height: 250px; }
+        .clock_arc.ring2 { width: 220px; height: 220px; }
+        .clock_arc.ring3 { width: 190px; height: 190px; }
+        .clock_arc.ring4 { width: 160px; height: 160px; }
+        .clock_arc.outer_arc { width: 420px; height: 420px; }
+
+        .sun_marker {
+            transform-origin: 50% 135px;
+            font-size: 14px;
+            width: 18px;
+            height: 18px;
+        }
+
         .marker {
             transform-origin: 50% 135px;
             font-size: 14px;
