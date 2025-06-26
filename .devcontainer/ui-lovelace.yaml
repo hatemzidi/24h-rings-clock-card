@@ -24,6 +24,7 @@ views:
                 ring: ring4
                 name: Daylight Hours
                 color: purple
+                width: L
               - start_time: input_datetime.start_time
                 end_time: input_datetime.end_time
                 ring: ring3
@@ -33,6 +34,13 @@ views:
                 end_time: '18:00'
                 ring: ring2
                 name: Daylight Hours
+                width: S
+              - start_time: input_datetime.start_time_2
+                end_time: input_datetime.end_time_2
+                ring: ring1
+                color: red
+                name: Another Event
+                width: XS
             markers:
               - marker: '12:00'
                 name: Noon
