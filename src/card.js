@@ -119,16 +119,17 @@ export class RingsClockCard extends LitElement {
                                         preserveAspectRatio="xMidYMid meet"
                                 >
                                     ${this.rangesConfig.map((range, idx) => this.renderGradRing(range, idx))}
+                                   
                                     ${this.renderDayNightArc()}
+                                   
+                                    ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
+                                    </g>
                                 </svg>
                             </div>
                             <div class="hour_hand" style="${styleMap({
                                 background: this.handColor,
                                 transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)`
                             })}"></div>
-                            <div class="markers">
-                                ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
-                            </div>
                             <div class="sun-markers">
                                 ${this.renderSunMarkers()}
                             </div>
@@ -194,23 +195,20 @@ export class RingsClockCard extends LitElement {
             return html``;
         }
         const markerAngle = Utils.timeToAngle(time);
+        const color = markerConfig.color || 'var(--primary-text-color, #333)';
 
-        const divStyle = {
-            transform: `translateX(-50%) rotate(${markerAngle}deg)`,
-            color: markerConfig.color ? `${markerConfig.color}` : '',
-            background: 'var(--card-background-color, #fff)'
-        };
+        return svg`<g                    
+                    id="marker_${index}"
+                    transform="rotate(${markerAngle + 180} 50 50)">
+                        <path stroke="var(--card-background-color, white)" 
+                              stroke-linejoin="bevel" 
+                              d="M 50 100 l 3.346875 -5.796957546582086625 h -6.69375 Z"
+                              fill="${color}" 
+                              stroke-width="0.5" 
+                              >
+                        </path>
+                </g>`
 
-        return html`
-            <div class="marker"
-                 style="${styleMap(divStyle)}"
-                 id="custom-marker-${index}"
-            >
-                ${(markerConfig.icon && markerConfig.icon.startsWith('mdi:')) ? html`
-                    <ha-icon style="transform: rotate(${-markerAngle}deg)" icon="${markerConfig.icon}"></ha-icon>` : html`
-                    <span style="transform: rotate(${-markerAngle}deg)">${markerConfig.icon || Constants.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
-            </div>
-        `;
     }
 
     // Sun Markers
@@ -396,6 +394,7 @@ export class RingsClockCard extends LitElement {
 
         return svg`
         <path
+          class="ring"
           id="arc_${index}"
           xmlns="http://www.w3.org/1999/xhtml"
           d="${d}"
