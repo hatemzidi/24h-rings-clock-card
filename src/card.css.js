@@ -112,37 +112,7 @@ export default css`
     }
     
 
-    .hour_hand {
-        position: absolute;
-        width: 6px;
-        height: 100px;
-        background: var(--accent-color, #03a9f4);
-        left: 50%;
-        top: 50%;
-        transform-origin: 50% 100%;
-        transform: translateX(-50%) translateY(-100%);
-        border-radius: 3px;
-        transition: transform 0.1s linear; /* Smooth transition for clock hand */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    .center-dot {
-        position: absolute;
-        width: 12px;
-        height: 12px;
-        background: var(--accent-color, #03a9f4);
-        border-radius: 50%;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        box-shadow: 0 0 8px rgba(0,0,0,0.2);
-    }
-
-    .marker.sun {
-        color: var(--accent-color, #FFA500);
-    }
-
-    .marker.sun span {
+    .sun_marker span {
         display: block;
         transform: translateY(1px);
     }

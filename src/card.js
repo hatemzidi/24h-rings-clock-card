@@ -51,7 +51,7 @@ export class RingsClockCard extends LitElement {
         };
 
         // Toggles and styles for various display elements
-        this.handColor = config.hand_color;
+        this.handColor = config.hand_color || 'var(--accent-color, #03a9f4)';
         this.showHours = config.show_hours !== false;
         this.showLegends = config.show_legends !== false;
 
@@ -116,6 +116,25 @@ export class RingsClockCard extends LitElement {
                                     ${this.renderDayNightArc()}
 
                                     ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
+                                    </g>
+                                    <g class="hour_hand"
+                                       transform="rotate(${this.tic} 50 50)">
+                                        <line class="pointer" 
+                                              stroke-linecap="round" 
+                                              x1="50"
+                                              y1="57" 
+                                              x2="50" 
+                                              y2="3"
+                                              stroke="color-mix(in srgb, ${this.handColor} 80%, var(--primary-text-color))"
+                                              stroke-width="1.5">
+                                        </line>
+                                        <circle class="pointer" 
+                                                cx="50" 
+                                                cy="50" 
+                                                r="2.5"
+                                                fill="color-mix(in srgb, ${this.handColor} 80%, var(--primary-text-color))"></circle>
+                                        <circle class="pointer-centre" fill="#444444" cx="50" cy="50" r="1.8">
+                                        </circle>
                                     </g>
                                 </svg>
 
