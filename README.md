@@ -45,7 +45,6 @@ Or
 | title        | string   | Optional        | The main title displayed at the top left of the card.                                | None                         |
 | header_icon  | string   | Optional        | An MDI icon to display at the top right of the card next to the title.               | None                         |
 | hand_color   | string   | Optional        | Custom color for the hour hand and the center dot (e.g., "#FF0000" or "red").        | var(--accent-color, #03a9f4) |
-| show_rings   | boolean  | Optional        | Show/hide the static dashed rings on the clock face.                                 | true                         |
 | show_hours   | boolean  | Optional        | Show/hide the hour numbers (00-23) on the clock face.                                | true                         |
 | show_legends | boolean  | Optional        | Show/hide the legends at the bottom of the card for ranges, markers, and sun events. | true                         |
 | sun          | object   | Optional        | [Sun options](#sun-options) to display sunrise and sunset markers.                   | See Sun Options              |

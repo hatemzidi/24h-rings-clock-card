@@ -52,7 +52,6 @@ export class RingsClockCard extends LitElement {
 
         // Toggles and styles for various display elements
         this.handColor = config.hand_color;
-        this.showRings = config.show_rings !== false;
         this.showHours = config.show_hours !== false;
         this.showLegends = config.show_legends !== false;
 
@@ -107,13 +106,7 @@ export class RingsClockCard extends LitElement {
                                 ${map(range(24), (i) => this.renderHourMarker(i))}
                             </div>
                             <div class="center-dot" style="${styleMap({background: this.handColor})}"></div>
-                            <div class="rings">
-                                <div class="ring1 ${classMap({hidden: !this.showRings})}"></div>
-                                <div class="ring2 ${classMap({hidden: !this.showRings})}"></div>
-                                <div class="ring3 ${classMap({hidden: !this.showRings})}"></div>
-                                <div class="ring4 ${classMap({hidden: !this.showRings})}"></div>
-                            </div>
-                            <div class="arcs">
+                            <div class="svg-container">
                                 <svg
                                         viewBox="0 0 100 100"
                                         preserveAspectRatio="xMidYMid meet"
