@@ -101,8 +101,8 @@ export default css`
         justify-content: center;
         align-items: center;
         left: 50%;
-        top: 50px;
-        transform-origin: 50% 140px;
+        top: 45px;
+        transform-origin: 50% 145px;
         transform: translateX(-50%);
         user-select: none;
     }

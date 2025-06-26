@@ -376,7 +376,7 @@ export class RingsClockCard extends LitElement {
 
         //const arcLength = endAngle - startAngle;
         const color = rangeConfig.color || 'var(--accent-color, #03a9f4)';
-        const arcWidth = rangeConfig.width || 3; // XS: 1, S: 2, M: 3, L: 4
+        const arcWidth = Utils.getSize(rangeConfig.width) || 3; // XS: 1, S: 2, M: 3, L: 4
 
         // Calculate the start and end points of the arc
         const startPoint = Utils.polarToCartesian(ringRadius, endAngle); // SVG arc direction is opposite, so swap start/end for path calculation
@@ -436,20 +436,23 @@ export class RingsClockCard extends LitElement {
                     "end_time": "8:00",
                     "ring": "ring4",
                     "name": "Daylight Hours",
-                    "color": "purple"
+                    "color": "purple",
+                    "width": "S",
                 },
                 {
                     "start_time": "input_datetime.start_time",
                     "end_time": "input_datetime.end_time",
                     "ring": "ring3",
                     "color": "pink",
-                    "name": "Custom Event"
+                    "name": "Custom Event",
+                    "width": "M",
                 },
                 {
                     "start_time": "06:00",
                     "end_time": "18:00",
                     "ring": "ring2",
-                    "name": "Daylight Hours"
+                    "name": "Daylight Hours",
+                    "width": "XS",
                 }
             ],
             "markers": [

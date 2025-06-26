@@ -105,3 +105,23 @@ export function polarToCartesian(radius, angleInDegrees) {
         y: cy + (radius * Math.sin(angleInRadians))
     };
 }
+
+
+export function getSize(inputString) {
+    // Directly map string sizes to their numeric values
+    const sizeMap = new Map([
+        ["XS", 1],
+        ["S", 2],
+        ["M", 3],
+        ["L", 4]
+    ]);
+
+    const normalizedInput =  (typeof inputString === 'string' || inputString instanceof String) ? inputString.toUpperCase() : null;
+
+    if (sizeMap.has(normalizedInput)) {
+        return sizeMap.get(normalizedInput);
+    } else {
+        console.warn(`Invalid size input: ${inputString}. Returning null.`);
+        return null;
+    }
+}
