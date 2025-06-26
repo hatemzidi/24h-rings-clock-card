@@ -202,7 +202,7 @@ export class RingsClockCard extends LitElement {
                     transform="rotate(${markerAngle + 180} 50 50)">
                         <path stroke="var(--card-background-color, white)" 
                               stroke-linejoin="bevel" 
-                              d="M 50 100 l 3.346875 -5.796957546582086625 h -6.69375 Z"
+                              d="M 50 100 l 2.6775 -4.6375660372656693 h -5.355 Z"
                               fill="${color}" 
                               stroke-width="0.5" 
                               >
@@ -401,7 +401,7 @@ export class RingsClockCard extends LitElement {
           stroke="${color}"
           stroke-width="${arcWidth}"
           fill="none"
-          stroke-linecap="round"
+          stroke-linecap="${rangeConfig.ring=== 'ring5' ? 'butt' : 'round'}"
         />      
       `;
     }
