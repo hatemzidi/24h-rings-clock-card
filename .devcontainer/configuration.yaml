@@ -17,6 +17,16 @@ input_datetime:
     has_date: false
     has_time: true
     initial: '21:11'
+  start_time_2:
+    name: Input for start time
+    has_date: false
+    has_time: true
+    initial: '01:30'
+  end_time_2:
+    name: Input for end time
+    has_date: false
+    has_time: true
+    initial: '11:11'
   my_custom_marker_time:
     name: Input for custom event
     has_date: false
