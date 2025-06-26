@@ -1,13 +1,14 @@
 import { html, svg, LitElement, nothing } from 'lit';
-import * as Constants from './const';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { map } from 'lit/directives/map.js';
 import { range } from 'lit/directives/range.js';
 import { repeat } from 'lit/directives/repeat.js';
 
+import * as Constants from './const';
+import * as Utils from "./utils";
+
 import styles from './card.css';
-import {polarToCartesian} from "./getRingPath";
 
 export class RingsClockCard extends LitElement {
 
@@ -113,8 +114,13 @@ export class RingsClockCard extends LitElement {
                                 <div class="ring4 ${classMap({hidden: !this.showRings})}"></div>
                             </div>
                             <div class="arcs">
-                                ${this.rangesConfig.map((range, idx) => this.renderRange(range, idx))}
-                                ${this.renderDayNightArc()}
+                                <svg
+                                        viewBox="0 0 100 100"
+                                        preserveAspectRatio="xMidYMid meet"
+                                >
+                                    ${this.rangesConfig.map((range, idx) => this.renderGradRing(range, idx))}
+                                    ${this.renderDayNightArc()}
+                                </svg>
                             </div>
                             <div class="hour_hand" style="${styleMap({
                                 background: this.handColor,
@@ -175,46 +181,6 @@ export class RingsClockCard extends LitElement {
         this.tic = (totalMinutes / (24 * 60)) * 360;
     }
 
-    // Time Ranges (Arcs)
-    /**
-     * Renders a single time range as an arc on the clock face.
-     * @param {object} rangeConfig - Configuration for the time range.
-     * @param {number} index - Index of the range, used for unique ID.
-     */
-    renderRange(rangeConfig, index) {
-        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : this.parseTime(rangeConfig.start_time);
-        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null) ? rangeConfig.end_time : this.parseTime(rangeConfig.end_time);
-
-        if (!startTime || !endTime) {
-            return html``;
-        }
-
-        const startAngle = this.timeToAngle(startTime);
-        let endAngle = this.timeToAngle(endTime);
-
-        // Adjust end angle if it crosses midnight (e.g., 22:00 to 06:00)
-        if (endAngle < startAngle) {
-            endAngle += 360;
-        }
-
-        const arcLength = endAngle - startAngle;
-        const color = rangeConfig.color || 'var(--accent-color, #03a9f4)';
-
-        const divStyle = {
-            color: color,
-            // Create a conic gradient for the arc
-            background: `conic-gradient(from ${startAngle}deg, transparent 0deg, ${color} 0deg, ${color} ${arcLength}deg, transparent ${arcLength}deg)`
-        };
-
-        return html`
-            <div id="arc_${index}"
-                 class="${rangeConfig.ring || 'ring1'} clock_arc"
-                 style="${styleMap(divStyle)}"
-            >
-            </div>
-        `;
-    }
-
     // Custom Markers
     /**
      * Renders a single custom marker on the clock face.
@@ -222,12 +188,12 @@ export class RingsClockCard extends LitElement {
      * @param {number} index - Index of the marker, used for unique ID.
      */
     renderMarker(markerConfig, index) {
-        const time = this.parseTime(markerConfig.marker);
+        const time = Utils.parseTime(markerConfig.marker, this._hass);
 
         if (!time) {
             return html``;
         }
-        const markerAngle = this.timeToAngle(time);
+        const markerAngle = Utils.timeToAngle(time);
 
         const divStyle = {
             transform: `translateX(-50%) rotate(${markerAngle}deg)`,
@@ -270,8 +236,8 @@ export class RingsClockCard extends LitElement {
                 return html``;
             }
 
-            const sunriseAngle = this.dateToAngle(sunrise);
-            const sunsetAngle = this.dateToAngle(sunset);
+            const sunriseAngle = Utils.dateToAngle(sunrise);
+            const sunsetAngle = Utils.dateToAngle(sunset);
 
             const sunriseDivStyle = {
                 color: this.sunConfig.color || 'var(--accent-color, #FFA500)',
@@ -285,7 +251,7 @@ export class RingsClockCard extends LitElement {
 
             return html`
                 <div id="sunrise-marker"
-                     class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
+                     class="sun marker ${classMap({ hidden: !this.sunConfig.show })}"
                      style="${styleMap(sunriseDivStyle)}"
                 >
                     ${(this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) ? html`
@@ -294,7 +260,7 @@ export class RingsClockCard extends LitElement {
                         <span style="transform: rotate(${-sunriseAngle}deg)">${this.sunConfig.sunrise_icon || Constants.DEFAULT_SUNRISE_ICON_TEXT}</span>`}
                 </div>
                 <div id="sunset-marker"
-                     class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
+                     class="sun marker ${classMap({ hidden: !this.sunConfig.show })}"
                      style="${styleMap(sunsetDivStyle)}"
                 >
                     ${(this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) ? html`
@@ -331,26 +297,26 @@ export class RingsClockCard extends LitElement {
             }
 
             return html`
-                <div class="sun_arcs">
+                
                     ${
                             // Day Arc (Sunrise to Sunset)
-                            this.renderRange({
+                            this.renderGradRing({
                                 start_time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
                                 end_time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
                                 color: this.sunConfig.day_arc_color || '#FFD700', // Default day color
-                                ring: 'outer_arc day_night_arc',
+                                ring: 'ring5',
                             }, 0)
                     }
                     ${
                             // Night Arc (Sunset to Sunrise)
-                            this.renderRange({
+                            this.renderGradRing({
                                 start_time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
                                 end_time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
                                 color: this.sunConfig.night_arc_color || '#34495e', // Default night color
-                                ring: 'outer_arc day_night_arc',
+                                ring: 'ring5',
                             }, -1)
                     }
-                </div>`;
+                `;
 
         } else {
             return html``;
@@ -384,105 +350,24 @@ export class RingsClockCard extends LitElement {
         `;
     }
 
-    // Time Utilities
-    /**
-     * Parses a time input (e.g., "HH:MM" or an entity ID or entity.attribute path) into an object
-     * with hours and minutes.
-     * @param {string} timeInput - The time string, entity ID, or entity.attribute path.
-     * @returns {object|null} An object { hours, minutes } or null if invalid.
-     */
-    parseTime(timeInput) {
-        if (!timeInput) return null;
-
-        let timeStr = timeInput;
-
-        // Check if timeInput is an entity ID or an entity.attribute path
-        if (typeof timeInput === 'string' && timeInput.includes('.')) {
-            const parts = timeInput.split('#attributes#');
-            const entityId = parts[0];
-            const attributePath = parts.length > 1 ? parts[1] : null;
-
-            const entityState = this._hass?.states[entityId];
-
-            if (entityState && entityState.state !== 'unavailable' && entityState.state !== 'unknown') {
-                if (attributePath) {
-                    // Navigate through attributes to find the value
-                    let attributeValue = entityState.attributes;
-                    for (const attr of attributePath.split('.')) {
-                        if (attributeValue && attributeValue.hasOwnProperty(attr)) {
-                            attributeValue = attributeValue[attr];
-                        } else {
-                            attributeValue = null; // Path not found
-                            break;
-                        }
-                    }
-
-                    if (attributeValue) {
-                        // If it's a date string (like next_rising/setting), parse it as a Date object first
-                        const date = new Date(attributeValue);
-                        if (!isNaN(date.getTime())) {
-                            return { hours: date.getHours(), minutes: date.getMinutes() };
-                        } else {
-                            timeStr = String(attributeValue); // Treat as a direct time string if not a valid date
-                        }
-                    } else {
-                        return null; // Attribute value not found or invalid
-                    }
-                } else {
-                    timeStr = entityState.state; // Use the direct state if no attribute path
-                }
-            } else {
-                return null; // Entity state is not available or invalid
-            }
-        }
-
-        // Handle "HH:MM" format or value obtained from entity/attribute
-        const parts = timeStr.split(':').map(Number);
-        if (parts.length >= 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-            return { hours: parts[0], minutes: parts[1] };
-        }
-
-        return null; // Invalid time format
-    }
 
     /**
-     * Converts a time object (hours, minutes) to an angle in degrees for a 24-hour clock.
-     * @param {object} time - An object with hours and minutes.
-     * @returns {number} The angle in degrees (0-360).
-     */
-    timeToAngle(time) {
-        // 24 hours * 15 degrees/hour = 360 degrees
-        // 60 minutes * 0.25 degrees/minute = 15 degrees/hour
-        return (time.hours * 15) + (time.minutes * 0.25);
-    }
-
-    /**
-     * Converts a Date object to an angle in degrees for a 24-hour clock.
-     * @param {Date} date - The Date object.
-     * @returns {number} The angle in degrees (0-360).
-     */
-    dateToAngle(date) {
-        return this.timeToAngle({ hours: date.getHours(), minutes: date.getMinutes() });
-    }
-
-    /**
-     * Creates an SVG path element representing an arc with specified attributes.
-     * @param rangeConfig - The Range Config
-     * @param {number} index - id of the range
-     * @returns {TemplateResult<2>} The created SVG path element.
+     * Renders a single time range as an arc on the clock face.
+     * @param {object} rangeConfig - Configuration for the time range.
+     * @param {number} index - Index of the range, used for unique ID.
      */
     renderGradRing(rangeConfig, index) {
-        const ringRadius = [30, 25, 20, 15][rangeConfig.ring.slice(-1) - 1]
+        const ringRadius = [30, 25, 20, 15, 50][rangeConfig.ring.slice(-1) - 1]
 
-        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : this.parseTime(rangeConfig.start_time);
-        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null) ? rangeConfig.end_time : this.parseTime(rangeConfig.end_time);
+        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : Utils.parseTime(rangeConfig.start_time, this._hass);
+        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null) ? rangeConfig.end_time : Utils.parseTime(rangeConfig.end_time, this._hass);
 
         if (!startTime || !endTime) {
             return svg``;
         }
 
-        const startAngle = this.timeToAngle(startTime);
-        let endAngle = this.timeToAngle(endTime);
+        const startAngle = Utils.timeToAngle(startTime);
+        let endAngle = Utils.timeToAngle(endTime);
 
         // Adjust end angle if it crosses midnight (e.g., 22:00 to 06:00)
         if (endAngle < startAngle) {
@@ -494,8 +379,8 @@ export class RingsClockCard extends LitElement {
         const arcWidth = rangeConfig.width || 3; // XS: 1, S: 2, M: 3, L: 4
 
         // Calculate the start and end points of the arc
-        const startPoint = polarToCartesian(ringRadius, endAngle); // SVG arc direction is opposite, so swap start/end for path calculation
-        const endPoint = polarToCartesian(ringRadius, startAngle);
+        const startPoint = Utils.polarToCartesian(ringRadius, endAngle); // SVG arc direction is opposite, so swap start/end for path calculation
+        const endPoint = Utils.polarToCartesian(ringRadius, startAngle);
 
         // Determine if the arc is a 'large-arc' (greater than 180 degrees)
         const angleDifference = (endAngle - startAngle + 360) % 360; // Ensure positive difference
