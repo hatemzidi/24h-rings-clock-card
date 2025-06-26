@@ -75,6 +75,7 @@ Or
 | color          | string   | Optional        | Custom color for the arc (e.g., "#03a9f4" or "blue").                                                                          | var(--accent-color, #03a9f4) |
 | name           | string   | Optional        | Name for the arc legend entry.                                                                                                 | None                         |
 | show_in_legend | boolean  | Optional        | Show/hide the color and the name of the range in the legends.                                                                  | true                         |
+| width          | string   | Optional        | Specifies the width of the ring. Should be XS, S, M or L.                                                                      | M                            |
 
 ### Markers Options
 | **Name**       | **Type** | **Requirement** | **Description**                                                                                                            | **Default**                     |
