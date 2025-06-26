@@ -13,7 +13,7 @@ export function parseTime(timeInput, hass) {
 
     // Check if timeInput is an entity ID or an entity.attribute path
     if (typeof timeInput === 'string' && timeInput.includes('.')) {
-        const parts = timeInput.split('#attributes#');
+        const parts = timeInput.split('#');
         const entityId = parts[0];
         const attributePath = parts.length > 1 ? parts[1] : null;
 
@@ -98,7 +98,8 @@ export function degToRad(degrees) {
  */
 export function polarToCartesian(radius, angleInDegrees) {
     const cx=50; // x position
-    const cy=50; // x position
+    const cy=50; // y position
+    
     const angleInRadians = degToRad(angleInDegrees - 90); // Adjusting for SVG's Y-axis (0 degrees is typically at 3 o'clock, we want 12 o'clock to be 0)
     return {
         x: cx + (radius * Math.cos(angleInRadians)),
