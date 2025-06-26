@@ -111,7 +111,7 @@ export class RingsClockCard extends LitElement {
                                         viewBox="0 0 100 100"
                                         preserveAspectRatio="xMidYMid meet"
                                 >
-                                    ${this.rangesConfig.map((range, idx) => this.renderGradRing(range, idx))}
+                                    ${this.rangesConfig.map((range, idx) => this.renderRing(range, idx))}
                                    
                                     ${this.renderDayNightArc()}
                                    
@@ -291,7 +291,7 @@ export class RingsClockCard extends LitElement {
                 
                     ${
                             // Day Arc (Sunrise to Sunset)
-                            this.renderGradRing({
+                            this.renderRing({
                                 start_time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
                                 end_time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
                                 color: this.sunConfig.day_arc_color || '#FFD700', // Default day color
@@ -300,7 +300,7 @@ export class RingsClockCard extends LitElement {
                     }
                     ${
                             // Night Arc (Sunset to Sunrise)
-                            this.renderGradRing({
+                            this.renderRing({
                                 start_time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
                                 end_time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
                                 color: this.sunConfig.night_arc_color || '#34495e', // Default night color
@@ -347,7 +347,7 @@ export class RingsClockCard extends LitElement {
      * @param {object} rangeConfig - Configuration for the time range.
      * @param {number} index - Index of the range, used for unique ID.
      */
-    renderGradRing(rangeConfig, index) {
+    renderRing(rangeConfig, index) {
         const ringRadius = [30, 25, 20, 15, 50][rangeConfig.ring.slice(-1) - 1]
 
         const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : Utils.parseTime(rangeConfig.start_time, this._hass);
