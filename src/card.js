@@ -112,17 +112,14 @@ export class RingsClockCard extends LitElement {
                                         preserveAspectRatio="xMidYMid meet"
                                 >
                                     ${this.rangesConfig.map((range, idx) => this.renderRing(range, idx))}
-                                   
+
                                     ${this.renderDayNightArc()}
-                                   
+
                                     ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
                                     </g>
                                 </svg>
+
                             </div>
-                            <div class="hour_hand" style="${styleMap({
-                                background: this.handColor,
-                                transform: `translateX(-50%) translateY(-100%) rotate(${this.tic}deg)`
-                            })}"></div>
                             <div class="sun-markers">
                                 ${this.renderSunMarkers()}
                             </div>
@@ -192,7 +189,9 @@ export class RingsClockCard extends LitElement {
 
         return svg`<g                    
                     id="marker_${index}"
-                    transform="rotate(${markerAngle + 180} 50 50)">
+                    class="marker"
+                    transform="rotate(${markerAngle + 180} 50 50)"
+                    >
                         <path stroke="var(--card-background-color, white)" 
                               stroke-linejoin="bevel" 
                               d="M 50 100 l 2.6775 -4.6375660372656693 h -5.355 Z"
@@ -242,7 +241,7 @@ export class RingsClockCard extends LitElement {
 
             return html`
                 <div id="sunrise-marker"
-                     class="sun marker ${classMap({ hidden: !this.sunConfig.show })}"
+                     class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
                      style="${styleMap(sunriseDivStyle)}"
                 >
                     ${(this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) ? html`
@@ -251,7 +250,7 @@ export class RingsClockCard extends LitElement {
                         <span style="transform: rotate(${-sunriseAngle}deg)">${this.sunConfig.sunrise_icon || Constants.DEFAULT_SUNRISE_ICON_TEXT}</span>`}
                 </div>
                 <div id="sunset-marker"
-                     class="sun marker ${classMap({ hidden: !this.sunConfig.show })}"
+                     class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
                      style="${styleMap(sunsetDivStyle)}"
                 >
                     ${(this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) ? html`
@@ -410,7 +409,6 @@ export class RingsClockCard extends LitElement {
             "title": "24-Hours Rings Clock",
             "header_icon": "mdi:clock-outline",
             "hand_color": "#03a9f4",
-            "show_rings": false,
             "show_hours": true,
             "show_legends": true,
             "show_header": false,
