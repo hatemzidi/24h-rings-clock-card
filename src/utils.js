@@ -79,5 +79,5 @@ export function timeToAngle(time) {
  * @returns {number} The angle in degrees (0-360).
  */
 export function dateToAngle(date) {
-    return this.timeToAngle({ hours: date.getHours(), minutes: date.getMinutes() });
+    return timeToAngle({ hours: date.getHours(), minutes: date.getMinutes() });
 }
