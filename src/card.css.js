@@ -19,7 +19,6 @@ export default css`
         position: absolute;
         inset: 0;
         overflow: visible;
-        top: -5px;
     }
     
     .card-header {
@@ -53,8 +52,8 @@ export default css`
     }
 
     .clock {
-        width: 400px;
-        height: 400px;
+        width: 380px;
+        height: 380px;
         border-radius: 50%;
         background: var(--card-background-color, #fff);
         border: 2px solid var(--divider-color, #e0e0e0);
@@ -80,16 +79,15 @@ export default css`
         height: 10px;
         background: var(--secondary-text-color, #666);
         left: 50%;
-        top: 5px;
-        transform-origin: 50% 185px;
+        top: 30px;
+        transform-origin: 50% 160px;
         transform: translateX(-50%);
     }
 
     .hour_marker.major {
         width: 3px;
-        height: 20px;
+        height: 15px;
         background: var(--primary-text-color, #333);
-        top: 5px;
     }
 
     .hour_number {
@@ -103,8 +101,8 @@ export default css`
         justify-content: center;
         align-items: center;
         left: 50%;
-        top: 30px;
-        transform-origin: 50% 160px;
+        top: 50px;
+        transform-origin: 50% 140px;
         transform: translateX(-50%);
         user-select: none;
     }
@@ -128,24 +126,6 @@ export default css`
     .ring2 { width: 230px; height: 230px; }
     .ring3 { width: 210px; height: 210px; }
     .ring4 { width: 190px; height: 190px; }
-
-    .clock_arc{
-        position: absolute;
-        border-radius: 50%;
-        border: 5px solid transparent;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        /* Masking ensures only the ring area is colored, not the full circle */
-        mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
-        -webkit-mask: radial-gradient(transparent calc(50% - 5px), black calc(50% - 4px), black calc(50% + 4px), transparent calc(50% + 5px));
-    }
-
-    .clock_arc.ring1 { width: 350px; height: 350px; }
-    .clock_arc.ring2 { width: 320px; height: 320px; }
-    .clock_arc.ring3 { width: 290px; height: 290px; }
-    .clock_arc.ring4 { width: 260px; height: 260px; }
-    .clock_arc.outer_arc { width: 560px; height: 560px; }
 
     .hour_hand {
         position: absolute;
@@ -173,32 +153,16 @@ export default css`
         box-shadow: 0 0 8px rgba(0,0,0,0.2);
     }
 
-    .sun_marker {
-        position: absolute;
-        font-size: 16px;
+    .marker.sun {
         color: var(--accent-color, #FFA500);
-        left: 50%;
-        top: 5px;
-        transform-origin: 50% 185px;
-        transform: translateX(-50%);
-        font-weight: bold;
-        pointer-events: none;
-        background: var(--card-background-color, #fff);
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 0 5px rgba(0,0,0,0.3);
     }
 
-    .sun_marker span {
+    .marker.sun span {
         display: block;
         transform: translateY(1px);
     }
-    
-    .sun_marker ha-icon {
+
+    .marker.sun ha-icon {
         --mdc-icon-size: 18px;
         color: inherit; 
     }
@@ -208,8 +172,8 @@ export default css`
         font-size: 16px;
         color: var(--primary-text-color, #333);
         left: 50%;
-        top: 5px;
-        transform-origin: 50% 185px;
+        top: 20px;
+        transform-origin: 50% 170px;
         transform: translateX(-50%);
         font-weight: bold;
         pointer-events: none;
@@ -341,72 +305,5 @@ export default css`
         }
     }
 
-    @media (min-width: 768px) {
-        .clock {
-            width: 300px;
-            height: 300px;
-        }
-
-        .clock-face {
-            width: 290px;
-            height: 290px;
-        }
-
-        .hour_number {
-            font-size: 11px;
-            transform-origin: 50% 115px;
-            top: 25px;
-        }
-
-        .hour_hand {
-            height: 70px;
-        }
-
-        .hour_marker {
-            transform-origin: 50% 135px;
-            height: 8px;
-        }
-
-        .ring1 { width: 180px; height: 180px; }
-        .ring2 { width: 160px; height: 160px; }
-        .ring3 { width: 140px; height: 140px; }
-        .ring4 { width: 120px; height: 120px; }
-
-        .clock_arc.ring1 { width: 250px; height: 250px; }
-        .clock_arc.ring2 { width: 220px; height: 220px; }
-        .clock_arc.ring3 { width: 190px; height: 190px; }
-        .clock_arc.ring4 { width: 160px; height: 160px; }
-        .clock_arc.outer_arc { width: 420px; height: 420px; }
-
-        .sun_marker {
-            transform-origin: 50% 135px;
-            font-size: 14px;
-            width: 18px;
-            height: 18px;
-        }
-
-        .marker {
-            transform-origin: 50% 135px;
-            font-size: 14px;
-            width: 20px;
-            height: 20px;
-        }
-        .marker ha-icon {
-            --mdc-icon-size: 16px;
-        }
-
-        .legend_item {
-            font-size: 12px;
-        }
-        .legend_color_box {
-            width: 15px;
-            height: 15px;
-        }
-        .legend_icon {
-            font-size: 14px;
-        }
-        .legend_icon ha-icon {
-            --mdc-icon-size: 15px;
-        }
-    }
+    
 `;
