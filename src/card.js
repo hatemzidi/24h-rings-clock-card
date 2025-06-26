@@ -1,4 +1,4 @@
-import { html, LitElement, nothing } from 'lit';
+import { html, svg, LitElement, nothing } from 'lit';
 import * as Constants from './const';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
@@ -7,6 +7,7 @@ import { range } from 'lit/directives/range.js';
 import { repeat } from 'lit/directives/repeat.js';
 
 import styles from './card.css';
+import {polarToCartesian} from "./getRingPath";
 
 export class RingsClockCard extends LitElement {
 
@@ -104,12 +105,12 @@ export class RingsClockCard extends LitElement {
                             <div class="hours-markers">
                                 ${map(range(24), (i) => this.renderHourMarker(i))}
                             </div>
-                            <div class="center-dot" style="${styleMap({ background: this.handColor })}"></div>
+                            <div class="center-dot" style="${styleMap({background: this.handColor})}"></div>
                             <div class="rings">
-                                <div class="ring1 ${classMap({ hidden: !this.showRings })}"></div>
-                                <div class="ring2 ${classMap({ hidden: !this.showRings })}"></div>
-                                <div class="ring3 ${classMap({ hidden: !this.showRings })}"></div>
-                                <div class="ring4 ${classMap({ hidden: !this.showRings })}"></div>
+                                <div class="ring1 ${classMap({hidden: !this.showRings})}"></div>
+                                <div class="ring2 ${classMap({hidden: !this.showRings})}"></div>
+                                <div class="ring3 ${classMap({hidden: !this.showRings})}"></div>
+                                <div class="ring4 ${classMap({hidden: !this.showRings})}"></div>
                             </div>
                             <div class="arcs">
                                 ${this.rangesConfig.map((range, idx) => this.renderRange(range, idx))}
@@ -127,7 +128,7 @@ export class RingsClockCard extends LitElement {
                             </div>
                         </div>
                     </div>
-                    <div class="legends-container ${classMap({ hidden: !this.showLegends })}" id="legends-container">
+                    <div class="legends-container ${classMap({hidden: !this.showLegends})}" id="legends-container">
                         ${this.renderLegends()}
                     </div>
                 </div>
@@ -463,6 +464,64 @@ export class RingsClockCard extends LitElement {
     dateToAngle(date) {
         return this.timeToAngle({ hours: date.getHours(), minutes: date.getMinutes() });
     }
+
+    /**
+     * Creates an SVG path element representing an arc with specified attributes.
+     * @param rangeConfig - The Range Config
+     * @param {number} index - id of the range
+     * @returns {TemplateResult<2>} The created SVG path element.
+     */
+    renderGradRing(rangeConfig, index) {
+        const ringRadius = [30, 25, 20, 15][rangeConfig.ring.slice(-1) - 1]
+
+        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : this.parseTime(rangeConfig.start_time);
+        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null) ? rangeConfig.end_time : this.parseTime(rangeConfig.end_time);
+
+        if (!startTime || !endTime) {
+            return svg``;
+        }
+
+        const startAngle = this.timeToAngle(startTime);
+        let endAngle = this.timeToAngle(endTime);
+
+        // Adjust end angle if it crosses midnight (e.g., 22:00 to 06:00)
+        if (endAngle < startAngle) {
+            endAngle += 360;
+        }
+
+        //const arcLength = endAngle - startAngle;
+        const color = rangeConfig.color || 'var(--accent-color, #03a9f4)';
+        const arcWidth = rangeConfig.width || 3; // XS: 1, S: 2, M: 3, L: 4
+
+        // Calculate the start and end points of the arc
+        const startPoint = polarToCartesian(ringRadius, endAngle); // SVG arc direction is opposite, so swap start/end for path calculation
+        const endPoint = polarToCartesian(ringRadius, startAngle);
+
+        // Determine if the arc is a 'large-arc' (greater than 180 degrees)
+        const angleDifference = (endAngle - startAngle + 360) % 360; // Ensure positive difference
+        const largeArcFlag = angleDifference > 180 ? 1 : 0;
+
+        // The sweep flag (1 for clockwise, 0 for counter-clockwise)
+        const sweepFlag = 0; // Set to 0 for counter-clockwise sweep
+
+        // Construct the SVG path data string
+        // M: Move to (startPoint)
+        // A: Arc (rx ry x-axis-rotation large-arc-flag sweep-flag endX endY)
+        const d = `M ${startPoint.x} ${startPoint.y} A ${ringRadius} ${ringRadius} 0 ${largeArcFlag} ${sweepFlag} ${endPoint.x} ${endPoint.y}`;
+
+        return svg`
+        <path
+          id="arc_${index}"
+          xmlns="http://www.w3.org/1999/xhtml"
+          d="${d}"
+          stroke="${color}"
+          stroke-width="${arcWidth}"
+          fill="none"
+          stroke-linecap="round"
+        />      
+      `;
+    }
+
 
     // Card Metadata & Example Config
     /**

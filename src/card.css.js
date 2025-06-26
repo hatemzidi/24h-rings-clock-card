@@ -7,8 +7,21 @@ export default css`
 
     .hidden {
       display: none !important;
-    }               
+    }
 
+
+
+    svg {
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        display: block;
+        position: absolute;
+        inset: 0;
+        overflow: visible;
+        top: -5px;
+    }
+    
     .card-header {
         display: flex; 
         justify-content: space-between; /* Space out title and icon */
