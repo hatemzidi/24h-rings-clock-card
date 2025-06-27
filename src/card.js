@@ -120,10 +120,6 @@ export class RingsClockCard extends LitElement {
                                     ${this.renderHourHand()};
                                     
                                 </svg>
-
-                            </div>
-                            <div class="sun-markers">
-                                ${this.renderSunMarkers()}
                             </div>
                         </div>
                     </div>
@@ -233,6 +229,48 @@ export class RingsClockCard extends LitElement {
 
     }
 
+    /**
+     * Renders a single dot marker on the clock face.
+     * @param {Object} dotConfig - Configuration for the event dot.
+     * @param {number} index - Index of the event, used for unique ID.
+     */
+    renderDot(dotConfig, index) {
+        const time = (typeof dotConfig.time === 'object' && dotConfig.time !== null) ? dotConfig.time : Utils.parseTime(dotConfig.time, this._hass);
+
+        if (!time) {
+            return svg``;
+        }
+
+        const ringWidth = 50;
+        const dotOutline = 0.7;
+        const dotRadius = 1.7;
+
+        const color = dotConfig.color || 'var(--primary-text-color, #333)';
+
+        const dotAngle = Utils.timeToAngle(time);
+        const dotCoord = Utils.getCoordFromDegrees(dotAngle, ringWidth);
+
+        return svg`
+            <g class="indicator"
+               id="dot_${index}">                           
+              <circle 
+                class="dot-outline"
+                cx=${dotCoord[0]}
+                cy=${dotCoord[1]} 
+                r=${dotRadius + dotOutline / 2}
+                clip-path="url(#ring-clip)"
+                fill="${ dotConfig.fill || 'var(--card-background-color, white)' }"           
+              />
+              <circle 
+                class="dot"
+                cx=${dotCoord[0]}                 
+                cy=${dotCoord[1]}  
+                r=${dotRadius - dotOutline / 2}
+                fill=${color}                
+              />
+            </g>`;
+    }
+
     // Sun Markers
     /**
      * Renders sunrise and sunset markers based on the 'sun.sun' entity.
@@ -256,37 +294,20 @@ export class RingsClockCard extends LitElement {
                 return html``;
             }
 
-            const sunriseAngle = Utils.dateToAngle(sunrise);
-            const sunsetAngle = Utils.dateToAngle(sunset);
 
-            const sunriseDivStyle = {
-                color: this.sunConfig.color || 'var(--accent-color, #FFA500)',
-                transform: `translateX(-50%) rotate(${sunriseAngle}deg)`,
-            };
-
-            const sunsetDivStyle = {
-                color: this.sunConfig.color || 'var(--accent-color, #FFA500)',
-                transform: `translateX(-50%) rotate(${sunsetAngle}deg)`,
-            };
-
-            return html`
-                <div id="sunrise-marker"
-                     class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
-                     style="${styleMap(sunriseDivStyle)}"
-                >
-                    ${(this.sunConfig.sunrise_icon && this.sunConfig.sunrise_icon.startsWith('mdi:')) ? html`
-                        <ha-icon style="transform: rotate(${-sunriseAngle}deg)"
-                                 icon="${this.sunConfig.sunrise_icon}"></ha-icon>` : html`
-                        <span style="transform: rotate(${-sunriseAngle}deg)">${this.sunConfig.sunrise_icon || Constants.DEFAULT_SUNRISE_ICON_TEXT}</span>`}
-                </div>
-                <div id="sunset-marker"
-                     class="sun_marker ${classMap({ hidden: !this.sunConfig.show })}"
-                     style="${styleMap(sunsetDivStyle)}"
-                >
-                    ${(this.sunConfig.sunset_icon && this.sunConfig.sunset_icon.startsWith('mdi:')) ? html`
-                        <ha-icon style="transform: rotate(${-sunsetAngle}deg)" icon="${this.sunConfig.sunset_icon}"></ha-icon>` : html`
-                        <span style="transform: rotate(${-sunsetAngle}deg)">${this.sunConfig.sunset_icon || Constants.DEFAULT_SUNSET_ICON_TEXT}</span>`}
-                </div>`;
+            return svg`
+                        ${this.renderDot({
+                                                    time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
+                                                    color: this.sunConfig.color || 'var(--accent-color, #FFA500)',
+                                                    fill: 'white'
+                                                }, 1)}
+                                                                                                
+                        ${this.renderDot({
+                                                    time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
+                                                    color: this.sunConfig.color || 'var(--accent-color, #FFA500)',
+                                                }, 1)}
+                                    
+            `;
         } else {
             return html``;
         }
@@ -302,7 +323,15 @@ export class RingsClockCard extends LitElement {
         const sunEntityId = this.sunConfig.entity || 'sun.sun';
 
         if (!showDayNightArcs || !this._hass || !this._hass.states[sunEntityId]) {
-            return;
+            return svg`
+                ${// Full Ring
+                this.renderRing({
+                    start_time: {hours: 0, minutes: 0},
+                    end_time: {hours: 23, minutes: 59},
+                    color: 'var(--divider-color, #e0e0e0)', // Default day color
+                    ring: 'ring5',
+                }, 0)}
+            `;
         }
 
         const sunState = this._hass.states[sunEntityId];
@@ -317,26 +346,22 @@ export class RingsClockCard extends LitElement {
             }
 
             return html`
-                
-                    ${
-                            // Day Arc (Sunrise to Sunset)
-                            this.renderRing({
-                                start_time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
-                                end_time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
-                                color: this.sunConfig.day_arc_color || '#FFD700', // Default day color
-                                ring: 'ring5',
-                            }, 0)
-                    }
-                    ${
-                            // Night Arc (Sunset to Sunrise)
-                            this.renderRing({
-                                start_time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
-                                end_time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
-                                color: this.sunConfig.night_arc_color || '#34495e', // Default night color
-                                ring: 'ring5',
-                            }, -1)
-                    }
-                `;
+
+                ${// Day Arc (Sunrise to Sunset)
+                        this.renderRing({
+                            start_time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
+                            end_time: {hours: sunset.getHours(), minutes: sunset.getMinutes()},
+                            color: this.sunConfig.day_arc_color || '#FFD700', // Default day color
+                            ring: 'ring5',
+                        }, 0)}
+                ${// Night Arc (Sunset to Sunrise)
+                        this.renderRing({
+                            start_time: {hours: sunset.getHours(), minutes: sunset.getMinutes()},
+                            end_time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
+                            color: this.sunConfig.night_arc_color || '#34495e', // Default night color
+                            ring: 'ring5',
+                        }, -1)}
+            `;
 
         } else {
             return html``;
