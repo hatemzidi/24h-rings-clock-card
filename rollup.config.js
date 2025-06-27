@@ -3,6 +3,7 @@
 import resolve from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser'
 import { babel } from "@rollup/plugin-babel";
+import summary from "rollup-plugin-summary";
 
 
 
@@ -15,7 +16,22 @@ export default {
         // Resolve bare module specifiers to relative paths
         resolve(),
         // Minify JS
-        terser(),
+        terser({
+            "compress": {
+                "unsafe": true,
+                // An extra pass can squeeze out an extra byte or two.
+                passes: 2,
+            },
+            output: {
+                // "some" preserves @license and @preserve comments
+                comments: 'some',
+                inline_script: false,
+            },
+            "mangle": true,
+            "keep_fnames": true,
+            "keep_classnames": true
+        }),
+        summary()
     ],
     input: 'src/index.js',
     output: {
