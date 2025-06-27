@@ -54,7 +54,7 @@ export default css`
         height: 380px;
         border-radius: 50%;
         background: var(--card-background-color, #fff);
-        border: 2px solid var(--divider-color, #e0e0e0);
+        //border: 2px solid var(--divider-color, #e0e0e0);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -111,37 +111,6 @@ export default css`
         text-align: center;
     }
     
-
-    .sun_marker span {
-        display: block;
-        transform: translateY(1px);
-    }
-
-    .sun_marker ha-icon {
-        --mdc-icon-size: 18px;
-        color: inherit; 
-    }
-    
-    .sun_marker {
-        position: absolute;
-        font-size: 16px;
-        color: var(--accent-color, #FFA500);
-        left: 50%;
-        top: 15px;
-        transform-origin: 50% 175px;
-        transform: translateX(-50%);
-        font-weight: bold;
-        pointer-events: none;
-        background: var(--card-background-color, #fff);
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 0 5px rgba(0,0,0,0.3);
-    }
-
     
     /* Legends Styling */
     .legends-container {
@@ -207,24 +176,6 @@ export default css`
         .hour_marker {
             transform-origin: 50% 135px;
             height: 8px;
-        }
-        
-        .sun_marker {
-            transform-origin: 50% 135px;
-            font-size: 14px;
-            width: 18px;
-            height: 18px;
-        }
-        
-        .sun_marker {
-            transform-origin: 50% 135px;
-            font-size: 14px;
-            width: 20px;
-            height: 20px;
-        }
-        
-        .sun_marker ha-icon {
-            --mdc-icon-size: 16px;
         }
 
         .legend_item {

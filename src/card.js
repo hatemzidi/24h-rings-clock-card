@@ -1,6 +1,5 @@
 import {html, svg, LitElement, nothing} from 'lit';
 import {classMap} from 'lit/directives/class-map.js';
-import {styleMap} from 'lit/directives/style-map.js';
 import {map} from 'lit/directives/map.js';
 import {range} from 'lit/directives/range.js';
 import {repeat} from 'lit/directives/repeat.js';
@@ -177,10 +176,10 @@ export class RingsClockCard extends LitElement {
                                 fill="color-mix(in srgb, ${this.handColor} 80%, var(--primary-text-color))">                                
                         </circle>
                         <circle class="pointer-centre" 
-                                fill="#444444" 
+                                fill="var(--card-background-color, white)" 
                                 cx="50" 
                                 cy="50" 
-                                r="1.8">
+                                r="1.4">
                         </circle>
                     </g>`;
     }
@@ -296,7 +295,7 @@ export class RingsClockCard extends LitElement {
 
         // Check if sun markers are enabled and sun entity data is available
         if (!this.sunConfig.show || !this._hass || !this._hass.states[sunEntityId]) {
-            return html``;
+            return svg``;
         }
 
         const sunState = this._hass.states[sunEntityId];
@@ -309,7 +308,6 @@ export class RingsClockCard extends LitElement {
             if (isNaN(sunrise.getTime()) || isNaN(sunset.getTime())) {
                 return html``;
             }
-
 
             return svg`
                         ${this.renderDot({
@@ -325,7 +323,7 @@ export class RingsClockCard extends LitElement {
                                     
             `;
         } else {
-            return html``;
+            return svg``;
         }
     }
 
@@ -358,11 +356,10 @@ export class RingsClockCard extends LitElement {
             const sunset = new Date(attributes.next_setting);
 
             if (isNaN(sunrise.getTime()) || isNaN(sunset.getTime())) {
-                return html``;
+                return svg``;
             }
 
-            return html`
-
+            return svg`
                 ${// Day Arc (Sunrise to Sunset)
                         this.renderRing({
                             start_time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
@@ -380,7 +377,7 @@ export class RingsClockCard extends LitElement {
             `;
 
         } else {
-            return html``;
+            return svg``;
         }
 
     }
@@ -506,13 +503,18 @@ export class RingsClockCard extends LitElement {
                 "name": "Custom Event",
                 "width": "M",
             }, {
-                "start_time": "06:00", "end_time": "18:00", "ring": "ring2", "name": "Daylight Hours", "width": "XS",
+                "start_time": "06:00",
+                "end_time": "18:00",
+                "ring": "ring2",
+                "name": "Daylight Hours",
+                "width": "XS",
             }],
             "markers": [{
                 "time": "12:00",
                 "name": "Noon",
                 "icon": "mdi:white-balance-sunny",
                 "color": "gold",
+                "indicator": "dot",
                 "show_in_legend": false
             }, {
                 "time": "22:31", "name": "Bedtime", "icon": "mdi:bed", "color": "purple"
