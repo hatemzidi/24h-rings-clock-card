@@ -9,6 +9,7 @@ import { babel } from "@rollup/plugin-babel";
 export default {
     plugins: [
         babel({
+            babelHelpers: 'bundled',
             exclude: "node_modules/**",
         }),
         // Resolve bare module specifiers to relative paths
