@@ -160,9 +160,12 @@ export class RingsClockCard extends LitElement {
     render() {
         return html`
             <ha-card>
-                <div class="card-header" id="card-header">
-                    <div class="card-title-text ${classMap({ hidden: !(this.headerTitle || this.headerIcon) })}" id="card-title-text">${this.headerTitle ?? nothing}</div>
-                    <div class="card-header-icon ${classMap({ hidden: !(this.headerTitle || this.headerIcon) })}" id="card-header-icon">
+                <div class="card-header ${classMap({hidden: !(this.headerTitle || this.headerIcon)})}" id="card-header">
+                    <div class="card-title-text ${classMap({hidden: !(this.headerTitle || this.headerIcon)})}"
+                         id="card-title-text">${this.headerTitle ?? nothing}
+                    </div>
+                    <div class="card-header-icon ${classMap({hidden: !(this.headerTitle || this.headerIcon)})}"
+                         id="card-header-icon">
                         <ha-icon icon="${this.headerIcon ?? nothing}"></ha-icon>
                     </div>
                 </div>
