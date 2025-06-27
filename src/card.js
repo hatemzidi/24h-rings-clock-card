@@ -3,6 +3,7 @@ import {classMap} from 'lit/directives/class-map.js';
 import {map} from 'lit/directives/map.js';
 import {range} from 'lit/directives/range.js';
 import {repeat} from 'lit/directives/repeat.js';
+import {ResizeController} from '@lit-labs/observers/resize-controller.js';
 
 import * as Constants from './const';
 import * as Utils from "./utils";
@@ -13,6 +14,20 @@ export class RingsClockCard extends LitElement {
 
     // LitElement Static Styles
     static styles = styles;
+
+    resizer = 1;
+    clockEl;
+
+
+    _resizeObserver = new ResizeController(this, {
+        target: this.clockEl,
+        callback: (entries) => {
+             entries.map(entry => {
+                this.resizer = entry.contentRect.width <= 200 ? 1.6 : 1;
+            });
+        }
+    });
+
 
     // Reactive Properties
     static get properties() {
@@ -84,6 +99,35 @@ export class RingsClockCard extends LitElement {
         }
         this.updateTic(); // Update clock hand position based on current time
     }
+
+    firstUpdated() {
+        this.clockEl = this.renderRoot.querySelector('.clock');
+        this._resizeObserver.observe(this.clockEl);
+
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
+            this._resizeObserver = null;
+        }
+    }
+
+    getCardSize() {
+        return 3;
+    }
+
+    getGridOptions() {
+        return {
+            rows: 6,
+            columns: 6,
+            min_rows: 4,
+            min_columns: 6,
+        };
+    }
+
 
     /**
      * Updates the position of the hour hand based on the current time.
@@ -254,7 +298,7 @@ export class RingsClockCard extends LitElement {
                     >
                         <path stroke="var(--card-background-color, white)"
                               stroke-linejoin="bevel"
-                              d="M 50 100 l 2.6775 -4.6375660372656693 h -5.355 Z"
+                              d="M 50 100 l ${2.6775 * this.resizer} ${-4.6375660372656693 * this.resizer} h ${-5.355 * this.resizer} Z"
                               fill="${color}"
                               stroke-width="0.5"
                               >
@@ -279,8 +323,8 @@ export class RingsClockCard extends LitElement {
         }
 
         const ringWidth = Constants.RING_RADII['ring5']; // outer radius for positioning of the dot
-        const dotOutline = 0.7;
-        const dotRadius = 1.7;
+        const dotOutline = 0.7 * this.resizer;
+        const dotRadius = 1.7 * this.resizer;
 
         const color = dotConfig.color || 'var(--primary-text-color, #333)';
 
@@ -431,7 +475,9 @@ export class RingsClockCard extends LitElement {
      */
     renderRing(rangeConfig, id) {
         // Default to 'ring1' if not specified or an invalid ring name is provided.
-        const ringRadius = Constants.RING_RADII[rangeConfig.ring] || Constants.RING_RADII['ring1'];
+        let ringRadius = Constants.RING_RADII[rangeConfig.ring] || Constants.RING_RADII['ring1'];
+        ringRadius = (rangeConfig.ring === 'ring5') ? ringRadius : ringRadius * this.resizer;
+
 
         // Parse start and end times, handling both direct objects and strings/entity IDs.
         const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null)
@@ -456,7 +502,7 @@ export class RingsClockCard extends LitElement {
 
         const color = rangeConfig.color || 'var(--accent-color, #03a9f4)';
         // Default width if not specified or invalid, assuming Utils.getSize handles 'XS', 'S', etc.
-        const arcWidth = Utils.getSize(rangeConfig.width) || 3;
+        const arcWidth = Utils.getSize(rangeConfig.width) * this.resizer || 3;
 
         // Calculate the start and end points of the arc for SVG 'A' command.
         // SVG arc direction is clockwise, but our angle system is often counter-clockwise (0 at top, increasing clockwise).
