@@ -22,7 +22,7 @@ export class RingsClockCard extends LitElement {
     _resizeObserver = new ResizeController(this, {
         target: this.clockEl,
         callback: (entries) => {
-             entries.map(entry => {
+            entries.map(entry => {
                 this.resizer = entry.contentRect.width <= 200 ? 1.6 : 1;
             });
         }
@@ -32,9 +32,9 @@ export class RingsClockCard extends LitElement {
     // Reactive Properties
     static get properties() {
         return {
-            hass: { attribute: false }, // Home Assistant object
-            config: { attribute: false }, // Card configuration
-            tic: { attribute: false } // Current angle for the hour hand
+            hass: {attribute: false}, // Home Assistant object
+            config: {attribute: false}, // Card configuration
+            tic: {attribute: false} // Current angle for the hour hand
         };
     }
 
@@ -171,28 +171,29 @@ export class RingsClockCard extends LitElement {
                 </div>
                 <div class="clock-container">
                     <div class="clock">
-                        
-                            <div class="hours-markers">
-                                ${map(range(24), (i) => this.renderHourMarker(i))}
-                            </div>
 
-                            <div class="svg-container" role="timer" aria-live="polite" aria-label="24-hour clock displaying current time and configured events">
-                                <svg
-                                        viewBox="0 0 100 100"
-                                        preserveAspectRatio="xMidYMid meet"
-                                >
-                                    ${this.renderDayNightArc()}
-                                    ${this.renderSunMarkers()}
+                        <div class="hours-markers">
+                            ${map(range(24), (i) => this.renderHourMarker(i))}
+                        </div>
 
-                                    ${this.rangesConfig.map((range, idx) => this.renderRing(range, idx))}
+                        <div class="svg-container" role="timer" aria-live="polite"
+                             aria-label="24-hour clock displaying current time and configured events">
+                            <svg
+                                    viewBox="0 0 100 100"
+                                    preserveAspectRatio="xMidYMid meet"
+                            >
+                                ${this.renderDayNightArc()}
+                                ${this.renderSunMarkers()}
 
-                                    ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
+                                ${this.rangesConfig.map((range, idx) => this.renderRing(range, idx))}
+
+                                ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
 
 
-                                    ${this.renderHourHand()}
+                                ${this.renderHourHand()}
 
-                                </svg>
-                            </div>
+                            </svg>
+                        </div>
 
                     </div>
                     <div class="legends-container ${classMap({hidden: !this.showLegends})}" id="legends-container">
@@ -214,13 +215,13 @@ export class RingsClockCard extends LitElement {
     renderHourMarker(hour) {
         return html`
             <div
-                    class="${classMap({ major: hour % 6 === 0 })} hour_marker"
+                    class="${classMap({major: hour % 6 === 0})} hour_marker"
                     style="transform: translateX(-50%) rotate(${hour * 15}deg)"
                     id="hour-${hour}"
             >
             </div>
             <div
-                    class="hour_number ${classMap({ hidden: !this.showHours })}"
+                    class="hour_number ${classMap({hidden: !this.showHours})}"
                     style="transform: translateX(-50%) rotate(${hour * 15}deg)"
             >
                 <span style="transform: rotate(${-hour * 15}deg)">${hour.toString().padStart(2, '0')}</span>
@@ -270,7 +271,7 @@ export class RingsClockCard extends LitElement {
      * @param {object} markerConfig - Configuration for the custom marker.
      * @param {number} index - Index of the marker, used for unique ID.
      */
-    renderMarker(markerConfig, index){
+    renderMarker(markerConfig, index) {
         if (markerConfig.indicator === 'dot')
             return svg`${this.renderDot(markerConfig, index)}`;
         else // default indicator is 'event'
@@ -351,7 +352,7 @@ export class RingsClockCard extends LitElement {
                 cy=${dotCoord[1]}
                 r=${dotRadius + dotOutline / 2}
                 clip-path="url(#ring-clip)"
-                fill="${ dotConfig.fill || 'var(--card-background-color, white)' }"
+                fill="${dotConfig.fill || 'var(--card-background-color, white)'}"
               />
               <circle
                 class="dot"
@@ -392,17 +393,17 @@ export class RingsClockCard extends LitElement {
 
             return svg`
                         ${this.renderDot({
-                                            time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
-                                            color: this.sunConfig.color,
-                                            fill: 'white',
-                                            name: 'Sunrise' 
-                                        }, 'sun_rise')}
+                time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
+                color: this.sunConfig.color,
+                fill: 'white',
+                name: 'Sunrise'
+            }, 'sun_rise')}
                         ${this.renderDot({
-                                            time: {hours: sunset.getHours(), minutes: sunset.getMinutes()},
-                                            color: this.sunConfig.color,
-                                            name: 'Sunset',
-                                            fill: '#333',
-                                        }, 'sun_set')}
+                time: {hours: sunset.getHours(), minutes: sunset.getMinutes()},
+                color: this.sunConfig.color,
+                name: 'Sunset',
+                fill: '#333',
+            }, 'sun_set')}
             `;
         } else {
             console.warn(`RingsClockCard: Sun entity "${sunEntityId}" is missing 'next_rising' or 'next_setting' attributes. Skipping sun markers.`);
