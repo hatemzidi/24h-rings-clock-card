@@ -58,8 +58,6 @@ Or
 | entity              | string   | Optional        | The Home Assistant sun entity ID (e.g., sun.sun).               | sun.sun                      |
 | show                | boolean  | Optional        | Show/hide the sunrise and sunset markers on the clock face.     | true                         |
 | color               | string   | Optional        | Custom color for the sun markers (e.g., "#FFA500" or "orange"). | var(--accent-color, #FFA500) |
-| sunrise_icon        | string   | Optional        | An MDI icon or custom text for the sunrise marker.              | ↑                            |
-| sunset_icon         | string   | Optional        | An MDI icon or custom text for the sunset marker.               | ↓                            |
 | show_day_night_arcs | string   | Optional        | Show/hide the day and night arcs.                               | true                         |
 | day_arc_color       | string   | Optional        | Custom color for the day arc (e.g., "#FFA500" or "orange").     | #FFD700                      |
 | night_arc_color     | string   | Optional        | Custom color for the night arc (e.g., "#FFA500" or "orange").   | #34495e                      |

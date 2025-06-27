@@ -43,8 +43,6 @@ export class RingsClockCard extends LitElement {
             entity: 'sun.sun', // Default sun entity
             show: true, // Default show sun markers
             color: '#FFA500', // Default sun marker color
-            sunrise_icon: 'mdi:weather-sunny', // Default sunrise icon
-            sunset_icon: 'mdi:weather-night', // Default sunset icon
             show_day_night_arcs: false, // Default to false
             ...(config.sun || {}) // Override with user config
         };
@@ -484,8 +482,6 @@ export class RingsClockCard extends LitElement {
                 "entity": "sun.sun",
                 "show": true,
                 "color": "#FFA500",
-                "sunrise_icon": "mdi:weather-sunny-alert",
-                "sunset_icon": "mdi:weather-night",
                 "show_day_night_arcs": true
             },
             "ranges": [{
