@@ -83,6 +83,7 @@ Or
 | name           | string   | Optional        | Name for the marker legend entry.                                                                                          | None                            |
 | icon           | string   | Optional        | An MDI icon for the marker.                                                                                                | •                               |
 | color          | string   | Optional        | Custom color for the marker (e.g., "gold" or "green").                                                                     | var(--primary-text-color, #333) |
+| indicator      | string   | Optional        | Show it either as marker or as dot                                                                                         | marker                          |
 | show_in_legend | boolean  | Optional        | Show/hide the colored icon and the name of the marker in the legends.                                                      | true                            |
 
 
@@ -139,6 +140,7 @@ markers:
     name: 'Breakfast'
     icon: 'mdi:silverware-fork-knife'
     color: '#FF5722' # Orange
+    indicator: 'dot'
   - marker: 'sensor.my_sensor#event' # Marker from a sensor
     name: 'My Event'
     icon: 'mdi:dumbbell'
