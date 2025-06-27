@@ -375,6 +375,7 @@ export class RingsClockCard extends LitElement {
                 color: 'var(--divider-color, #e0e0e0)', // Default full ring color
                 ring: 'ring5', 
                 name: 'Clock Background', 
+                width: 'XS',
                 show_in_legend: false, // Don't show this default in legend
             }, 'full_day_arc')}
             `;
