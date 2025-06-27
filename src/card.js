@@ -17,13 +17,16 @@ export class RingsClockCard extends LitElement {
     // Reactive Properties
     static get properties() {
         return {
-            hass: { attribute: false },
-            config: { attribute: false },
-            tic: { attribute: false }
+            hass: { attribute: false }, // Home Assistant object
+            config: { attribute: false }, // Card configuration
+            tic: { attribute: false } // Current angle for the hour hand
         };
     }
 
-    // Home Assistant Lifecycle
+    // =========================================================================
+    // Core Lifecycle & Configuration
+    // =========================================================================
+
     /**
      * Sets the card configuration. This method is called by Home Assistant
      * when the card's configuration changes.
@@ -44,8 +47,8 @@ export class RingsClockCard extends LitElement {
             show: true, // Default show sun markers
             color: 'var(--accent-color, #FFA500)', // Default sun marker color
             show_day_night_arcs: false, // Default to false
-            day_arc_color: 'var(--day-arc-color, #FFD700)', // Default day color
-            night_arc_color: 'var(--night-arc-color, #34495e)', // Default night color
+            day_arc_color: 'var(--day-arc-color, #FFD700)', // Default day arc color
+            night_arc_color: 'var(--night-arc-color, #34495e)', // Default night arc color
             ...(config.sun || {}) // Override with user config
         };
 
@@ -67,25 +70,42 @@ export class RingsClockCard extends LitElement {
     set hass(hass) {
         this._hass = hass;
         // Trigger card update when Home Assistant state changes
-        // Update clock hand position based on current time
-        this.updateTic();
+        this.updateTic(); // Update clock hand position based on current time
     }
 
-    // LitElement Lifecycle Callbacks
     /**
      * Called after the component's DOM has been updated.
      */
-    updated(changed) {
-        super.updated(changed);
+    updated(changedProperties) {
+        super.updated(changedProperties);
 
         if (!this._config || !this.hass) {
             return;
         }
-        // Update clock hand position based on current time
-        this.updateTic();
+        this.updateTic(); // Update clock hand position based on current time
     }
 
-    // Rendering Logic
+    /**
+     * Updates the position of the hour hand based on the current time.
+     * Calculates the angle for a 24-hour clock rotation.
+     */
+    updateTic() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        // Calculate total minutes in a 24-hour cycle for smooth rotation
+        const totalMinutes = hours * 60 + minutes + seconds / 60;
+        // Each hour is 15 degrees (360 degrees / 24 hours)
+        this.tic = (totalMinutes / (24 * 60)) * 360;
+    }
+
+
+    // =========================================================================
+    // Rendering Methods (Main Structure)
+    // =========================================================================
+
     /**
      * Renders the main structure of the card.
      */
@@ -132,8 +152,10 @@ export class RingsClockCard extends LitElement {
         `;
     }
 
+    // =========================================================================
+    // Rendering Methods (Clock Elements)
+    // =========================================================================
 
-    // Clock Elements
     /**
      * Creates and appends the 24-hour markers and hour numbers to the clock face.
      * @param {number} hour - The hour to render (0-23).
@@ -155,13 +177,16 @@ export class RingsClockCard extends LitElement {
         `;
     }
 
-
+    /**
+     * Renders the hour hand of the clock.
+     * Includes accessibility attributes for screen readers.
+     */
     renderHourHand() {
         return svg`
                     <g class="hour_hand"
                        transform="rotate(${this.tic} 50 50)">
-                        <line class="pointer" 
-                              stroke-linecap="round" 
+                        <line class="pointer"
+                              stroke-linecap="round"
                               x1="50"
                               y1="57"
                               x2="50"
@@ -183,44 +208,34 @@ export class RingsClockCard extends LitElement {
                         </circle>
                     </g>`;
     }
-    /**
-     * Updates the position of the hour hand based on the current time.
-     * Calculates the angle for a 24-hour clock rotation.
-     */
-    updateTic() {
-        const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
 
-        // Calculate total minutes in a 24-hour cycle for smooth rotation
-        const totalMinutes = hours * 60 + minutes + seconds / 60;
-        // Each hour is 15 degrees (360 degrees / 24 hours)
-        this.tic = (totalMinutes / (24 * 60)) * 360;
-    }
 
-    // Custom Markers
+    // =========================================================================
+    // Rendering Methods (Custom Markers)
+    // =========================================================================
+
     /**
-     * Renders the marker
+     * Renders a custom marker based on its indicator type ('dot' or 'event').
      * @param {object} markerConfig - Configuration for the custom marker.
      * @param {number} index - Index of the marker, used for unique ID.
      */
-
     renderMarker(markerConfig, index){
         if (markerConfig.indicator === 'dot')
             return svg`${this.renderDot(markerConfig, index)}`;
-        else // default
+        else // default indicator is 'event'
             return svg`${this.renderEvent(markerConfig, index)}`;
     }
 
-
     /**
-     * Renders a single custom marker on the clock face.
+     * Renders a triangular event marker on the clock face.
      * @param {Object} eventConfig - Configuration for the event marker.
      * @param {number} index - Index of the event, used for unique ID.
      */
     renderEvent(eventConfig, index) {
-        const time = (typeof eventConfig.time === 'object' && eventConfig.time !== null) ? eventConfig.time : Utils.parseTime(eventConfig.time, this._hass);
+        // Parse time: can be a direct object or a string/entity ID to be parsed by Utils.
+        const time = (typeof eventConfig.time === 'object' && eventConfig.time !== null)
+            ? eventConfig.time
+            : Utils.parseTime(eventConfig.time, this._hass);
 
         if (!time) {
             console.warn(`RingsClockCard: Could not parse time for marker "${eventConfig.name || `marker_${index}`}". Skipping marker.`);
@@ -244,24 +259,26 @@ export class RingsClockCard extends LitElement {
                               stroke-width="0.5"
                               >
                         </path>
-                </g>`
-
+                </g>`;
     }
 
     /**
-     * Renders a single dot marker on the clock face.
+     * Renders a circular dot marker on the clock face.
      * @param {Object} dotConfig - Configuration for the event dot.
      * @param {number} index - Index of the event, used for unique ID.
      */
     renderDot(dotConfig, index) {
-        const time = (typeof dotConfig.time === 'object' && dotConfig.time !== null) ? dotConfig.time : Utils.parseTime(dotConfig.time, this._hass);
+        // Parse time: can be a direct object or a string/entity ID to be parsed by Utils.
+        const time = (typeof dotConfig.time === 'object' && dotConfig.time !== null)
+            ? dotConfig.time
+            : Utils.parseTime(dotConfig.time, this._hass);
 
         if (!time) {
             console.warn(`RingsClockCard: Could not parse time for dot marker "${dotConfig.name || `dot_${index}`}". Skipping marker.`);
             return svg``;
         }
 
-        const ringWidth = 50; //todo(hatem) use RADII
+        const ringWidth = Constants.RING_RADII['ring5']; // outer radius for positioning of the dot
         const dotOutline = 0.7;
         const dotRadius = 1.7;
 
@@ -295,7 +312,10 @@ export class RingsClockCard extends LitElement {
             </g>`;
     }
 
-    // Sun Markers
+    // =========================================================================
+    // Rendering Methods (Sun Integration)
+    // =========================================================================
+
     /**
      * Renders sunrise and sunset markers based on the 'sun.sun' entity.
      */
@@ -324,12 +344,12 @@ export class RingsClockCard extends LitElement {
                             time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
                             color: this.sunConfig.color,
                             fill: 'white',
-                            name: 'Sunrise' // Added for better a11y label
+                            name: 'Sunrise' // Added for better accessibility label
                         }, 'sun_rise')}
                         ${this.renderDot({
                             time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
                             color: this.sunConfig.color,
-                            name: 'Sunset' // Added for better a11y label
+                            name: 'Sunset' // Added for better accessibility label
                         }, 'sun_set')}
             `;
         } else {
@@ -338,27 +358,25 @@ export class RingsClockCard extends LitElement {
         }
     }
 
-
-    // Sun Arcs
     /**
-     * Renders sunrise and sunset arcs based on the 'sun.sun' entity.
+     * Renders day and night arcs based on the 'sun.sun' entity.
+     * If show_day_night_arcs is false, it renders a full ring as a background.
      */
     renderDayNightArc() {
         const showDayNightArcs = this.sunConfig.show_day_night_arcs;
         const sunEntityId = this.sunConfig.entity || 'sun.sun';
-        const mainRing = Constants.RING_RADII['ring5']; // Use the named constant for clarity
 
+        // If day/night arcs are not enabled, render a default full background ring
         if (!showDayNightArcs || !this._hass || !this._hass.states[sunEntityId]) {
             return svg`
-                ${// Full Ring as default "day" background if arcs are off
-                this.renderRing({
-                    start_time: {hours: 0, minutes: 0},
-                    end_time: {hours: 23, minutes: 59}, 
-                    color: 'var(--divider-color, #e0e0e0)', // Default full ring color
-                    ring: mainRing, 
-                    name: 'Clock', 
-                    show_in_legend: false, 
-                }, 'full_day_arc')}
+                ${this.renderRing({
+                start_time: {hours: 0, minutes: 0},
+                end_time: {hours: 23, minutes: 59}, // Ensure it's a full circle
+                color: 'var(--divider-color, #e0e0e0)', // Default full ring color
+                ring: 'ring5', 
+                name: 'Clock Background', 
+                show_in_legend: false, // Don't show this default in legend
+            }, 'full_day_arc')}
             `;
         }
 
@@ -379,9 +397,9 @@ export class RingsClockCard extends LitElement {
                 this.renderRing({
                     start_time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
                     end_time: {hours: sunset.getHours(), minutes: sunset.getMinutes()},
-                    color: this.sunConfig.day_arc_color,
-                    ring: mainRing,
-                    name: 'Daylight', 
+                    color: this.sunConfig.day_arc_color, 
+                    ring: 'ring5',
+                    name: 'Daylight Hours', 
                     show_in_legend: false, // Generally don't show dynamic sun arcs in legend
                 }, 'day_arc')}
                 ${// Night Arc (Sunset to Sunrise)
@@ -389,9 +407,9 @@ export class RingsClockCard extends LitElement {
                     start_time: {hours: sunset.getHours(), minutes: sunset.getMinutes()},
                     end_time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
                     color: this.sunConfig.night_arc_color,
-                    ring: mainRing,
-                    name: 'Night', 
-                    show_in_legend: false, // Generally don't show dynamic sun arcs in legend
+                    ring: 'ring5',
+                    name: 'Night Hours', 
+                    show_in_legend: false, 
                 }, 'night_arc')}
             `;
 
@@ -399,35 +417,11 @@ export class RingsClockCard extends LitElement {
             console.warn(`RingsClockCard: Sun entity "${sunEntityId}" is missing 'next_rising' or 'next_setting' attributes. Skipping day/night arcs.`);
             return svg``;
         }
-
     }
 
-
-    // Legends
-    /**
-     * Renders the legends for arcs, custom markers, and sun markers.
-     */
-    renderLegends() {
-        return html`
-            ${repeat(this.rangesConfig, (range) => html`
-                <div class="legend_item ${classMap({ hidden: !range.name || range.show_in_legend === false })}">
-                    <div class="legend_color_box" style="background-color: ${range.color || 'var(--accent-color, #03a9f4)'};"></div>
-                    <span class="legend_name">${range.name}</span>
-                </div>`)
-            }
-            ${repeat(this.markersConfig, (marker) => html`
-                <div class="legend_item ${classMap({ hidden: !marker.name || marker.show_in_legend === false })}">
-                    <div class="legend_icon" style="color: ${marker.color || 'var(--primary-text-color, #333)'};">
-                        ${(marker.icon && marker.icon.startsWith('mdi:')) ? html`
-                            <ha-icon icon="${marker.icon}"></ha-icon>` : html`
-                            <span>${marker.icon || Constants.DEFAULT_CUSTOM_MARKER_ICON_TEXT}</span>`}
-                    </div>
-                    <span class="legend_name">${marker.name}</span>
-                </div>`)
-            }
-        `;
-    }
-
+    // =========================================================================
+    // Rendering Methods (Ranges/Arcs)
+    // =========================================================================
 
     /**
      * Renders a single time range as an arc on the clock face.
@@ -435,11 +429,16 @@ export class RingsClockCard extends LitElement {
      * @param {string|number} id - Unique ID for the arc, used for `id` attribute.
      */
     renderRing(rangeConfig, id) {
-        // Use the defined RING_RADII constant for clarity
-        const ringRadius = Constants.RING_RADII[rangeConfig.ring] || Constants.RING_RADII['ring1']; // Default to ring1 if not specified or invalid
+        // Default to 'ring1' if not specified or an invalid ring name is provided.
+        const ringRadius = Constants.RING_RADII[rangeConfig.ring] || Constants.RING_RADII['ring1'];
 
-        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null) ? rangeConfig.start_time : Utils.parseTime(rangeConfig.start_time, this._hass);
-        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null) ? rangeConfig.end_time : Utils.parseTime(rangeConfig.end_time, this._hass);
+        // Parse start and end times, handling both direct objects and strings/entity IDs.
+        const startTime = (typeof rangeConfig.start_time === 'object' && rangeConfig.start_time !== null)
+            ? rangeConfig.start_time
+            : Utils.parseTime(rangeConfig.start_time, this._hass);
+        const endTime = (typeof rangeConfig.end_time === 'object' && rangeConfig.end_time !== null)
+            ? rangeConfig.end_time
+            : Utils.parseTime(rangeConfig.end_time, this._hass);
 
         if (!startTime || !endTime) {
             console.warn(`RingsClockCard: Could not parse start or end time for range "${rangeConfig.name || `range_${id}`}". Skipping ring.`);
@@ -455,24 +454,26 @@ export class RingsClockCard extends LitElement {
         }
 
         const color = rangeConfig.color || 'var(--accent-color, #03a9f4)';
-
-        // Default width if not specified or invalid
+        // Default width if not specified or invalid, assuming Utils.getSize handles 'XS', 'S', etc.
         const arcWidth = Utils.getSize(rangeConfig.width) || 3;
 
-        // Calculate the start and end points of the arc
-        const startPoint = Utils.polarToCartesian(ringRadius, endAngle); // SVG arc direction is opposite, so swap start/end for path calculation
+        // Calculate the start and end points of the arc for SVG 'A' command.
+        // SVG arc direction is clockwise, but our angle system is often counter-clockwise (0 at top, increasing clockwise).
+        // To draw an arc from start time to end time in a clockwise direction on the clock face,
+        // we essentially draw from `endAngle` to `startAngle` with `sweepFlag=0` (or vice-versa with `sweepFlag=1`).
+        // Here, `startPoint` is calculated using `endAngle` and `endPoint` using `startAngle` to achieve the desired clockwise sweep.
+        const startPoint = Utils.polarToCartesian(ringRadius, endAngle);
         const endPoint = Utils.polarToCartesian(ringRadius, startAngle);
 
-        // Determine if the arc is a 'large-arc' (greater than 180 degrees)
+        // Determine if the arc is a 'large-arc' (greater than 180 degrees).
         const angleDifference = (endAngle - startAngle + 360) % 360; // Ensure positive difference
         const largeArcFlag = angleDifference > 180 ? 1 : 0;
 
-        // The sweep flag (1 for clockwise, 0 for counter-clockwise)
-        // For a 24-hour clock rotating clockwise, and drawing arcs from start to end time
-        // if we swap start and end points for `A` command, we need sweepFlag=0 for clockwise visual arc.
+        // The sweep flag (1 for clockwise, 0 for counter-clockwise).
+        // Since we swapped start/end points for the `A` command, a `sweepFlag` of 0 results in a clockwise visual arc.
         const sweepFlag = 0;
 
-        // Construct the SVG path data string
+        // Construct the SVG path data string:
         // M: Move to (startPoint)
         // A: Arc (rx ry x-axis-rotation large-arc-flag sweep-flag endX endY)
         const d = `M ${startPoint.x} ${startPoint.y} A ${ringRadius} ${ringRadius} 0 ${largeArcFlag} ${sweepFlag} ${endPoint.x} ${endPoint.y}`;
@@ -481,9 +482,8 @@ export class RingsClockCard extends LitElement {
         // and 'round' for other rings, providing a visually distinct style.
         const lineCap = rangeConfig.ring === 'ring5' ? 'butt' : 'round';
 
-        // Accessibility label for the arc
+        // Accessibility label for the arc.
         const arcLabel = `${rangeConfig.name || 'Time Range'}: ${startTime.hours.toString().padStart(2, '0')}:${startTime.minutes.toString().padStart(2, '0')} to ${endTime.hours.toString().padStart(2, '0')}:${endTime.minutes.toString().padStart(2, '0')}`;
-
 
         return svg`
         <path
@@ -500,8 +500,40 @@ export class RingsClockCard extends LitElement {
       `;
     }
 
+    // =========================================================================
+    // Rendering Methods (Legends)
+    // =========================================================================
 
-    // Card Metadata & Example Config
+    /**
+     * Renders the legends for arcs, custom markers, and sun markers.
+     * Legend items are hidden if they don't have a name or if show_in_legend is explicitly false.
+     */
+    renderLegends() {
+        return html`
+            ${repeat(this.rangesConfig, (rangeItem) => html`
+                <div class="legend_item ${classMap({ hidden: !rangeItem.name || rangeItem.show_in_legend === false })}">
+                    <div class="legend_color_box" style="background-color: ${rangeItem.color || 'var(--accent-color, #03a9f4)'};"></div>
+                    <span class="legend_name">${rangeItem.name}</span>
+                </div>`)
+        }
+            ${repeat(this.markersConfig, (markerItem) => html`
+                <div class="legend_item ${classMap({ hidden: !markerItem.name || markerItem.show_in_legend === false })}">
+                    <div class="legend_icon" style="color: ${markerItem.color || 'var(--primary-text-color, #333)'};">
+                        ${(markerItem.icon && markerItem.icon.startsWith('mdi:')) ? html`
+                            <ha-icon icon="${markerItem.icon}"></ha-icon>` : html`
+                            <span>${markerItem.icon || Constants.DEFAULT_CUSTOM_MARKER_ICON_TEXT || '•'}</span>`}
+                    </div>
+                    <span class="legend_name">${markerItem.name}</span>
+                </div>`)
+        }
+        `;
+    }
+
+
+    // =========================================================================
+    // Card Metadata & Example Configuration
+    // =========================================================================
+
     /**
      * Provides a stub configuration for the card, used for example purposes in the Home Assistant UI editor.
      * @returns {object} An example configuration object.
@@ -513,7 +545,7 @@ export class RingsClockCard extends LitElement {
             "hand_color": "#03a9f4",
             "show_hours": true,
             "show_legends": true,
-            "show_header": true,
+            "show_header": true, // Set to true to make the header visible in the stub config
             "sun": {
                 "entity": "sun.sun",
                 "show": true,
