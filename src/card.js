@@ -273,7 +273,7 @@ export class RingsClockCard extends LitElement {
     /**
      * Renders a triangular event marker on the clock face.
      * @param {Object} eventConfig - Configuration for the event marker.
-     * @param {number} index - Index of the event, used for unique ID.
+     * @param {string|number} index - Index of the event, used for unique ID.
      */
     renderEvent(eventConfig, index) {
         // Parse time: can be a direct object or a string/entity ID to be parsed by Utils.
@@ -309,7 +309,7 @@ export class RingsClockCard extends LitElement {
     /**
      * Renders a circular dot marker on the clock face.
      * @param {Object} dotConfig - Configuration for the event dot.
-     * @param {number} index - Index of the event, used for unique ID.
+     * @param {string|number} index - Index of the event, used for unique ID.
      */
     renderDot(dotConfig, index) {
         // Parse time: can be a direct object or a string/entity ID to be parsed by Utils.
@@ -385,16 +385,17 @@ export class RingsClockCard extends LitElement {
 
             return svg`
                         ${this.renderDot({
-                            time: { hours: sunrise.getHours(), minutes: sunrise.getMinutes() },
-                            color: this.sunConfig.color,
-                            fill: 'white',
-                            name: 'Sunrise' // Added for better accessibility label
-                        }, 'sun_rise')}
+                                            time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
+                                            color: this.sunConfig.color,
+                                            fill: 'white',
+                                            name: 'Sunrise' 
+                                        }, 'sun_rise')}
                         ${this.renderDot({
-                            time: { hours: sunset.getHours(), minutes: sunset.getMinutes() },
-                            color: this.sunConfig.color,
-                            name: 'Sunset' // Added for better accessibility label
-                        }, 'sun_set')}
+                                            time: {hours: sunset.getHours(), minutes: sunset.getMinutes()},
+                                            color: this.sunConfig.color,
+                                            name: 'Sunset',
+                                            fill: '#333',
+                                        }, 'sun_set')}
             `;
         } else {
             console.warn(`RingsClockCard: Sun entity "${sunEntityId}" is missing 'next_rising' or 'next_setting' attributes. Skipping sun markers.`);
@@ -417,8 +418,8 @@ export class RingsClockCard extends LitElement {
                 start_time: {hours: 0, minutes: 0},
                 end_time: {hours: 23, minutes: 59}, // Ensure it's a full circle
                 color: 'var(--divider-color, #e0e0e0)', // Default full ring color
-                ring: 'ring5', 
-                name: 'Clock Background', 
+                ring: 'ring5',
+                name: 'Clock Background',
                 width: 'XS',
                 show_in_legend: false, // Don't show this default in legend
             }, 'full_day_arc')}
@@ -442,9 +443,9 @@ export class RingsClockCard extends LitElement {
                 this.renderRing({
                     start_time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
                     end_time: {hours: sunset.getHours(), minutes: sunset.getMinutes()},
-                    color: this.sunConfig.day_arc_color, 
+                    color: this.sunConfig.day_arc_color,
                     ring: 'ring5',
-                    name: 'Daylight Hours', 
+                    name: 'Daylight Hours',
                     show_in_legend: false, // Generally don't show dynamic sun arcs in legend
                 }, 'day_arc')}
                 ${// Night Arc (Sunset to Sunrise)
@@ -453,8 +454,8 @@ export class RingsClockCard extends LitElement {
                     end_time: {hours: sunrise.getHours(), minutes: sunrise.getMinutes()},
                     color: this.sunConfig.night_arc_color,
                     ring: 'ring5',
-                    name: 'Night Hours', 
-                    show_in_legend: false, 
+                    name: 'Night Hours',
+                    show_in_legend: false,
                 }, 'night_arc')}
             `;
 
@@ -558,13 +559,14 @@ export class RingsClockCard extends LitElement {
     renderLegends() {
         return html`
             ${repeat(this.rangesConfig, (rangeItem) => html`
-                <div class="legend_item ${classMap({ hidden: !rangeItem.name || rangeItem.show_in_legend === false })}">
-                    <div class="legend_color_box" style="background-color: ${rangeItem.color || 'var(--accent-color, #03a9f4)'};"></div>
+                <div class="legend_item ${classMap({hidden: !rangeItem.name || rangeItem.show_in_legend === false})}">
+                    <div class="legend_color_box"
+                         style="background-color: ${rangeItem.color || 'var(--accent-color, #03a9f4)'};"></div>
                     <span class="legend_name">${rangeItem.name}</span>
                 </div>`)
-        }
+            }
             ${repeat(this.markersConfig, (markerItem) => html`
-                <div class="legend_item ${classMap({ hidden: !markerItem.name || markerItem.show_in_legend === false })}">
+                <div class="legend_item ${classMap({hidden: !markerItem.name || markerItem.show_in_legend === false})}">
                     <div class="legend_icon" style="color: ${markerItem.color || 'var(--primary-text-color, #333)'};">
                         ${(markerItem.icon && markerItem.icon.startsWith('mdi:')) ? html`
                             <ha-icon icon="${markerItem.icon}"></ha-icon>` : html`
@@ -572,7 +574,7 @@ export class RingsClockCard extends LitElement {
                     </div>
                     <span class="legend_name">${markerItem.name}</span>
                 </div>`)
-        }
+            }
         `;
     }
 
