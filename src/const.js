@@ -5,3 +5,10 @@ export const CARD_VERSION = '0.0.0';
 export const DEFAULT_SUNRISE_ICON_TEXT = '↑';
 export const DEFAULT_SUNSET_ICON_TEXT = '↓';
 export const DEFAULT_CUSTOM_MARKER_ICON_TEXT = '•';
+export const RING_RADII = {
+    'ring1': 30,
+    'ring2': 25,
+    'ring3': 20,
+    'ring4': 15,
+    'ring5': 50, // Often used for outer ring
+};
