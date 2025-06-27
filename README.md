@@ -79,7 +79,7 @@ Or
 ### Markers Options
 | **Name**       | **Type** | **Requirement** | **Description**                                                                                                            | **Default**                     |
 |----------------|----------|-----------------|----------------------------------------------------------------------------------------------------------------------------|---------------------------------|
-| marker         | string   | Required        | The time for the marker (e.g., "12:00") or an entity ID (e.g., input_datetime.my_event_time or sensor.my_sensor#my_event). | None                            |
+| time           | string   | Required        | The time for the marker (e.g., "12:00") or an entity ID (e.g., input_datetime.my_event_time or sensor.my_sensor#my_event). | None                            |
 | name           | string   | Optional        | Name for the marker legend entry.                                                                                          | None                            |
 | icon           | string   | Optional        | An MDI icon for the marker.                                                                                                | •                               |
 | color          | string   | Optional        | Custom color for the marker (e.g., "gold" or "green").                                                                     | var(--primary-text-color, #333) |
@@ -135,7 +135,7 @@ ranges:
     color: '#9C27B0' # Purple for night
     name: 'Sleep Time'
 markers:
-  - marker: '08:00'
+  - time: '08:00'
     name: 'Breakfast'
     icon: 'mdi:silverware-fork-knife'
     color: '#FF5722' # Orange
@@ -143,11 +143,11 @@ markers:
     name: 'My Event'
     icon: 'mdi:dumbbell'
     color: '#00BCD4' # Cyan
-  - marker: 'input_datetime.gym_time' # Marker from an entity
+  - time: 'input_datetime.gym_time' # Marker from an entity
     name: 'Gym Session'
     icon: 'mdi:dumbbell'
     color: '#673AB7' # Deep Purple
-  - marker: '22:00'
+  - time: '22:00'
     name: 'Bedtime Reminder'
     icon: 'mdi:bed-empty'
     color: '#795548' # Brown

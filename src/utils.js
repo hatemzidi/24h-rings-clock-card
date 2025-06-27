@@ -81,6 +81,14 @@ export function dateToAngle(date) {
 }
 
 
+export function getCoordFromDegrees(angle, radius) {
+    const x = Math.sin(degToRad(angle));
+    const y = -Math.cos(degToRad(angle));
+    const coordX = x * radius + 100 / 2;
+    const coordY = y * radius + 100 / 2;
+    return [coordX, coordY];
+}
+
 /**
  * Converts degrees to radians.
  * @param {number} degrees - Angle in degrees.
@@ -122,7 +130,6 @@ export function getSize(inputString) {
     if (sizeMap.has(normalizedInput)) {
         return sizeMap.get(normalizedInput);
     } else {
-        console.warn(`Invalid size input: ${inputString}. Returning null.`);
         return null;
     }
 }

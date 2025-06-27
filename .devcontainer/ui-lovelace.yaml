@@ -42,16 +42,17 @@ views:
                 name: Another Event
                 width: XS
             markers:
-              - marker: '12:00'
+              - time: '12:00'
                 name: Noon
                 icon: mdi:white-balance-sunny
                 color: gold
+                indicator: dot
                 show_in_legend: false
-              - marker: '22:31'
+              - time: '22:31'
                 name: Bedtime
                 icon: mdi:bed
                 color: purple
-              - marker: input_datetime.my_custom_marker_time
+              - time: input_datetime.my_custom_marker_time
                 name: Meeting
                 icon: mdi:calendar-star
                 color: green

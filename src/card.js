@@ -1,9 +1,9 @@
-import { html, svg, LitElement, nothing } from 'lit';
-import { classMap } from 'lit/directives/class-map.js';
-import { styleMap } from 'lit/directives/style-map.js';
-import { map } from 'lit/directives/map.js';
-import { range } from 'lit/directives/range.js';
-import { repeat } from 'lit/directives/repeat.js';
+import {html, svg, LitElement, nothing} from 'lit';
+import {classMap} from 'lit/directives/class-map.js';
+import {styleMap} from 'lit/directives/style-map.js';
+import {map} from 'lit/directives/map.js';
+import {range} from 'lit/directives/range.js';
+import {repeat} from 'lit/directives/repeat.js';
 
 import * as Constants from './const';
 import * as Utils from "./utils";
@@ -111,13 +111,15 @@ export class RingsClockCard extends LitElement {
                                         viewBox="0 0 100 100"
                                         preserveAspectRatio="xMidYMid meet"
                                 >
-                                    ${this.rangesConfig.map((range, idx) => this.renderRing(range, idx))}
-
                                     ${this.renderDayNightArc()}
-
-                                    ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
+                                    ${this.renderSunMarkers()}
                                     
-                                    ${this.renderHourHand()};
+                                    ${this.rangesConfig.map((range, idx) => this.renderRing(range, idx))}
+                                    
+                                    ${this.markersConfig.map((marker, idx) => this.renderMarker(marker, idx))}
+
+                                    
+                                    ${this.renderHourHand()}
                                     
                                 </svg>
                             </div>
@@ -200,23 +202,37 @@ export class RingsClockCard extends LitElement {
 
     // Custom Markers
     /**
-     * Renders a single custom marker on the clock face.
+     * Renders the marker
      * @param {object} markerConfig - Configuration for the custom marker.
      * @param {number} index - Index of the marker, used for unique ID.
      */
-    renderMarker(markerConfig, index) {
-        const time = Utils.parseTime(markerConfig.marker, this._hass);
+
+    renderMarker(markerConfig, index){
+        if (markerConfig.indicator === 'dot')
+            return svg`${this.renderDot(markerConfig, index)}`;
+        else // default
+            return svg`${this.renderEvent(markerConfig, index)}`;
+    }
+
+
+    /**
+     * Renders a single custom marker on the clock face.
+     * @param {Object} eventConfig - Configuration for the event marker.
+     * @param {number} index - Index of the event, used for unique ID.
+     */
+    renderEvent(eventConfig, index) {
+        const time = (typeof eventConfig.time === 'object' && eventConfig.time !== null) ? eventConfig.time : Utils.parseTime(eventConfig.time, this._hass);
 
         if (!time) {
-            return html``;
+            return svg``;
         }
-        const markerAngle = Utils.timeToAngle(time);
-        const color = markerConfig.color || 'var(--primary-text-color, #333)';
+        const eventAngle = Utils.timeToAngle(time);
+        const color = eventConfig.color || 'var(--primary-text-color, #333)';
 
         return svg`<g                    
                     id="marker_${index}"
                     class="marker"
-                    transform="rotate(${markerAngle + 180} 50 50)"
+                    transform="rotate(${eventAngle + 180} 50 50)"
                     >
                         <path stroke="var(--card-background-color, white)" 
                               stroke-linejoin="bevel" 
@@ -475,52 +491,37 @@ export class RingsClockCard extends LitElement {
                 "sunset_icon": "mdi:weather-night",
                 "show_day_night_arcs": true
             },
-            "ranges": [
-                {
-                    "start_time": "0:00",
-                    "end_time": "8:00",
-                    "ring": "ring4",
-                    "name": "Daylight Hours",
-                    "color": "purple",
-                    "width": "S",
-                },
-                {
-                    "start_time": "input_datetime.start_time",
-                    "end_time": "input_datetime.end_time",
-                    "ring": "ring3",
-                    "color": "pink",
-                    "name": "Custom Event",
-                    "width": "M",
-                },
-                {
-                    "start_time": "06:00",
-                    "end_time": "18:00",
-                    "ring": "ring2",
-                    "name": "Daylight Hours",
-                    "width": "XS",
-                }
-            ],
-            "markers": [
-                {
-                    "marker": "12:00",
-                    "name": "Noon",
-                    "icon": "mdi:white-balance-sunny",
-                    "color": "gold",
-                    "show_in_legend": false
-                },
-                {
-                    "marker": "22:31",
-                    "name": "Bedtime",
-                    "icon": "mdi:bed",
-                    "color": "purple"
-                },
-                {
-                    "marker": "input_datetime.my_custom_marker_time",
-                    "name": "Meeting",
-                    "icon": "mdi:calendar-star",
-                    "color": "green"
-                }
-            ]
+            "ranges": [{
+                "start_time": "0:00",
+                "end_time": "8:00",
+                "ring": "ring4",
+                "name": "Daylight Hours",
+                "color": "purple",
+                "width": "S",
+            }, {
+                "start_time": "input_datetime.start_time",
+                "end_time": "input_datetime.end_time",
+                "ring": "ring3",
+                "color": "pink",
+                "name": "Custom Event",
+                "width": "M",
+            }, {
+                "start_time": "06:00", "end_time": "18:00", "ring": "ring2", "name": "Daylight Hours", "width": "XS",
+            }],
+            "markers": [{
+                "time": "12:00",
+                "name": "Noon",
+                "icon": "mdi:white-balance-sunny",
+                "color": "gold",
+                "show_in_legend": false
+            }, {
+                "time": "22:31", "name": "Bedtime", "icon": "mdi:bed", "color": "purple"
+            }, {
+                "time": "input_datetime.my_custom_marker_time",
+                "name": "Meeting",
+                "icon": "mdi:calendar-star",
+                "color": "green"
+            }]
         };
     }
 }
