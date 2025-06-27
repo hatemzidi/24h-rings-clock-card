@@ -105,7 +105,7 @@ export class RingsClockCard extends LitElement {
                             <div class="hours-markers">
                                 ${map(range(24), (i) => this.renderHourMarker(i))}
                             </div>
-                            <div class="center-dot" style="${styleMap({background: this.handColor})}"></div>
+                            
                             <div class="svg-container">
                                 <svg
                                         viewBox="0 0 100 100"
