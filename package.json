@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "source": "src/index.js",
   "module": "dist/24h-rings-clock-card.js",
   "description": "Minimalistic rings card for Home Assistant Lovelace UI",
@@ -21,7 +22,7 @@
   "scripts": {
     "watch": "parcel watch",
     "lint": "lit-analyzer src",
-    "build": "parcel build",
+    "build": "parcel build --no-source-maps",
     "rollup": "rollup -c",
     "start": "concurrently -n homeassistant,card -c blue,green -k \"echo starting home assistant at http://localhost:8123/... && hass -c /config\" \"rollup -c rollup.config.dev.js --watch -m\""
   },
@@ -31,13 +32,15 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.4.4",
+    "concurrently": "^7.0.0",
     "lit-analyzer": "^2.0.3",
     "parcel": "^2.8.3",
     "rollup": "^4.44.0",
-    "rollup-plugin-serve": "^3.0.0"
+    "rollup-plugin-serve": "^3.0.0",
+    "rollup-plugin-summary": "^3.0.1"
   },
   "dependencies": {
-    "concurrently": "^7.0.0",
+    "@lit-labs/observers": "^2.0.5",
     "lit": "^2.7.4"
   }
 }
