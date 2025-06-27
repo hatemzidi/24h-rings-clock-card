@@ -17,19 +17,22 @@ export default {
         resolve(),
         // Minify JS
         terser({
-            "compress": {
-                "unsafe": true,
+            compress: {
+                unsafe: true,
                 // An extra pass can squeeze out an extra byte or two.
                 passes: 2,
             },
             output: {
-                // "some" preserves @license and @preserve comments
+                // some preserves @license and @preserve comments
                 comments: 'some',
                 inline_script: false,
             },
-            "mangle": true,
-            "keep_fnames": true,
-            "keep_classnames": true
+            ecma: 2021,
+            module: true,
+            warnings: true,
+            mangle: true,
+            keep_fnames: true,
+            keep_classnames: true
         }),
         summary()
     ],
