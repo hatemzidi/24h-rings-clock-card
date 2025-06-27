@@ -21,7 +21,10 @@
   },
   "scripts": {
     "watch": "parcel watch",
-    "lint": "lit-analyzer src",
+    "lint": "npm run lint:lit-analyzer && npm run lint:eslint",
+    "lint:eslint": "eslint '**/*.js'",
+    "lint:lit-analyzer": "lit-analyzer src",
+    "format": "prettier \"**/*.{cjs,html,js,json,md,ts}\" --ignore-path ./.eslintignore --write",
     "build": "parcel build --no-source-maps",
     "rollup": "rollup -c",
     "start": "concurrently -n homeassistant,card -c blue,green -k \"echo starting home assistant at http://localhost:8123/... && hass -c /config\" \"rollup -c rollup.config.dev.js --watch -m\""
@@ -37,7 +40,10 @@
     "parcel": "^2.8.3",
     "rollup": "^4.44.0",
     "rollup-plugin-serve": "^3.0.0",
-    "rollup-plugin-summary": "^3.0.1"
+    "rollup-plugin-summary": "^3.0.1",
+    "@babel/eslint-parser": "^7.17.0",
+    "eslint": "^8.15.0",
+    "prettier": "^2.6.2"
   },
   "dependencies": {
     "@lit-labs/observers": "^2.0.5",
