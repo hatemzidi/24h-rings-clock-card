@@ -77,6 +77,10 @@ export class RingsClockCard extends LitElement {
         this.headerIcon = config.header_icon;
     }
 
+    static getConfigElement() {
+        return document.createElement("rings-clock-card-editor");
+    }
+
     /**
      * Sets the Home Assistant object. This method is called by Home Assistant
      * whenever the Home Assistant state changes.

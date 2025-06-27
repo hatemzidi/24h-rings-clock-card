@@ -1,8 +1,10 @@
 import { RingsClockCard } from "./card";
+import { RingsClockCardEditor } from "./editor";
 import * as Constants from './const';
 
 // Define the custom element for Home Assistant
 customElements.define('rings-clock-card', RingsClockCard);
+customElements.define("rings-clock-card-editor", RingsClockCardEditor);
 
 // Register the card with the Home Assistant custom card registry
 window.customCards = window.customCards || [];
