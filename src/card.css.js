@@ -176,6 +176,7 @@ export default css`
         .hour_marker {
             transform-origin: 50% 135px;
             height: 8px;
+            top: 5px;
         }
 
         .legend_item {
