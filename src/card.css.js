@@ -61,13 +61,6 @@ export default css`
         position: relative;
         margin: 0 auto;
         flex-shrink: 0;
-    }
-
-    .clock-face {
-        width: 380px;
-        height: 380px;
-        border-radius: 50%;
-        position: relative;
         background: var(--card-background-color, #fff);
     }
 
@@ -162,21 +155,16 @@ export default css`
             height: 300px;
         }
         
-        .clock-face {
-            width: 280px;
-            height: 280px;
-        }
-        
         .hour_number {
             font-size: 11px;
-            transform-origin: 50% 115px;
-            top: 25px;
+            transform-origin: 50% 120px;
+            top: 32px;
         }
         
         .hour_marker {
             transform-origin: 50% 135px;
             height: 8px;
-            top: 5px;
+            top: 15px;
         }
 
         .legend_item {

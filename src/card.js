@@ -120,7 +120,7 @@ export class RingsClockCard extends LitElement {
                 </div>
                 <div class="clock-container">
                     <div class="clock">
-                        <div class="clock-face" id="clock-face">
+                        
                             <div class="hours-markers">
                                 ${map(range(24), (i) => this.renderHourMarker(i))}
                             </div>
@@ -142,7 +142,7 @@ export class RingsClockCard extends LitElement {
 
                                 </svg>
                             </div>
-                        </div>
+
                     </div>
                     <div class="legends-container ${classMap({hidden: !this.showLegends})}" id="legends-container">
                         ${this.renderLegends()}
@@ -545,7 +545,7 @@ export class RingsClockCard extends LitElement {
             "hand_color": "#03a9f4",
             "show_hours": true,
             "show_legends": true,
-            "show_header": true, // Set to true to make the header visible in the stub config
+            "show_header": true,
             "sun": {
                 "entity": "sun.sun",
                 "show": true,
@@ -583,7 +583,10 @@ export class RingsClockCard extends LitElement {
                 "indicator": "dot",
                 "show_in_legend": false
             }, {
-                "time": "22:31", "name": "Bedtime", "icon": "mdi:bed", "color": "purple"
+                "time": "22:31",
+                "name": "Bedtime",
+                "icon": "mdi:bed",
+                "color": "purple"
             }, {
                 "time": "input_datetime.my_custom_marker_time",
                 "name": "Reminder",
