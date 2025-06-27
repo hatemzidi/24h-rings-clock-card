@@ -90,10 +90,11 @@ Or
 ### Minimal working config
 ```yaml
 type: custom:rings-clock-card
-show_legends: false # Optional: Hide legends for a more minimal look
+show_legends: false # Hide legends for a more minimal look
 markers:
-  - marker: "14:30"
+  - time: "14:30"
     name: "Meeting"
+    color: '#FF5722' # Orange
     icon: "mdi:calendar-clock"
 ```                            
 
