@@ -110,8 +110,7 @@ sun:
   entity: 'sun.sun'
   show: true
   color: '#FFD700' # Gold color for sun markers
-  sunrise_icon: 'mdi:weather-sunny-alert'
-  sunset_icon: 'mdi:weather-night'
+  show_day_night_arcs: true #Show the day and night arcs
 ranges:
   - start_time: 'input_datetime.work_start' # Using an entity for start time
     end_time: 'input_datetime.work_end'   # Using an entity for end time
