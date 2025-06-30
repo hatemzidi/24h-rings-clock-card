@@ -23,7 +23,7 @@ export class RingsClockCard extends LitElement {
         target: this._clockEl,
         callback: (entries) => {
             entries.map(entry => {
-                this._resizeRatio = entry.contentRect.width <= 200 ? 1.6 : 1;
+                this._resizeRatio = entry.contentRect.width <= 200 ? 1.4 : 1;
             });
         }
     });
@@ -295,6 +295,8 @@ export class RingsClockCard extends LitElement {
             console.warn(`RingsClockCard: Could not parse time for marker "${eventConfig.name || `marker_${index}`}". Skipping marker.`);
             return svg``;
         }
+
+        const magnifier = 1.2;
         const eventAngle = Utils.timeToAngle(time);
         const color = eventConfig.color || 'var(--primary-text-color, #333)';
         const markerLabel = `${eventConfig.name || 'Event'}: ${time.hours.toString().padStart(2, '0')}:${time.minutes.toString().padStart(2, '0')}`;
@@ -308,7 +310,7 @@ export class RingsClockCard extends LitElement {
                     >
                         <path stroke="var(--card-background-color, white)"
                               stroke-linejoin="bevel"
-                              d="M 50 100 l ${2.6775 * this._resizeRatio} ${-4.6375660372656693 * this._resizeRatio} h ${-5.355 * this._resizeRatio} Z"
+                              d="M 50 100 l ${2.6775 * this._resizeRatio * magnifier} ${-4.6375660372656693 * this._resizeRatio * magnifier} h ${-5.355 * this._resizeRatio * magnifier} Z"
                               fill="${color}"
                               stroke-width="0.5"
                               >
