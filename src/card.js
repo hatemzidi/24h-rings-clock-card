@@ -23,7 +23,7 @@ export class RingsClockCard extends LitElement {
         target: this._clockEl,
         callback: (entries) => {
             entries.map(entry => {
-                this._resizeRatio = entry.contentRect.width <= 200 ? 1.4 : 1;
+                this._resizeRatio = entry.contentRect.width <= 200 ? 1.3 : 1;
             });
         }
     });
