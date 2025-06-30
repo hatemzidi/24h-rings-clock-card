@@ -602,7 +602,6 @@ export class RingsClockCard extends LitElement {
             "hand_color": "#03a9f4",
             "show_hours": true,
             "show_legends": true,
-            "show_header": true,
             "sun": {
                 "entity": "sun.sun",
                 "show": true,
