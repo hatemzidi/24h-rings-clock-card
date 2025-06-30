@@ -15,15 +15,15 @@ export class RingsClockCard extends LitElement {
     // LitElement Static Styles
     static styles = styles;
 
-    resizer = 1;
-    clockEl;
+    _resizeRatio = 1; // helps to resize the SVG
+    _clockEl;
 
 
     _resizeObserver = new ResizeController(this, {
-        target: this.clockEl,
+        target: this._clockEl,
         callback: (entries) => {
             entries.map(entry => {
-                this.resizer = entry.contentRect.width <= 200 ? 1.6 : 1;
+                this._resizeRatio = entry.contentRect.width <= 200 ? 1.6 : 1;
             });
         }
     });
@@ -32,9 +32,9 @@ export class RingsClockCard extends LitElement {
     // Reactive Properties
     static get properties() {
         return {
-            hass: {attribute: false}, // Home Assistant object
-            config: {attribute: false}, // Card configuration
-            tic: {attribute: false} // Current angle for the hour hand
+            _hass: {attribute: false}, // Home Assistant object
+            _config: {attribute: false}, // Card configuration
+            _tic: {attribute: false} // Current angle for the hour hand
         };
     }
 
@@ -105,8 +105,8 @@ export class RingsClockCard extends LitElement {
     }
 
     firstUpdated() {
-        this.clockEl = this.renderRoot.querySelector('.clock');
-        this._resizeObserver.observe(this.clockEl);
+        this._clockEl = this.renderRoot.querySelector('.clock');
+        this._resizeObserver.observe(this._clockEl);
 
     }
 
@@ -146,7 +146,7 @@ export class RingsClockCard extends LitElement {
         // Calculate total minutes in a 24-hour cycle for smooth rotation
         const totalMinutes = hours * 60 + minutes + seconds / 60;
         // Each hour is 15 degrees (360 degrees / 24 hours)
-        this.tic = (totalMinutes / (24 * 60)) * 360;
+        this._tic = (totalMinutes / (24 * 60)) * 360;
     }
 
 
@@ -176,7 +176,9 @@ export class RingsClockCard extends LitElement {
                             ${map(range(24), (i) => this.renderHourMarker(i))}
                         </div>
 
-                        <div class="svg-container" role="timer" aria-live="polite"
+                        <div class="svg-container" 
+                             role="timer" 
+                             aria-live="polite"
                              aria-label="24-hour clock displaying current time and configured events">
                             <svg
                                     viewBox="0 0 100 100"
@@ -236,7 +238,7 @@ export class RingsClockCard extends LitElement {
     renderHourHand() {
         return svg`
                     <g class="hour_hand"
-                       transform="rotate(${this.tic} 50 50)">
+                       transform="rotate(${this._tic} 50 50)">
                         <line class="pointer"
                               stroke-linecap="round"
                               x1="50"
@@ -306,7 +308,7 @@ export class RingsClockCard extends LitElement {
                     >
                         <path stroke="var(--card-background-color, white)"
                               stroke-linejoin="bevel"
-                              d="M 50 100 l ${2.6775 * this.resizer} ${-4.6375660372656693 * this.resizer} h ${-5.355 * this.resizer} Z"
+                              d="M 50 100 l ${2.6775 * this._resizeRatio} ${-4.6375660372656693 * this._resizeRatio} h ${-5.355 * this._resizeRatio} Z"
                               fill="${color}"
                               stroke-width="0.5"
                               >
@@ -331,8 +333,8 @@ export class RingsClockCard extends LitElement {
         }
 
         const ringWidth = Constants.RING_RADII['ring5']; // outer radius for positioning of the dot
-        const dotOutline = 0.7 * this.resizer;
-        const dotRadius = 1.7 * this.resizer;
+        const dotOutline = 0.7 * this._resizeRatio;
+        const dotRadius = 1.7 * this._resizeRatio;
 
         const color = dotConfig.color || 'var(--primary-text-color, #333)';
 
@@ -485,7 +487,7 @@ export class RingsClockCard extends LitElement {
     renderRing(rangeConfig, id) {
         // Default to 'ring1' if not specified or an invalid ring name is provided.
         let ringRadius = Constants.RING_RADII[rangeConfig.ring] || Constants.RING_RADII['ring1'];
-        ringRadius = (rangeConfig.ring === 'ring5') ? ringRadius : ringRadius * this.resizer;
+        ringRadius = (rangeConfig.ring === 'ring5') ? ringRadius : ringRadius * this._resizeRatio;
 
 
         // Parse start and end times, handling both direct objects and strings/entity IDs.
@@ -511,7 +513,7 @@ export class RingsClockCard extends LitElement {
 
         const color = rangeConfig.color || 'var(--accent-color, #03a9f4)';
         // Default width if not specified or invalid, assuming Utils.getSize handles 'XS', 'S', etc.
-        const arcWidth = Utils.getSize(rangeConfig.width) * this.resizer || 3;
+        const arcWidth = Utils.getSize(rangeConfig.width) * this._resizeRatio || 3;
 
         // Calculate the start and end points of the arc for SVG 'A' command.
         // SVG arc direction is clockwise, but our angle system is often counter-clockwise (0 at top, increasing clockwise).
