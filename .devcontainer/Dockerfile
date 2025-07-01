@@ -12,7 +12,7 @@ RUN apt-get update; \
         curl \
     ; \
     apt-get install -y libopenjp2-7 libtiff6 tzdata sqlite3; \
-    apt-get install -y python3-dev python3-venv autoconf libssl-dev libxml2-dev libxslt1-dev libjpeg-dev libffi-dev libudev-dev zlib1g-dev \
+    apt-get install -y python3-dev python3-venv autoconf libssl-dev libxml2-dev libxslt1-dev libjpeg-dev libffi-dev libudev-dev zlib1g-dev libturbojpeg0 \
     pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev ffmpeg libgammu-dev build-essential;\
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
