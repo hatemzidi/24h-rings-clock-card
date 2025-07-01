@@ -11,16 +11,17 @@ Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, c
 - [Installation](#installation)
     - [HACS](#hacs)
     - [Manual](#manual)
-- [Configuration](#configuration)
-    - [Options](#options)
+- [Configuration](#configuration) 
 - [Examples](#examples)
     - [Minimal working config](#minimal-working-config)
     - [Full examples](#full-examples)
 - [Known issues](#known-issues)
+- [For Developers](#for-developers)
+- [Inspiration](#inspiration)
 
 ## Installation
 
-### HACS
+### HACS (Recommanded)
 This card is available in [HACS][hacs] (Home Assistant Community Store).
 Just search for `24H Rings Clock Card` in Frontend tab.
 
@@ -38,7 +39,7 @@ Or
 
 ## Configuration
 
-### Options
+### Global Options
 | **Name**     | **Type** | **Requirement** | **Description**                                                                      | **Default**                  |
 |--------------|----------|-----------------|--------------------------------------------------------------------------------------|------------------------------|
 | type         | string   | Required        | The card type. Must be custom:rings-clock-card.                                      | custom:rings-clock-card      |
@@ -156,6 +157,16 @@ markers:
 ## Known issues
 When you discover any bugs please open an [issue](https://github.com/hatemzidi/24h-rings-clock-card/issues).
 
+## For developers
+If you want to add a feature or fix a bug by yourself, follow these instructions:
+
+1. Open the project inside a devcontainer.
+2. Run npm start.
+3. Open the browser and go to http://localhost:8123/.
+4. Make changes and debug using the home assistant instance.
+
+## Inspiration
+This card's UI is inspired by [ring-tile-card](https://github.com/neponn/ring-tile-card).
 
 ---
 [![beer](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](https://buymeacoffee.com/hatemzidi)
