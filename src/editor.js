@@ -33,7 +33,7 @@ export class RingsClockCardEditor extends LitElement {
          return html`
              <div class="table">
                  <div class="row">
-                     Work in progress, please use the YAML Editor instead, for the moment.
+                     <b>Feature under development.</b> For the time being, please configure using the YAML Editor.
                  </div>
              </div>
          `;
