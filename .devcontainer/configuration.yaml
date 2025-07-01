@@ -32,3 +32,33 @@ input_datetime:
     has_date: false
     has_time: true
     initial: '14:51'
+
+template:
+  - trigger:
+      - platform: time_pattern
+        seconds: "/1"
+    sensor:
+      - name: Running hour
+        unique_id: running_hour
+        state: >
+          {% set current_second = now().second % 24 %}
+          {{ current_second % 24 }}:00
+        attributes:
+          datum: >
+            {% set current_second = now().second % 24 %}
+            {{ current_second % 24 }}:30
+
+  - trigger:
+      - platform: time_pattern
+        seconds: "/1"
+    sensor:
+      - name: Running hour (6h Late)
+        unique_id: running_hour_6hr_late
+        icon: mdi:clock-minus-outline
+        state: >
+          {% set current_second_mapped = now().second % 24 %}
+          {{ (current_second_mapped - 6) % 24 }}:00
+        attributes:
+          datum: >
+            {% set current_second_mapped = now().second % 24 %}
+            {{ (current_second_mapped - 6) % 24 }}:30
