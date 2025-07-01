@@ -11,6 +11,7 @@ window.customCards = window.customCards || [];
 window.customCards.push({
     type: 'rings-clock-card',
     name: '24-Hours Rings Clock Card',
+    preview: true,
     description: Constants.CARD_DESCRIPTION
 });
 
