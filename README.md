@@ -9,7 +9,7 @@ Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, c
 
 ## TOC
 - [Installation](#installation)
-    - [HACS](#hacs)
+    - [HACS](#hacs-recommanded)
     - [Manual](#manual)
 - [Configuration](#configuration) 
 - [Examples](#examples)
@@ -25,7 +25,7 @@ Enhanced Minimalistic 24-hours analog clock with time ranges, sun information, c
 This card is available in [HACS][hacs] (Home Assistant Community Store).
 Just search for `24H Rings Clock Card` in Frontend tab.
 
-Or 
+Or just... 
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hatemzidi&repository=24h-rings-clock-card&category=plugin)
 
@@ -139,8 +139,8 @@ markers:
     name: 'Breakfast'
     icon: 'mdi:silverware-fork-knife'
     color: '#FF5722' # Orange
-    indicator: 'dot'
-  - marker: 'sensor.my_sensor#event' # Marker from a sensor
+    indicator: 'dot'  # make is as dot
+  - time: 'sensor.my_sensor#event' # Marker from a sensor
     name: 'My Event'
     icon: 'mdi:dumbbell'
     color: '#00BCD4' # Cyan
