@@ -71,6 +71,7 @@ export class RingsClockCard extends LitElement {
         this.handColor = config.hand_color || 'var(--accent-color, #03a9f4)';
         this.showHours = config.show_hours !== false;
         this.showLegends = config.show_legends !== false;
+        this.noonAt = config.noon_at || 'bottom';
 
         // Header specific configuration
         this.headerTitle = config.title;
@@ -170,7 +171,9 @@ export class RingsClockCard extends LitElement {
                     </div>
                 </div>
                 <div class="clock-container">
-                    <div class="clock">
+                    <div class="clock" 
+                         style="transform: rotate(${(Constants.NOON_POSITION[this.noonAt.toUpperCase()] ??=0)}deg)"
+                    >
 
                         <div class="hours-markers">
                             ${map(range(24), (i) => this.renderHourMarker(i))}
@@ -224,9 +227,9 @@ export class RingsClockCard extends LitElement {
             </div>
             <div
                     class="hour_number ${classMap({hidden: !this.showHours})}"
-                    style="transform: translateX(-50%) rotate(${hour * 15}deg)"
+                    style="transform: translateX(-50%) rotate(${hour * 15}deg )"
             >
-                <span style="transform: rotate(${-hour * 15}deg)">${hour.toString().padStart(2, '0')}</span>
+                <span style="transform: rotate(${-hour * 15 + ( 360 - (Constants.NOON_POSITION[this.noonAt.toUpperCase()] ??=0)) }deg)">${hour.toString().padStart(2, '0')}</span>
             </div>
         `;
     }
@@ -606,6 +609,7 @@ export class RingsClockCard extends LitElement {
             "hand_color": "#03a9f4",
             "show_hours": true,
             "show_legends": true,
+            "noon_at": "bottom",
             "sun": {
                 "entity": "sun.sun",
                 "show": true,
