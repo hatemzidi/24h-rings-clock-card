@@ -48,6 +48,7 @@ Or just...
 | hand_color   | string   | Optional        | Custom color for the hour hand and the center dot (e.g., "#FF0000" or "red").        | var(--accent-color, #03a9f4) |
 | show_hours   | boolean  | Optional        | Show/hide the hour numbers (00-23) on the clock face.                                | true                         |
 | show_legends | boolean  | Optional        | Show/hide the legends at the bottom of the card for ranges, markers, and sun events. | true                         |
+| noon_at      | string   | Optional        | Position of Noon at the top, right, bottom or left of the clock                      | bottom                       |
 | sun          | object   | Optional        | [Sun options](#sun-options) to display sunrise and sunset markers.                   | See Sun Options              |
 | ranges       | array    | Optional        | An array of [Range options](#ranges-options) to define custom time arcs.             | []                           |
 | markers      | array    | Optional        | An array of [Marker options](#markers-options) to define custom time markers.        | []                           |
@@ -108,6 +109,7 @@ hand_color: '#DC143C' # Crimson red for the hour hand
 show_rings: true
 show_hours: true
 show_legends: true
+noon_at: top
 sun:
   entity: 'sun.sun'
   show: true
