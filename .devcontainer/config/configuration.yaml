@@ -4,6 +4,8 @@ lovelace:
     - url: http://127.0.0.1:5555/24h-rings-clock-card.js
       type: module
 
+default_config:
+
 demo:
 
 input_datetime:

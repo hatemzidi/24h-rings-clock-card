@@ -29,11 +29,15 @@ RUN mkdir -p "$NVM_DIR"; \
 
 # Install Home Assistant.
 RUN python3 -m pip install wheel; \
-    pip3 install homeassistant; \
-    pip3 install home-assistant-frontend; \
+    pip3 install hassil home_assistant_intents mutagen pymicro_vad pyspeex_noise PyTurboJPEG;\
+    pip3 install ha-ffmpeg;\
+    pip3 install async-upnp-client; \
+    pip3 install aiodhcpwatcher;\
+    pip3 install homeassistant==2025.9.4; \
+    pip3 install home-assistant-frontend==20250926.0; \
     pip3 install zlib_ng isal; \
     pip3 install PyNaCl; \
     mkdir -p /config
 
-COPY configuration.yaml /config/configuration.yaml
-COPY ui-lovelace.yaml /config/ui-lovelace.yaml
+COPY config/configuration.yaml /config/configuration.yaml
+COPY config/ui-lovelace.yaml /config/ui-lovelace.yaml

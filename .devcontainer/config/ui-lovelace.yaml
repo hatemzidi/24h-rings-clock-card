@@ -11,6 +11,7 @@ views:
             show_hours: true
             show_legends: true
             show_header: false
+            noon_at: top
             sun:
               entity: sun.sun
               show: true
@@ -41,6 +42,12 @@ views:
                 color: red
                 name: Another Event
                 width: XS
+              - start_time: sensor.running_hour
+                end_time: sensor.running_hour_6h_late
+                ring: ring1
+                name: Dynamic
+                width: S
+                color: cyan
             markers:
               - time: '12:00'
                 name: Noon
@@ -56,3 +63,7 @@ views:
                 name: Meeting
                 icon: mdi:calendar-star
                 color: green
+              - time: sensor.running_hour
+                name: Running hour
+                icon: mdi:calendar-star
+                color: yellow
