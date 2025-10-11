@@ -65,15 +65,15 @@ Or just...
 
 
 ### Ranges Options
-| **Name**       | **Type** | **Requirement** | **Description**                                                                                                                | **Default**                  |
-|----------------|----------|-----------------|--------------------------------------------------------------------------------------------------------------------------------|------------------------------|
-| start_time     | string   | Required        | The start time of the arc (e.g., "06:00") or an entity ID (e.g., input_datetime.my_start_time or sensor.my_sensor#start_time). | None                         |
-| end_time       | string   | Required        | The end time of the arc (e.g., "18:00") or an entity ID (e.g., input_datetime.my_end_time or sensor.my_sensor#end_time).       | None                         |
-| ring           | string   | Optional        | Specifies which ring the arc should be drawn on (ring1, ring2, ring3, or ring4).                                               | ring1                        |
-| color          | string   | Optional        | Custom color for the arc (e.g., "#03a9f4" or "blue").                                                                          | var(--accent-color, #03a9f4) |
-| name           | string   | Optional        | Name for the arc legend entry.                                                                                                 | None                         |
-| show_in_legend | boolean  | Optional        | Show/hide the color and the name of the range in the legends.                                                                  | true                         |
-| width          | string   | Optional        | Specifies the width of the ring. Should be XS, S, M or L.                                                                      | M                            |
+| **Name**       | **Type** | **Requirement** | **Description**                                                                                                                                                                 | **Default**                  |
+|----------------|----------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------|
+| start_time     | string   | Required        | The start time of the arc (e.g., "06:00"), an entity ID (e.g., input_datetime.my_start_time, sensor.my_sensor, sensor.my_sensor#start_time or calendar.my_calendar#start_time). | None                         |
+| end_time       | string   | Required        | The end time of the arc (e.g., "18:00"), an entity ID (e.g., input_datetime.my_end_time, sensor_my_sensor, sensor.my_sensor#end_time or calendar.my_calendar#end_time).         | None                         |
+| ring           | string   | Optional        | Specifies which ring the arc should be drawn on (ring1, ring2, ring3, or ring4).                                                                                                | ring1                        |
+| color          | string   | Optional        | Custom color for the arc (e.g., "#03a9f4" or "blue").                                                                                                                           | var(--accent-color, #03a9f4) |
+| name           | string   | Optional        | Name for the arc legend entry.                                                                                                                                                  | None                         |
+| show_in_legend | boolean  | Optional        | Show/hide the color and the name of the range in the legends.                                                                                                                   | true                         |
+| width          | string   | Optional        | Specifies the width of the ring. Should be XS, S, M or L.                                                                                                                       | M                            |
 
 ### Markers Options
 | **Name**       | **Type** | **Requirement** | **Description**                                                                                                            | **Default**                     |
@@ -122,8 +122,8 @@ ranges:
   - start_time: 'sensor.my_sensor#start' #  Using a sensor for start time
     end_time: 'sensor.my_sensor#end'   # Using a sensor for end time
     ring: 'ring4'
-    color: '#4CAF50' 
-    name: 'Focus Hours'    
+    color: 'gold' 
+    name: 'Focus Hours' 
   - start_time: '18:00'
     end_time: '23:00'
     ring: 'ring2'
