@@ -630,6 +630,7 @@ export class RingsClockCard extends LitElement {
                 "name": "Early Morning",
                 "color": "purple",
                 "width": "S",
+                "line_cap": "butt"
             }, {
                 "start_time": "input_datetime.start_time",
                 "end_time": "input_datetime.end_time",
