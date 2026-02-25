@@ -543,7 +543,12 @@ export class RingsClockCard extends LitElement {
 
         // Line cap logic: 'butt' for 'ring5' (often used for background/day-night arcs)
         // and 'round' for other rings, providing a visually distinct style.
-        const lineCap = rangeConfig.ring === 'ring5' ? 'butt' : 'round';
+        let lineCap;
+        if (rangeConfig.ring === 'ring5') {
+            lineCap = 'butt';
+        } else {
+            lineCap = rangeConfig.line_cap ? rangeConfig.line_cap : 'round';
+        }
 
         // Accessibility label for the arc.
         const arcLabel = `${rangeConfig.name || 'Time Range'}: ${startTime.hours.toString().padStart(2, '0')}:${startTime.minutes.toString().padStart(2, '0')} to ${endTime.hours.toString().padStart(2, '0')}:${endTime.minutes.toString().padStart(2, '0')}`;
