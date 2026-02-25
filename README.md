@@ -70,8 +70,9 @@ Or just...
 |----------------|----------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------|
 | start_time     | string   | Required        | The start time of the arc (e.g., "06:00"), an entity ID (e.g., input_datetime.my_start_time, sensor.my_sensor, sensor.my_sensor#start_time or calendar.my_calendar#start_time). | None                         |
 | end_time       | string   | Required        | The end time of the arc (e.g., "18:00"), an entity ID (e.g., input_datetime.my_end_time, sensor_my_sensor, sensor.my_sensor#end_time or calendar.my_calendar#end_time).         | None                         |
-| ring           | string   | Optional        | Specifies which ring the arc should be drawn on (ring1, ring2, ring3, or ring4).                                                                                                | ring1                        |
+| ring           | string   | Optional        | Specifies which ring the arc should be drawn on (`ring1`, `ring2`, `ring3`, `ring4` or `ring5`).                                                                                | ring1                        |
 | color          | string   | Optional        | Custom color for the arc (e.g., "#03a9f4" or "blue").                                                                                                                           | var(--accent-color, #03a9f4) |
+| line_cap       | string   | Optional        | Style of the line (`round`, `square`or `butt`).                                                                                                                                 | round                        |
 | name           | string   | Optional        | Name for the arc legend entry.                                                                                                                                                  | None                         |
 | show_in_legend | boolean  | Optional        | Show/hide the color and the name of the range in the legends.                                                                                                                   | true                         |
 | width          | string   | Optional        | Specifies the width of the ring. Should be XS, S, M or L.                                                                                                                       | M                            |
@@ -83,7 +84,7 @@ Or just...
 | name           | string   | Optional        | Name for the marker legend entry.                                                                                          | None                            |
 | icon           | string   | Optional        | An MDI icon for the marker.                                                                                                | •                               |
 | color          | string   | Optional        | Custom color for the marker (e.g., "gold" or "green").                                                                     | var(--primary-text-color, #333) |
-| indicator      | string   | Optional        | Show it either as marker or as dot                                                                                         | marker                          |
+| indicator      | string   | Optional        | Show it either as `marker` or as `dot`                                                                                         | marker                          |
 | show_in_legend | boolean  | Optional        | Show/hide the colored icon and the name of the marker in the legends.                                                      | true                            |
 
 
@@ -121,6 +122,7 @@ ranges:
     ring: 'ring1'
     color: '#4CAF50' # Green for work hours
     name: 'Work Hours'
+    line_cap: 'butt' # make the line not round
   - start_time: 'sensor.my_sensor#start' #  Using a sensor for start time
     end_time: 'sensor.my_sensor#end'   # Using a sensor for end time
     ring: 'ring4'
