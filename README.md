@@ -84,7 +84,7 @@ Or just...
 | name           | string   | Optional        | Name for the marker legend entry.                                                                                          | None                            |
 | icon           | string   | Optional        | An MDI icon for the marker.                                                                                                | •                               |
 | color          | string   | Optional        | Custom color for the marker (e.g., "gold" or "green").                                                                     | var(--primary-text-color, #333) |
-| indicator      | string   | Optional        | Show it either as `marker` or as `dot`                                                                                         | marker                          |
+| indicator      | string   | Optional        | Show it either as `marker` or as `dot`                                                                                     | marker                          |
 | show_in_legend | boolean  | Optional        | Show/hide the colored icon and the name of the marker in the legends.                                                      | true                            |
 
 
@@ -123,12 +123,12 @@ ranges:
     color: '#4CAF50' # Green for work hours
     name: 'Work Hours'
     line_cap: 'butt' # make the line not round
-  - start_time: 'sensor.my_sensor#start' #  Using a sensor for start time
-    end_time: 'sensor.my_sensor#end'   # Using a sensor for end time
+  - start_time: 'sensor.my_sensor#start' #  Using a sensor's attribut for start time
+    end_time: 'sensor.my_sensor#end'   # Using a sensor's attribut for end time
     ring: 'ring4'
     color: 'gold' 
-    name: 'Focus Hours' 
-  - start_time: '18:00'
+    name: 'Focus Hours'  
+  - start_time: '18:00' #  Fixed hour
     end_time: '23:00'
     ring: 'ring2'
     color: '#2196F3' # Blue for evening
@@ -143,7 +143,7 @@ markers:
     name: 'Breakfast'
     icon: 'mdi:silverware-fork-knife'
     color: '#FF5722' # Orange
-    indicator: 'dot'  # make is as dot
+    indicator: 'dot'  # make it as dot
   - time: 'sensor.my_sensor#event' # Marker from a sensor
     name: 'My Event'
     icon: 'mdi:dumbbell'
